@@ -42,7 +42,7 @@ def rec_monomers():
     """
     Monomer('EGF', ['b']) # Epidermal Growth Factor ligand
     Monomer('HRG', ['b']) # Heregulin ligand
-    Monomer('erbb', ['bl', 'bd', 'b', 'ty', 'st', 'loc'], {'ty':['1','2','3','4'], 'st':['U','P'], 'loc':['C','E']}) # bl: lig, bd: dimer, b: binding, ty: rec type, st: (U)n(P)hosphorylated, loc: (C)yto 'brane or (E)ndosome 'brane
+    Monomer('erbb', ['bl', 'bd', 'b', 'ty', 'st', 'loc', 'pi3k1', 'pi3k2', 'pi3k3', 'pi3k4', 'pi3k5', 'pi3k6'], {'ty':['1','2','3','4'], 'st':['U','P'], 'loc':['C','E']}) # bl: lig, bd: dimer, b: binding, ty: rec type, st: (U)n(P)hosphorylated, loc: (C)yto 'brane or (E)ndosome 'brane
 
     Monomer('DEP', ['b'])
     Monomer('ATP', ['b'])
@@ -64,10 +64,10 @@ def rec_initial():
 
     Initial(EGF(b=None), EGF_0)
     Initial(HRG(b=None), HRG_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='1', st='U', loc='C'), erbb1_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='2', st='U', loc='C'), erbb2_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='3', st='U', loc='C'), erbb3_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='4', st='U', loc='C'), erbb4_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='1', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb1_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='2', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb2_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='3', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb3_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='4', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb4_0)
     Initial(ATP(b=None), ATP_0)
     Initial(DEP(b=None), DEP_0)
 
@@ -297,7 +297,7 @@ def akt_monomers():
 """
     #This pathway coded by Tim O'Brien.
     Monomer('GAB1', ['bgrb2', 'bshp2', 'bpi3k', 'bpi3k2', 'bpi3k3', 'bpi3k4', 'bpi3k5', 'bpi3k6','batp','bERKPP','bPase9t','S'],{'S':['U','P','PP']})
-    Monomer('PI3K',['bgab1','bpip', 'bras'])
+    Monomer('PI3K',['bgab1','bpip', 'bras', 'berb'])
     Monomer('SHP2',['bgab1'])
     Monomer('PIP', ['bakt', 'both', 'S', 'bpi3k'], {'S':['PIP2', 'PIP3']})
     Monomer('PTEN', ['bpip3', 'both'])
@@ -322,7 +322,7 @@ def akt_initial():
     
     # Initial conditions 
     Initial(GAB1(bgrb2=None, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None, batp=None, bERKPP=None, bPase9t=None, S='U'), GAB1_0)
-    Initial(PI3K(bgab1=None, bpip=None, bras=None), PI3K_0)
+    Initial(PI3K(bgab1=None, bpip=None, bras=None, berb=None), PI3K_0)
     Initial(SHP2(bgab1=None), SHP2_0)
     Initial(PIP(bakt=None, both=None, S='PIP2', bpi3k=None), PIP_0)
     Initial(PTEN(bpip3=None, both=None), PTEN_0)
@@ -364,14 +364,16 @@ def akt_events():
 
     #ErbB2-ErbB3 dimers bound to GAB1 contain 6 binding domains for PI3K.
     for i in range(1,6):
-         pi3k_string_beg = '+ PI3K(bpip=None) + PIP(S="PIP2")'
-         pi3k_string_end = '+ PI3K(bpip=None) + PIP(S="PIP3")'
-         Rule('ErbB2_3bindPI3K'+str(i),
-              erbb(bd=1, ty='2') % erbb(bd=1, ty='3') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') i*pi3k_string_beg<>
-              erbb(bd=1, ty='2') % erbb(bd=1, ty='3') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') i*pi3k_string_end,
-              Parameter('GAB1PI3Kf'+str(i), 1e-5),
-              Parameter('GAB1PI3Kr'+str(i), 1e-1))
-             
+        rfix=Rule('ErbB2_3bindPI3K_'+str(i),
+                  erbb(bd=1, ty='2') % erbb(bd=1, ty='3') + PI3K(bpip=None, berb=None) <>  erbb(bd=1, ty='2') % erbb(bd=1, ty='3') + PI3K(bpip=None, berb=1),
+                  Parameter('GAB1PI3Kf'+str(i), 1e-5),
+                  Parameter('GAB1PI3Kr'+str(i), 1e-1))
+        m=rfix.reactant_pattern.complex_patterns[0].monomer_patterns[1]
+        m.site_conditions = {'bd' : 1, 'ty':'3', 'pi3k'+str(i):None}
+        m=rfix.product_pattern.complex_patterns[0].monomer_patterns[1]
+        m.site_conditions = {'bd' : 1, 'ty':'3', 'pi3k'+str(i):1}
+    
+    
     #gsites= ['bpi3k2'] #, 'bpi3k3', 'bpi3k4', 'bpi3k5', 'bpi3k6']
                        #GAB1specs_none=[GAB1(bpi3k2=None, bshp2=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P')]
     #GAB1specs_b=[GAB1(bpi3k2=1, bshp2=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P')]
