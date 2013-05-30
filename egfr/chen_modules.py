@@ -42,34 +42,56 @@ def rec_monomers():
     """
     Monomer('EGF', ['b']) # Epidermal Growth Factor ligand
     Monomer('HRG', ['b']) # Heregulin ligand
-    Monomer('erbb', ['bl', 'bd', 'b', 'ty', 'st', 'loc', 'pi3k1', 'pi3k2', 'pi3k3', 'pi3k4', 'pi3k5', 'pi3k6'], {'ty':['1','2','3','4'], 'st':['U','P'], 'loc':['C','E']}) # bl: lig, bd: dimer, b: binding, ty: rec type, st: (U)n(P)hosphorylated, loc: (C)yto 'brane or (E)ndosome 'brane
+    Monomer('erbb', ['bl', 'bd', 'b', 'ty', 'st', 'loc', 'pi3k1', 'pi3k2', 'pi3k3', 'pi3k4', 'pi3k5', 'pi3k6', 'cpp'], {'ty':['1','2','3','4'], 'st':['U','P'], 'loc':['C','E'], 'cpp':['Y', 'N']}) # bl: lig, bd: dimer, b: binding, ty: rec type, st: (U)n(P)hosphorylated, loc: (C)yto 'brane or (E)ndosome 'brane, cpp: No real biophysical meaning; useful model marker for presence of CPP bound downstream.
 
     Monomer('DEP', ['b'])
     Monomer('ATP', ['b'])
     Monomer('ADP')
+    Monomer('CPP', ['b', 'loc'], {'loc':['C', 'E']})
 
 def rec_initial():
-    # Initial concentrations of ligands, receptor monomers, and ATP taken from Chen et al. 
-    Parameter('EGF_0',      5e-9)
-    Parameter('HRG_0',         0)
-    Parameter('erbb1_0',  1.08e6)
-    Parameter('erbb2_0',  4.62e5)
-    Parameter('erbb3_0',  6.23e3)
-    Parameter('erbb4_0',  7.94e2)
-    Parameter('ATP_0',     1.2e9)
-    Parameter('DEP_0',       7e4)
-    
+    # # Initial concentrations (except DEP1) for all cell types taken from Chen et al 2009 -- see Jacobian files
+    Parameter('EGF_0',      3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell 
+    Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+
+    # # These values are for A431 cells
+    Parameter('erbb1_0',  1.08e6) #c531
+    Parameter('erbb2_0',  4.62e5) #c141
+    Parameter('erbb3_0',  6.23e3) #c140
+    Parameter('erbb4_0',  7.94e2) #c143
+    Parameter('ATP_0',     1.2e9) #c105
+    Parameter('DEP_0',       7e4) #c280
+    Parameter('CPP_0', 5e3) #c12
+
+    # These values are for H1666 cells
+    # Parameter('erbb1_0',  1.60e5) #c531
+    # Parameter('erbb2_0',  6.83e3) #c141
+    # Parameter('erbb3_0',  6.05e3) #c140
+    # Parameter('erbb4_0',  2.59e1) #c143
+    # Parameter('ATP_0', 1.2e9) #c105
+    # Parameter('DEP_0', 6.23876e6) #c280
+    # Parameter('CPP_0', 1.59621e6) #c12
+
+    # These values are for H3255 cells
+    # Parameter('erbb1_0',  1.29e6) #c531
+    # Parameter('erbb2_0',  3.16e4) #c141
+    # Parameter('erbb3_0',  4.48e4) #c140
+    # Parameter('erbb4_0',  2.58e1) #c143
+    # Parameter('ATP_0',     1.2e9) #c105
+    # Parameter('DEP_0',       1.2448e9) #c280
+    # Parameter('CPP_0', 4.49873e6) #c12
 
     alias_model_components()
 
     Initial(EGF(b=None), EGF_0)
     Initial(HRG(b=None), HRG_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='1', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb1_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='2', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb2_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='3', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb3_0)
-    Initial(erbb(bl=None, bd=None, b=None, ty='4', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), erbb4_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='1', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb1_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='2', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb2_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='3', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb3_0)
+    Initial(erbb(bl=None, bd=None, b=None, ty='4', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb4_0)
     Initial(ATP(b=None), ATP_0)
     Initial(DEP(b=None), DEP_0)
+    Initial(CPP(b=None, loc='C'), CPP_0)
 
             
 def rec_events():
@@ -121,7 +143,7 @@ def rec_events():
     # DEPHOSPHORYLATION: 
     #  * Density enhanced phosphatase1 (DEP1) dephosphorylates ERB1 (at the cell-membrane)
     #  * Protein Tyrosine Phosphatase1b (PTP1b) dephosphorylates all RTKs (at the endo-membrane)
-    #  Bursett, TA, Hoier, EF, Hajnal, A: Genes Dev. 19:1328-1340 (2005)
+    #  Berset, TA, Hoier, EF, Hajnal, A: Genes Dev. 19:1328-1340 (2005)
     #  Haj, FG, Verver, PJ, Squire, A, Neel, BG, Bastiaens, PI: Science 295:1708-1711 (2002)
 
     for i in ['1','2','4']:
@@ -136,25 +158,65 @@ def rec_events():
                  Parameter("kcd"+i+j, 1e-1))
 
     # Receptor internalization
-    # This internalizes all receptor combos
+    # This internalizes all receptor combos after binding to CPP (coated pit protein).
     # FIXME: this should just be a state transformation (i.e. the rule looks noisy)
     # Internalization rates taken from Chen et al Table I pg. 5
     Rule("rec_intern",
-         erbb(bd=1, loc='C') % erbb(bd=1, loc='C') <> erbb(bd=1, loc='E') % erbb(bd=1, loc='E'),
+         erbb(bd=1, loc='C', cpp='N') % erbb(bd=1, loc='C', cpp='N') <> erbb(bd=1, loc='E', cpp='N') % erbb(bd=1, loc='E', cpp='N'),
          Parameter("kintf", 1.3e-3), Parameter("kintr", 5e-5))
 
+    # CPP bound to receptors can catalyze their internalization (when they are bound to any complex containing GRB2, except GAB1 complex):
+    Rule('CPP_bind_GAP_GRB2',
+         CPP(loc='C', b=None) + erbb(bd=1, loc='C', cpp='N') % erbb(bd=1, loc='C', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bgab1=None, b=None, bcpp=None) <>
+         erbb(bd=1, loc='C', cpp='Y') % erbb(bd=1, loc='C', cpp='Y') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3, bgab1=None, b=None) % CPP(loc='C', b=3),
+         Parameter('cpp_gap_grb2_bind_f', KF),
+         Parameter('cpp_gap_grb2_bind_r', KR))
+
+    Rule('CPP_bind_SHC_GRB2',
+         erbb(bd=1, loc='C', cpp='N') % erbb(bd=1, loc='C', cpp='N') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=None, bgab1=None, bgap=None) + CPP(loc='C', b=None) <>
+         erbb(bd=1, loc='C', cpp='Y') % erbb(bd=1, loc='C', cpp='Y') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4, bgab1=None, bgap=None) % CPP(loc='C', b=4),
+         Parameter('cpp_shc_grb2_bind_f', KF),
+         Parameter('cpp_shc_grb2_bind_r', KR))
+
+    Rule("CPP_rec_int_1",
+         erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3) % CPP(loc='C', b=3) <>
+         erbb(bd=1, loc='E') % erbb(bd=1, loc='E') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3) % CPP(loc='E', b=3),
+         Parameter('kcppintf_1', 1.3e-3),
+         Parameter('kcppintr_1', 5e-5))
+
+    Rule("CPP_rec_int_2",
+         erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4) % CPP(loc='C', b=4) <>
+         erbb(bd=1, loc='E') % erbb(bd=1, loc='E') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4) % CPP(loc='E', b=4),
+         Parameter('kcppintf_2', 1.3e-3),
+         Parameter('kcppintr_2', 5e-5))
+
+    Rule('CPPE_bind_GAP_GRB2',
+         erbb(bd=1, loc='E', cpp='N') % erbb(bd=1, loc='E', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=None, bgab1=None) + CPP(loc='E', b=None) <>
+         erbb(bd=1, loc='E', cpp='Y') % erbb(bd=1, loc='E', cpp='Y') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3, bgab1=None) % CPP(loc='E', b=3),
+         Parameter('cppe_gap_grb2_bind_f', KF),
+         Parameter('cppe_gap_grb2_bind_r', KR))
+
+    Rule('CPPE_bind_SHC_GRB2',
+         erbb(bd=1, loc='E', cpp='N') % erbb(bd=1, loc='E', cpp='N') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=None, bgab1=None) + CPP(loc='E', b=None) <>
+         erbb(bd=1, loc='E', cpp='Y') % erbb(bd=1, loc='E', cpp='Y') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4, bgab1=None) % CPP(loc='E', b=4),
+         Parameter('cppe_shc_grb2_bind_f', KF),
+         Parameter('cppe_shc_grb2_bind_r', KR))
+    
+    Rule("CPP_intern",
+         CPP(loc='E', b=None) <> CPP(loc='C', b=None),
+         Parameter('cppintf', 1.3e-3),
+         Parameter('cppintr', 5e-5))
+         
     # Receptor degradation
     # This degrades all receptor combos within an endosome
     # Should this have a forward and reverse rate - k62b
     degrade(erbb(bd=1, loc='E') % erbb(bd=1, loc='E'), Parameter("kdeg", 4.16e-4))
 
-    # FIXME: need negative feedback from ERK and AKT. include that in the other modules?
-
 def mapk_monomers():
     Monomer('GAP', ['bd', 'b', 'bgrb2'])
     Monomer('SHC', ['bgap', 'bgrb', 'batp', 'st'], {'st':['U','P']})
     # Monomer('SHCPase', ['b'])
-    Monomer('GRB2', ['b', 'bsos', 'bgap', 'bgab1'])
+    Monomer('GRB2', ['b', 'bsos', 'bgap', 'bgab1', 'bcpp'])
     Monomer('SOS', ['bgrb', 'bras', 'bERKPP', 'st'], {'st':['U', 'P']})
     Monomer('RAS', ['bsos', 'braf', 'bpi3k', 'st'], {'st':['GDP', 'GTP']})
     Monomer('RAF', ['b', 'st', 'ser295'], {'st':['U', 'P'], 'ser295':['U', 'P']})
@@ -166,26 +228,57 @@ def mapk_monomers():
 
 def mapk_initial():
 
-    # Initial conditions obtained from Schoeberl et al.
-    Parameter('GAP_0', 1.2e4)
-    Parameter('SHC_0', 1.01e6)
+    # These values are for A431 cells (obtained from Chen et al 2009 Jacobian files) -- values prefixed by 'c' are Chen/Sorger variable names:
+    Parameter('GAP_0', 5.35e5) #c14
+    Parameter('SHC_0', 1.1e6) #c31
     # Parameter('SHCPase_0', 1000)
-    Parameter('GRB2_0', 5.1e4)
-    Parameter('SOS_0', 6.63e4)
-    Parameter('RAS_0', 1.14e7)
-    Parameter('RAF_0', 4e4)
-    Parameter('MEK_0', 2.2e7)
-    Parameter('ERK_0', 2.1e7)
-    Parameter('PP1_0', 4e4)
-    Parameter('PP2_0', 4e4)
-    Parameter('PP3_0', 1e7)
+    Parameter('GRB2_0', 1264) #c22
+    #Parameter('SOS_0', 6.63e4) removed to better represent Chen/Sorger model
+    Parameter('RAS_0', 5.81e4) #c26
+    Parameter('RAF_0', 7.11e4) #c41
+    Parameter('MEK_0', 3.02e6) #c47
+    Parameter('ERK_0', 6.95e5) #c55
+    Parameter('PP1_0', 5e4) #c44
+    Parameter('PP2_0', 1.25e5) #c53
+    Parameter('PP3_0', 1.69e4) #c60
+    Parameter('GRB2_SOS_0', 8.89e7) #This added to better represent Chen Sorger model c30
 
+    # These values are for H1666 cells:
+    # Parameter('GAP_0', 1.06697e9) #c14
+    # Parameter('SHC_0', 1.1e6) #c31
+    # # Parameter('SHCPase_0', 1000)
+    # Parameter('GRB2_0', 12649.1) #c22
+    # #Parameter('SOS_0', 6.63e4) removed to better represent Chen/Sorger model
+    # Parameter('RAS_0', 183713) #c26
+    # Parameter('RAF_0', 7113.12) #c41
+    # Parameter('MEK_0', 3.02e6) #c47
+    # Parameter('ERK_0', 6.95e5) #c55
+    # Parameter('PP1_0', 28117.1) #c44
+    # Parameter('PP2_0', 39363.9) #c53
+    # Parameter('PP3_0', 168702) #c60
+    # Parameter('GRB2_SOS_0', 2.81171e6) #This added to better represent Chen Sorger model c30
+
+    #These values are for H3255 cells:
+    # Parameter('GAP_0', 3.37405e6) #c14
+    # Parameter('SHC_0', 1.1e6) #c31
+    # # Parameter('SHCPase_0', 1000)
+    # Parameter('GRB2_0', 400) #c22
+    # #Parameter('SOS_0', 6.63e4) removed to better represent Chen/Sorger model
+    # Parameter('RAS_0', 58095.2) #c26
+    # Parameter('RAF_0', 1.26491e6) #c41
+    # Parameter('MEK_0', 3.02e6) #c47
+    # Parameter('ERK_0', 6.95e5) #c55
+    # Parameter('PP1_0', 28117.1) #c44
+    # Parameter('PP2_0', 39363.9) #c53
+    # Parameter('PP3_0', 5.33484e6) #c60
+    # Parameter('GRB2_SOS_0', 5e7) #This added to better represent Chen Sorger model c30
+    
     alias_model_components()
 
     Initial(GAP(bd=None, b=None, bgrb2=None), GAP_0)
     Initial(SHC(bgap=None, bgrb=None, batp=None, st='U'), SHC_0)
-    Initial(GRB2(b=None, bsos=None, bgap=None, bgab1=None), GRB2_0)
-    Initial(SOS(bgrb=None, bras=None, bERKPP=None, st='U'), SOS_0)
+    Initial(GRB2(b=None, bsos=None, bgap=None, bgab1=None, bcpp=None), GRB2_0)
+    #Initial(SOS(bgrb=None, bras=None, bERKPP=None, st='U'), SOS_0)
     Initial(RAS(bsos=None, braf=None, bpi3k=None, st='GDP'), RAS_0)
     Initial(RAF(b=None, st='U', ser295='U'), RAF_0)
     Initial(MEK(b=None, st='U'), MEK_0)
@@ -193,6 +286,7 @@ def mapk_initial():
     Initial(PP1(b=None), PP1_0)
     Initial(PP2(b=None), PP2_0)
     Initial(PP3(b=None), PP3_0)
+    Initial(GRB2(b=None, bsos=1, bgap=None, bgab1=None, bcpp=None) % SOS(bgrb=1, bras=None, bERKPP=None, st='U'), GRB2_SOS_0)
 
     
 def mapk_events():
@@ -222,35 +316,58 @@ def mapk_events():
          GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2) >>
          GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='P') + ADP(),
          Parameter("ShcPhosc", KCP))
+    
+    # GRB2 binds to GAP-SHC:P with or without SOS:
+    Rule('GRB2_bind_GAP_SHCP_1',
+         SHC(batp=None, st='P', bgrb=None) + GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1) <>
+         SHC(batp=None, st='P', bgrb=2) % GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=1),
+         Parameter('GRB2_bind_GAP_SHCP_f', KF),
+         Parameter('GRB2_bind_GAP_SHCP_r', KR))
 
-    # GRB2 binds to GAP-SHC:P
-    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=None), 'b', [KF, KR])
+    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None), 'b', [KF,KR])
+    
+    # Can use this simpler version if GRB2-SOS complex isn't present alone:
+    #    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None), 'b', [KF, KR])
 
+    # GRB2 and SOS bind/disassociate:
+    bind(GRB2(bgap=None, bgab1=None, b=None, bcpp=None), 'bsos', SOS(bras=None, bERKPP=None, st='U'), 'bgrb', [7.5e-6, 1.5])
+
+    #Although no free SOS is present initially in Chen Sorger model, GRB2-SOS can disassociate (see above), so these are necessary.
     # SOS binds to GAP-SHC:P-GRB2 - rate obtained from Chen et al. pg 5. 
-    bind(GRB2(b=ANY, bgap=None, bgab1=None), 'bsos', SOS(bras=None, st='U', bERKPP=None), 'bgrb', [7.5e-6, 1.5])
+    bind(GRB2(b=ANY, bgap=None, bgab1=None, bcpp=None), 'bsos', SOS(bras=None, st='U', bERKPP=None), 'bgrb', [7.5e-6, 1.5])
 
     # SOS also binds GAP-GRB2
     Rule("GAP_GRB2_bind_SOS",
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=None) + SOS(bras=None, bgrb=None, bERKPP=None, st='U') <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1) % SOS(bras=None, bgrb=1, st='U', bERKPP=None),
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=None, bcpp=None) + SOS(bras=None, bgrb=None, bERKPP=None, st='U') <>
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, st='U', bERKPP=None),
          Parameter("GAP_GRB2_bind_SOSf", 7.5e-6),
          Parameter("GAP_GRB2_bind_SOSr", 1.5))
 
     # GAP-GRB2-SOS and GAP-SHC:P-GRB2-SOS catalyze RAS-GDP->RAS-GTP:
-    catalyze_state(SOS(bgrb=ANY, st='U', bERKPP=None), 'bras', RAS(braf=None), 'bsos', 'st', 'GDP', 'GTP', (KF, KR, KCD))
+    Rule("GAP_GRB2_SOS_bind_RASGDP",
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GDP') <>
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP'),
+         Parameter("GAP_GRB2_SOS_bind_RASf", KF),
+         Parameter("GAP_GRB2_SOS_bind_RASr", KR))
 
-    # RAS-GDP binds to GAP-SHC:P-GRB2-SOS
-    #bind(SOS(bgrb=ANY), 'bras', RAS(braf=None, st='GDP'), 'bsos',  [KF, KR])
+    Rule("GAP_SHCP_GRB2_SOS_bind_RASGDP",
+         GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GDP') <>
+         GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP'),
+         Parameter("GAP_SHCP_GRB2_SOS_bind_RASGDPf", KF),
+         Parameter("GAP_SHCP_GRB2_SOS_bind_RASGDPr", KR))
 
-    # RAS-GTP binds to GAP-SHC:P-GRB2-SOS
-    #catalyze(SOS(bgrb=ANY), 'bras', RAS(braf=None, st='GTP'), 'bsos', RAS(bsos=None, braf=None, st='GDP'),
-    #        (KF,KR,KCD))
+    Rule("GAP_GRB2_SOS_catRAS",
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP') >>
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP'),
+         Parameter("GAP_GRB2_SOS_catRASc", KCP))
 
-    # RAS-GDP dissociates from GAP complex to form RAS-GTPU
-    #Rule("RAS_GDP_to_RAS_GTP",
-    #    SOS(bgrb=ANY, bras=4) % RAS(bsos=4, braf=None, st='GDP') <>
-    #   SOS(bgrb=ANY, bras=None) + RAS(bsos=None, braf=None, st='GTP'),
-    #   Parameter("RasGDP_GTPf",KF), Parameter("RasGDP_GTPr",KR))
+    Rule("GAP_SHCP_GRB2_SOS_catRAS",
+         GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP') >>
+         GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP'),
+         Parameter("GAP_SHCP_GRB2_SOS_catRASc", KCP))
+         
+    #can use this simpler implementation of above if GRB2-SOS isn't present on its own as in Chen Sorger model:
+    #catalyze_state(SOS(bgrb=ANY, st='U', bERKPP=None), 'bras', RAS(braf=None), 'bsos', 'st', 'GDP', 'GTP', (KF, KR, KCD))
 
     # Activation of RAF -> RAF:P by RAS-GTP 
     catalyze(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', RAF(st='U', ser295='U'), 'b', RAF(st='P', ser295='U'),
@@ -286,7 +403,7 @@ def mapk_events():
 
     # Activation of ERK:P -> ERK:P:P by activated MEK:P:P
     catalyze(MEK(st='PP'), 'b', ERK(st='P'), 'b', ERK(st='PP'),
-             (KF,KR,KCD))
+             (KF,KR,KCP))
 
     # Deactivation of ERK:P:P -> ERK:P by PP3
     catalyze(PP3(), 'b', ERK(st='PP'), 'b', ERK(st='P'),
@@ -307,17 +424,40 @@ def akt_monomers():
     Monomer('PP2A_III', ['bakt', 'both'])
 
 def akt_initial():
-    # Initial concentrations modified from Chen et al. 2009 Supplementary text values
-    # Initial PIP_0 not from Chen et al.
-    Parameter('GAB1_0', 94868.3)
-    Parameter('PI3K_0', 3.55656e7)
-    Parameter('SHP2_0', 1e6)
-    Parameter('PIP_0',     9.00e3)
-    Parameter('PTEN_0',    5.00e4)
-    Parameter('SHP_0',     7.00e4)
-    Parameter('AKT_0',     9.05e6)
-    Parameter('PDK1_0',     9.5e6)
-    Parameter('PP2A_III_0', 4.5e5)
+    # Initial concentrations from Chen Sorger Jacobian files - 'c' prefixed terms are their variable names
+    # These values are for A431 cells:
+    Parameter('GAB1_0', 94868.3) #c426
+    Parameter('PI3K_0', 3.55656e7) #c287 c455?
+    Parameter('SHP2_0', 1e6) #c463
+    Parameter('PIP_0',     3.94e5) #c444
+    Parameter('PTEN_0',    5.62e4) #c279
+    Parameter('SHP_0',     2.21e3) #c461
+    Parameter('AKT_0',     9.05e5) #c107
+    Parameter('PDK1_0',     3.00416e8) #c109
+    Parameter('PP2A_III_0', 4.5e5) #c113
+
+    # These values are for H1666 cells:
+    # Parameter('GAB1_0', 5.33484e7) #c426
+    # Parameter('PI3K_0', 3.55656e5) #c287 c455?
+    # Parameter('SHP2_0', 1.12202e5) #c463
+    # Parameter('PIP_0',     1.2448e6) #c444
+    # Parameter('PTEN_0',    5000) #c279
+    # Parameter('SHP_0',     7000) #c461
+    # Parameter('AKT_0',     9.05e5) #c107
+    # Parameter('PDK1_0',     1.8955e6) #c109
+    # Parameter('PP2A_III_0', 401063) #c113
+
+    # These values are for H3255 cells:
+    # Parameter('GAB1_0', 30000) #c426
+    # Parameter('PI3K_0', 2e9) #c287 c455?
+    # Parameter('SHP2_0', 3.16228e6) #c463
+    # Parameter('PIP_0',     700000) #c444
+    # Parameter('PTEN_0',    158114) #c279
+    # Parameter('SHP_0',     700) #c461
+    # Parameter('AKT_0',     9.05e5) #c107
+    # Parameter('PDK1_0',     3.00416e8) #c109
+    # Parameter('PP2A_III_0', 2.53054e7) #c113
+    
     alias_model_components()
     
     # Initial conditions 
@@ -331,36 +471,41 @@ def akt_initial():
     Initial(PDK1(bakt=None, both=None), PDK1_0)
     Initial(PP2A_III(bakt=None, both=None), PP2A_III_0)
 def akt_events():
-    # parameter values taken from Chen et al. 2009
-    Parameter('kf',  1e-5)
-    Parameter('kr',  1e-3)
-    Parameter('kcd', 1e-1)
-    alias_model_components()
-    #GRB2 binds GAP-complex (without requiring SHC bound to complex) k16, kd24
-    bind(GRB2(b=None, bsos=None, bgab1=None), 'bgap', GAP(bd=ANY, b=None), 'bgrb2', [1.67e-05, 5.5e-01])
+    #GRB2 binds GAP-complex (without requiring SHC bound to complex and with or without SOS already bound) k16, kd24
+    Rule('GRB2_bind_GAP_1',
+         GAP(bd=ANY, b=None, bgrb2=None) + GRB2(b=None, bsos=1, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1) <>
+         GAP(bd=ANY, b=None, bgrb2=2) % GRB2(b=None, bsos=1, bgab1=None, bcpp=None, bgap=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=1),
+         Parameter('GRB2_bind_GAP_1_f', KF),
+         Parameter('GRB2_bind_GAP_1_r', KR))
+
+    bind(GRB2(b=None, bsos=None, bgab1=None, bcpp=None), 'bgap', GAP(bd=ANY, b=None), 'bgrb2', [KF, KR])
+
+    #Can use the simpler version below if GRB2-SOS isn't present by itself:
+    #bind(GRB2(b=None, bsos=WILD, bgab1=None, bcpp=None), 'bgap', GAP(bd=ANY, b=None), 'bgrb2', [KF, KR])
+
     #GAB1 binds GAP-GRB2 k105, kd105
-    bind(GRB2(b=None, bsos=None, bgap=ANY), 'bgab1', GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, S='U'), 'bgrb2', [6.67e-05, 1e-01])
+    bind(GRB2(b=None, bsos=None, bgap=ANY, bcpp=None), 'bgab1', GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, S='U'), 'bgrb2', [KF, KR])
     #GAP-GRB2-GAB1 phosphorylation - Rates from Table p. 5 Chen et al 2009
     Rule('GAB1_bind_ATP',
          GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='U') + ATP(b=None) <>
          GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=1, bERKPP=None, bPase9t=None, bgrb2=ANY, S='U') % ATP(b=1),
-         Parameter('GAB1ATPf', 1e-5),
-         Parameter('GAB1ATPr', 1e-1))
+         Parameter('GAB1ATPf', KF),
+         Parameter('GAB1ATPr', KR))
 
     Rule('GAB1_phos',
          GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=1, bERKPP=None, bPase9t=None, bgrb2=ANY, S='U') % ATP(b=1) >>
          GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') + ADP(),
-         Parameter('GAB1Phosc', 1e-1))
+         Parameter('GAB1Phosc', KCP))
 
     #SHP2 can desphosphorylate GAB1-P
-    catalyze_state(SHP2(), 'bgab1', GAB1(bgrb2=ANY, bpi3k=None, batp=None, bERKPP=None, bPase9t=None), 'bshp2', 'S', 'P', 'U', (1e-5, 1e-1, 1e-2))
+    catalyze_state(SHP2(), 'bgab1', GAB1(bgrb2=ANY, bpi3k=None, batp=None, bERKPP=None, bPase9t=None), 'bshp2', 'S', 'P', 'U', (KF, KR, KCD))
    
     #After GAB1 phosphorylation, all receptor dimer combinations can bind a single PI3K
     Rule('GAB1_bind_PI3K_1',
          GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') + PI3K(bpip=None, bgab1=None, bras=None) <>
          GAB1(bshp2=None, bpi3k=1, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') % PI3K(bpip=None, bgab1=1, bras=None),
-         Parameter('GAB1PI3Kf', 1e-5),
-         Parameter('GAB1PI3Kr', 1e-1))
+         Parameter('GAB1PI3Kf', KF),
+         Parameter('GAB1PI3Kr', KR))
 
     #GAB1-PI3K bound to complex containing ErbB2/ErbB3 binds 1-6 PIP2 (creates chains; doesn't necessarily represent biology but accurately reproduces Chen Sorger 2009 model).
     #First bind a single PIP2 to PI3K complex - this rule created by catalyze_state below
@@ -373,7 +518,7 @@ def akt_events():
     Rule('PIP2_self_catalysis_1',
          PIP(bakt=None, both=None, S='PIP2', bpi3k_self=ANY, bself2=1) % PIP(bakt=None, both=None, S='PIP2', bpi3k_self=1, bself2=None) >>
          PIP(bakt=None, both=None, S='PIP2', bpi3k_self=ANY, bself2=None) + PIP(bakt=None, both=None, S='PIP3', bpi3k_self=None, bself2=None),
-          Parameter('PIP2_self_catalysis_1_kf', 1e-1))
+          Parameter('PIP2_self_catalysis_1_kf', KCP))
     
     #ErbB2-ErbB3 dimers contain 6 binding domains for PI3K (don't need to be bound to adaptor complex).
     """This is the improved ErbB2/ErB3-PI3K sequence of events -- different from Chen Sorger 2009"""
@@ -392,75 +537,59 @@ def akt_events():
     
 
     #PI3K bound to complex catalyzes PIP2 -> PIP3
-    catalyze_state(PI3K(bgab1=ANY), 'bpip', PIP(bakt=None, both=None, bself2=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', (1e-5, 1e-1, 1e-1))
+    catalyze_state(PI3K(bgab1=ANY), 'bpip', PIP(bakt=None, both=None, bself2=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', (KF, KR, KCP))
              
      # Setting up the binding reactions necessary for AKT to be phosphorylated and move through the pathway
     bind_table([[                       AKT(S='U', both=None),       AKT(S='P', both=None),      AKT(S='PP', both=None)],
-                [PIP(S='PIP3', both=None, bpi3k_self=None),       (1e-5, 1e-3),     (1e-5, 1e-3),    (1e-5, 1e-3)]],
+                [PIP(S='PIP3', both=None, bpi3k_self=None),       (KF, KR),     (KF, KR),    (KF, KR)]],
                 'bakt', 'bpip3')
 
     # AKT-PIP3 is phosphorylated by PDK1 to AKTP
-    catalyze(PDK1, 'bakt', AKT(bpip3=ANY, S='U'), 'both', AKT(bpip3=ANY, S='P'), (kf, kr, kcd))
+    catalyze(PDK1, 'bakt', AKT(bpip3=ANY, S='U'), 'both', AKT(bpip3=ANY, S='P'), (KF, KR, KCP))
 
     # AKTP-PIP3 is phosphorylated by PDK1 to AKTPP
-    catalyze(PDK1, 'bakt', AKT(bpip3=ANY, S='P'), 'both', AKT(bpip3=ANY, S='PP'), (kf, kr, kcd))
+    catalyze(PDK1, 'bakt', AKT(bpip3=ANY, S='P'), 'both', AKT(bpip3=ANY, S='PP'), (KF, KR, KCP))
 
     # AKTP is dephosphorylated by PP2A-III back to AKT
-    catalyze_state(PP2A_III, 'bakt', AKT(bpip3=None), 'both', 'S', 'P', 'U',(1e-5, 1e-3, 1e-3))
+    catalyze_state(PP2A_III, 'bakt', AKT(bpip3=None), 'both', 'S', 'P', 'U',(KF, KR, KCD))
    
     # AKTPP is dephosphorylated by PP2A-III back to AKTP
-    catalyze_state(PP2A_III, 'bakt', AKT(bpip3=None), 'both', 'S', 'PP', 'P',(1e-5, 1e-3, 1e-3))
+    catalyze_state(PP2A_III, 'bakt', AKT(bpip3=None), 'both', 'S', 'PP', 'P',(KF, KR, KCD))
 
     # PIP3 is dephosphorylated by PTEN to PIP2
-    catalyze_state(PTEN, 'bpip3', PIP(bakt=None, bpi3k_self=None), 'both', 'S', 'PIP3', 'PIP2', (1e-5, 1e-3, 1e-3))
+    catalyze_state(PTEN, 'bpip3', PIP(bakt=None, bpi3k_self=None), 'both', 'S', 'PIP3', 'PIP2', (KF, KR, KCD))
 
     # PIP3 is dephosphorylated by SHP to PIP2
-    catalyze_state(SHP, 'bpip3', PIP(bakt=None, bpi3k_self=None), 'both', 'S', 'PIP3', 'PIP2', (1e-5, 1e-3, 1e-3))
-
-    # Release of AKTP from PIP3 (this may not be needed because of binding table above)
-    Rule('AKT_PDK1_undbind', AKT(bpip3=ANY, both=None, S='U') % PIP(bakt=1, both=2, S='PIP3') % PDK1(bakt=None, both=2) >> AKT(bpip3=None, both=None, S='P') + PDK1(bakt=None, both=1) % PIP(bakt=None, both=1, S='PIP3'), kf)
-
-# PDK1-PIP3 dissociate after phosphorylation of AKT
-    Rule('PDK1_PIP3_unbind', PDK1(bakt=None, both=1) % PIP(bakt=None, both=1, S='PIP3') >> PDK1(bakt=None, both=None) + PIP(bakt=None, both=None, S='PIP3'), kf)
-
-# AKT-PDK1 Release of AKTPP from PIP3 (this may not be needed because of binding table above)
-    Rule('AKT_PDK1_unbind', AKT(bpip3=1, both=None, S='P') % PIP(bakt=1, both=2, S='PIP3') % PDK1(bakt=None, both=2) >> AKT(bpip3=None, both=None, S='PP') + PDK1(bakt=None, both=1) % PIP(bakt=None, both=1, S='PIP3'), kf)
-
-# AKT:P-PP2A-III dissociate (this may not be needed to due to catalyze_state macro)
-    Rule('AKT_PP2A_III_unbind', AKT(bpip3=None, both=1, S='P') % PP2A_III(bakt=1) >> AKT(bpip3=None, both=None, S='U') + PP2A_III(bakt=None), kf)
-
-# PIP3-PDK1 dissociate to PIP3 and PDK1 (this may not be needed due to catalyze_state macro)
-    Rule('PIP3_PDK1_unbind', PIP(bakt=None, both=1, S='PIP3') % PDK1(bakt=None, both=1) >> PIP(bakt=None, both=None, S='PIP3') + PDK1(bakt=None, both=None), kf)
+    catalyze_state(SHP, 'bpip3', PIP(bakt=None, bpi3k_self=None), 'both', 'S', 'PIP3', 'PIP2', (KF, KR, KCD))
 
 def crosstalk_monomers():
     Monomer('Pase9t', ['bgab1'])
     alias_model_components()
 def crosstalk_initial():
-    Parameter('Pase9t_0', 0)
+    Parameter('Pase9t_0', 0) #c521
 
 def crosstalk_events():
     #ERK:P:P phosphorylates GAP-GRB2-GAB1:P (making it unable to bind PI3K)
-    catalyze_state(ERK(st='PP'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None), 'bERKPP', 'S', 'P', 'PP', (1e-5, 1e-1, 1e-1))
+    catalyze_state(ERK(st='PP'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None), 'bERKPP', 'S', 'P', 'PP', (KF, KR, KCP))
 
     #GAP-GRB2-GAB1:P:P is dephosphorylated by Pase9t
-    catalyze_state(Pase9t(), 'bgab1', GAB1(bgrb2=ANY), 'bPase9t', 'S', 'PP', 'P', (1e-5, 1e-1, 1e-2))
+    catalyze_state(Pase9t(), 'bgab1', GAB1(bgrb2=ANY), 'bPase9t', 'S', 'PP', 'P', (KF, KR, KCD))
 
     #ERK:P:P phosphorylates GRB2-SOS, preventing RAS-GDP->RAS-GTP conversion
-    catalyze_state(ERK(st='PP'), 'b', SOS(bgrb=ANY, bras=None), 'bERKPP', 'st', 'U', 'P', (1e-5, 1e-1, 1e-1))
+    catalyze_state(ERK(st='PP'), 'b', SOS(bgrb=ANY, bras=None), 'bERKPP', 'st', 'U', 'P', (KF, KR, KCP))
 
     #AKT:P:P phosphorylates RAF:P at Ser295, preventing MEK phosphorylation.
-    catalyze_state(AKT(S='PP', bpip3=None), 'both', RAF(st='P'), 'b', 'ser295', 'U', 'P', (1e-5, 1e-1, 1e-1))
+    catalyze_state(AKT(S='PP', bpip3=None), 'both', RAF(st='P'), 'b', 'ser295', 'U', 'P', (KF, KR, KCP))
 
     #RAS-GTP binds PI3K
-    bind(RAS(bsos=None, braf=None, st='GTP'), 'bpi3k', PI3K(bgab1=None, bpip=None), 'bras', [1e-5, 1e-1])
+    bind(RAS(bsos=None, braf=None, st='GTP'), 'bpi3k', PI3K(bgab1=None, bpip=None), 'bras', [KF, KR])
 
     #RAS-GTP-PI3K binds PIP2
     bind(PI3K(bgab1=None, bpip=None, bras=ANY), 'bpip', PIP(bakt=None, both=None, bself2=None, S='PIP2'), 'bpi3k_self',
-         [1e-5, 1e-1])
+         [KF, KR])
 
     #RAS-GTP-PI3K-PIP2 disassociates to give PIP3
     Rule('RASGTPPI3KcatPIP',
          RAS(bsos=None, braf=None, st='GTP', bpi3k=1) % PI3K(bgab1=None, bpip=2, bras=1) % PIP(bakt=None, both=None, bpi3k_self=2, S='PIP2') >>
          RAS(bsos=None, braf=None, st='GTP', bpi3k=1) % PI3K(bgab1=None, bpip=None, bras=1) + PIP(bakt=None, both=None, bpi3k_self=None, S='PIP3'),
-         Parameter('RASGTPPI3K_kc', 1e-1))
-    
+         Parameter('RASGTPPI3K_kc', KCP))
