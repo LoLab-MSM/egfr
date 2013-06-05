@@ -5,9 +5,9 @@ Model M1a: Extrinsic apoptosis model with "embedded together" model of MOMP.
 
 from pysb import *
 #from egfr import shared
+Model()
 from egfr import chen_modules
 
-Model()
 # Declare monomers
 chen_modules.rec_monomers()
 chen_modules.mapk_monomers()
