@@ -160,10 +160,6 @@ parameter_dict = OrderedDict([
      [Parameter('SHC_unbound_phoskf', 0), #kd36 - Chen-Sorger model written P --> U
       Parameter('SHC_unbound_phoskr', 5e-3) #k36
       ]),
-    ('GRB2_bind_GAP',
-     [Parameter('GRB2_bind_GAPkf', 1.67e-5), #k16
-      Parameter('GRB2_bind_GAPkr', 5.5e-1) #kd24
-      ]),
     ('GRB2_SOS_bind_SHCP_GAP',
      [Parameter('GRB2_SOS_bind_SHCP_GAPkf', 5e-5), #k41
       Parameter('GRB2_SOS_bind_SHCP_GAPkr', 4.29e-2) #kd41
@@ -264,5 +260,89 @@ parameter_dict = OrderedDict([
      [Parameter('ERKPP_PP3kf', .000397392), #k56
       Parameter('ERKPP_PP3kr', 5), #kd56
       Parameter('ERKPP_PP3kc', .000240333) #kd57
+      ]),
+      # AKT pathway event rates:
+    ('GRB2_bind_GAP',
+     [Parameter('GRB2_bind_GAPkf', 1.67e-5), #k16
+      Parameter('GRB2_bind_GAPkr', 5.5e-1) #kd24
+      ]),
+    ('GRB2_bind_GAP_2',
+     [Parameter('GRB2_bind_GAP_2kf', 1.67e-5), #k16
+      Parameter('GRB2_bind_GAP_2kr', 2.75e-1) #kd63
+      ]),
+    ('GRB2_SOS_bind_GAP',
+     [Parameter('GRB2_SOS_bind_GAPkf', 7.5e-6), #k34
+      Parameter('GRB2_SOS_bind_GAPkr', 3e-2) #kd34
+      ]),
+    ('GRB2_bind_GAB1',
+     [Parameter('GRB2_bind_GAB1kf', 6.67e-5), #k105
+      Parameter('GRB2_bind_GAB1kr', 1e-1) #kd105
+      ]),
+    ('GAB1_bind_ATP',
+     [Parameter('GAB1_bind_ATPkf', 9.37423e-8), #k122
+      Parameter('GAB1_bind_ATPkr', 1) #kd122
+      ]),
+    ('GAB1_phos',
+     Parameter('GAB1_phoskc', .0177828) #kd123
+     ),
+    ('SHP2_dephos_GAB1P',
+     [Parameter('SHP2_dephos_GAB1Pkf', 3.33e-5), #k107
+      Parameter('SHP2_dephos_GAB1Pkr', 1e-1), #kd107
+      Parameter('SHP2_dephos_GAB1Pkc', 5) #kd108
+      ]),
+    ('GAB1_bind_PI3K_1',
+     [Parameter('GAB1_bind_PI3Kkf', 1.5e-5), #k66
+      Parameter('GAB1_bind_PI3Kkr', 2e-1) #kd66
+      ]),
+    ('GAB1_bind_PI3K_2',
+     [Parameter('GAB1_bind_PI3K_2kf', 5e-5), #k67
+      Parameter('GAB1_bind_PI3K_2kr', 2e-2) #kd67
+      ]),
+    ('PIP2_chain_PI3K',
+     [Parameter('PIP2_chain_PI3Kkf', 4.20583e-5), #k106
+      Parameter('PIP2_chain_PI3Kkr', 1e-1) #kd106
+      ]),
+    ('PIP2_self_catalysis',
+     Parameter('PIP2_self_catalysiskc', 2.05e1) #kd68b
+     ),
+    ('PIP2_bind_PI3K_1',
+     [Parameter('PIP2_bind_PI3K_1kf', 8.33e-6), #k106b
+      Parameter('PIP2_bind_PI3K_1kr', 1e-1) #kd106b
+      ]),
+    ('PIP2_PI3K_catalysis',
+     Parameter('PIP2_PI3K_catalysiskc', 2e-1) #kd68
+     ),
+    ('PIP3_bind_AKT',
+     [Parameter('PIP3_bind_AKTkf', 5.92167e-6), #k69
+      Parameter('PIP3_bind_AKTkr', 1e-1) #kd69
+      ]),
+    ('PIP3_bind_PDK1',
+     [Parameter('PIP3_bind_PDK1kf', 0), #k76
+      Parameter('PIP3_bind_PDK1kr', 1.42262) #kd76
+      ]),
+    ('AKT_PIP3_bind_PDK1',
+     [Parameter('AKT_PIP3_bind_PDK1kf', .00667), #k70
+      Parameter('AKT_PIP3_bind_PDK1kr', 1e-1) #kd70
+      ]),
+    ('PDK1_AKT_catalysis',
+     Parameter('PDK1_AKT_catalysiskc', 2.52e1) #kd71
+     ),
+    ('PDK1_AKTP_catalysis',
+     Parameter('PDK1_AKTP_catalysiskc', .1) #kd72
+     ),
+    ('AKTP_dephos',
+     [Parameter('AKTP_dephoskf', 7.47914e-7), #k73
+      Parameter('AKTP_dephoskr', 5e-1), #kd73
+      Parameter('AKTP_dephoskc', .00711312) #kd75
+      ]),
+    ('AKTPP_dephos',
+     [Parameter('AKTPP_dephoskf', 1.79301e-5), #k74
+      Parameter('AKTPP_dephoskr', ..0632456), #kd74
+      Parameter('AKTPP_dephoskc', .00711312) #kd75
+      ]),
+    ('PIP3_dephos',
+     [Parameter('PIP3_dephoskf', 5e-6), #k109
+      Parameter('PIP3_dephoskr', 1e-1), #kd109
+      Parameter('PIP3_dephoskc', 2e-1) #kd104
       ])
     ])
