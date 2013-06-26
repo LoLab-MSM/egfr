@@ -34,7 +34,8 @@ parameter_dict = OrderedDict([
       Parameter('SHP_0',     2.21e3), #c461
       Parameter('AKT_0',     9.05e5), #c107
       Parameter('PDK1_0',     3.00416e8), #c109
-      Parameter('PP2A_III_0', 4.5e5) #c113
+      Parameter('PP2A_III_0', 4.5e5), #c113
+      Parameter('Pase9t_0', 0) #c521
     ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:
@@ -118,12 +119,12 @@ parameter_dict = OrderedDict([
       Parameter('CPP_bind_ErbB1dimerskr', 1.66e-4) #kd4
       ]),
     ('CPPE_bind_ErbB1dimers',
-     [Parameter('CPPE_bind_ErbB1dimerskf', 0), #k5 or k5b - Both are set to 0 across all cell types
+     [Parameter('CPPE_bind_ErbB1dimerskf', 1e-15), #k5 or k5b - Both are set to 0 across all cell types
       Parameter('CPPE_bind_ErbB1dimerskr', 8.0833e-3) #kd5b
       ]),
     ('CPP_int',
      [Parameter('CPP_intkf', 1.667e-8), #k15 Endo --> Cyto
-      Parameter('CPP_intkr', 0) #kd15
+      Parameter('CPP_intkr', 1e-15) #kd15
       ]),
     ('kdeg_1',
      Parameter('kdeg_1', .00266742) #k60
@@ -158,7 +159,7 @@ parameter_dict = OrderedDict([
       Parameter('SHC_phoskr', 6e-2) #kd23
       ]),
     ('SHC_unbound_phos',
-     [Parameter('SHC_unbound_phoskf', 0), #kd36 - Chen-Sorger model written P --> U
+     [Parameter('SHC_unbound_phoskf', 1e-15), #kd36 - Chen-Sorger model written P --> U
       Parameter('SHC_unbound_phoskr', 5e-3) #k36
       ]),
     ('GRB2_SOS_bind_SHCP_GAP',
@@ -262,6 +263,9 @@ parameter_dict = OrderedDict([
       Parameter('ERKPP_PP3kr', 5), #kd56
       Parameter('ERKPP_PP3kc', .0076) #kd57
       ]),
+    ('PP3_deg',
+     Parameter('PP3_degkf', .0150356) #k116
+     ),
       # AKT pathway event rates:
     ('GRB2_bind_GAP',
      [Parameter('GRB2_bind_GAPkf', 1.67e-5), #k16
@@ -318,7 +322,7 @@ parameter_dict = OrderedDict([
       Parameter('PIP3_bind_AKTkr', 1e-1) #kd69
       ]),
     ('PIP3_bind_PDK1',
-     [Parameter('PIP3_bind_PDK1kf', 0), #k76
+     [Parameter('PIP3_bind_PDK1kf', 1e-15), #k76
       Parameter('PIP3_bind_PDK1kr', 142.262) #kd76
       ]),
     ('AKT_PIP3_bind_PDK1',
@@ -329,7 +333,7 @@ parameter_dict = OrderedDict([
      Parameter('PDK1_AKT_catalysiskc', 2.52e1) #kd71
      ),
     ('PDK1_AKTP_catalysis',
-     Parameter('PDK1_AKTP_catalysiskc', .1) #kd72
+     Parameter('PDK1_AKTP_catalysiskc', 5.01187) #kd72
      ),
     ('AKTP_dephos',
      [Parameter('AKTP_dephoskf', .00374845), #k73
@@ -345,5 +349,35 @@ parameter_dict = OrderedDict([
      [Parameter('PIP3_dephoskf', 5e-6), #k109
       Parameter('PIP3_dephoskr', 1e-1), #kd109
       Parameter('PIP3_dephoskc', 2e-1) #kd104
+      ]),
+      # Crosstalk event rates:
+    ('ERKPP_phos_GAB1P',
+     [Parameter('ERKPP_phos_GAB1Pkf', 3.33e-4), #k110
+      Parameter('ERKPP_phos_GAB1Pkr', 1e-1), #kd110
+      Parameter('ERKPP_phos_GAB1Pkc', 6.57) #kd111
+      ]),
+    ('Pase9t_dephos_GAB1PP',
+     [Parameter('Pase9t_dephos_GAB1PPkf', 8.33e-8), #k117
+      Parameter('Pase9t_dephos_GAB1PPkr', 1e-1), #kd117
+      Parameter('Pase9t_dephos_GAB1PPkc', 3e-2) #kd118
+      ]),
+    ('ERKPP_phos_SOS',
+     [Parameter('ERKPP_phos_SOSkf', 1.67e-5), #k64
+      Parameter('ERKPP_phos_SOSkr', 3e-1), #kd64
+      Parameter('ERKPP_phos_SOSkc', 2e-1) #kd65
+      ]),
+    ('SOSP_bind_GRB2',
+     [Parameter('SOSP_bind_GRB2kf', 8.33e-7), #k101
+      Parameter('SOSP_bind_GRB2kr', .03) #kd101
+      ]),
+    ('AKTPP_phos_RAFP',
+     [Parameter('AKTPP_phos_RAFPkf', 4.98816e-6), #k114
+      Parameter('AKTPP_phos_RAFPkr', 1e-1), #kd114
+      Parameter('AKTPP_phos_RAFPkc', 1) #kd115
+      ]),
+    ('RASGDP_bind_PI3K',
+     [Parameter('RASGDP_bind_PI3Kkf', .0047067), #k112
+      Parameter('RASGDP_bind_PI3Kkr', 1e-1), #kd112
+      Parameter('RASGDP_bind_PI3Kkc', 177.828) #kd113
       ])
     ])

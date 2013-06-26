@@ -34,7 +34,8 @@ parameter_dict = OrderedDict([
       Parameter('SHP_0',     700) #c461
       Parameter('AKT_0',     9.05e5) #c107
       Parameter('PDK1_0',     3.00416e8) #c109
-      Parameter('PP2A_III_0', 2.53054e7) #c113
+      Parameter('PP2A_III_0', 2.53054e7), #c113
+      Parameter('Pase9t_0', 0) #c521
      ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:
@@ -261,6 +262,9 @@ parameter_dict = OrderedDict([
       Parameter('ERKPP_PP3kr', 5), #kd56
       Parameter('ERKPP_PP3kc', .000240333) #kd57
       ]),
+    ('PP3_deg',
+     Parameter('PP3_degkf', .0003) #k116
+     ),
       # AKT pathway event rates:
     ('GRB2_bind_GAP',
      [Parameter('GRB2_bind_GAPkf', 1.67e-5), #k16
@@ -344,5 +348,35 @@ parameter_dict = OrderedDict([
      [Parameter('PIP3_dephoskf', 5e-6), #k109
       Parameter('PIP3_dephoskr', 1e-1), #kd109
       Parameter('PIP3_dephoskc', 2e-1) #kd104
+      ]),
+       # Crosstalk event rates:
+    ('ERKPP_phos_GAB1P',
+     [Parameter('ERKPP_phos_GAB1Pkf', 3.33-4), #k110
+      Parameter('ERKPP_phos_GAB1Pkr', 1e-1), #kd110
+      Parameter('ERKPP_phos_GAB1Pkc', 6.57) #kd111
+      ]),
+    ('Pase9t_dephos_GAB1PP',
+     [Parameter('Pase9t_dephos_GAB1PPkf', 8.33e-8), #k117
+      Parameter('Pase9t_dephos_GAB1PPkr', 1e-1), #kd117
+      Parameter('Pase9t_dephos_GAB1PPkc', 3e-2) #kd118
+      ]),
+    ('ERKPP_phos_SOS',
+     [Parameter('ERKPP_phos_SOSkf', 1.67e-5), #k64
+      Parameter('ERKPP_phos_SOSkr', 3e-1), #kd64
+      Parameter('ERKPP_phos_SOSkc', 2e-1) #kd65
+      ]),
+    ('SOSP_bind_GRB2',
+     [Parameter('SOSP_bind_GRB2kf', 8.33e-7), #k101
+      Parameter('SOSP_bind_GRB2kr', .0168702) #kd101
+      ]),
+    ('AKTPP_phos_RAFP',
+     [Parameter('AKTPP_phos_RAFPkf', 2.5e-7), #k114
+      Parameter('AKTPP_phos_RAFPkr', 1e-1), #kd114
+      Parameter('AKTPP_phos_RAFPkc', 1) #kd115
+      ]),
+    ('RASGDP_bind_PI3K',
+     [Parameter('RASGDP_bind_PI3Kkf', .000296973), #k112
+      Parameter('RASGDP_bind_PI3Kkr', 1e-1), #kd112
+      Parameter('RASGDP_bind_PI3Kkc', 5.62341) #kd113
       ])
     ])
