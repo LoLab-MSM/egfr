@@ -11,7 +11,7 @@ from erbb_exec import model
 
 
 def normalize(trajectories):
-    """Rescale a matrix of model trajectories to 0-100"""
+    """Rescale a matrix of model trajectories to 0-1"""
     ymin = trajectories.min(0)
     ymax = trajectories.max(0)
     return ((trajectories - ymin) / (ymax - ymin))
@@ -34,7 +34,7 @@ def prior(mcmc, position):
 
 def step(mcmc):
     """Print out some statistics every 20 steps"""
-    if mcmc.iter % 1 == 0:
+    if mcmc.iter % 20 == 0:
         print 'iter=%-5d  sigma=%-.3f  T=%-.3f  acc=%-.3f, lkl=%g  prior=%g  post=%g' % \
             (mcmc.iter, mcmc.sig_value, mcmc.T, float(mcmc.acceptance)/(mcmc.iter+1),
              mcmc.accept_likelihood, mcmc.accept_prior, mcmc.accept_posterior)
@@ -43,7 +43,7 @@ def step(mcmc):
 data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data_A431_highEGF.npy')
 ydata_norm = numpy.load(data_filename)
 var_data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data_var_A431_highEGF.npy')
-exp_var = numpy.load(var_data_filename) #Standard deviation was calculated from the mean by assuming a coefficient of variation of .25; sd's equal to 0 were set to 1 to avoid division by 0 errors.
+exp_var = numpy.load(var_data_filename) #Standard deviation was calculated from the mean by assuming a coefficient of variation of .25; sdev's equal to 0 were set to 1 to avoid division by 0 errors.
 
 # Convergance criteria: posterior should be less than 8.36 (the sum of all experimental variances).
 tspan = numpy.array([0., 150., 300., 450., 600., 900., 1800., 2700., 3600., 7200.]) #10 unevenly spaced time points
@@ -54,7 +54,7 @@ opts = bayessb.MCMCOpts()
 opts.model = model
 opts.tspan = tspan
 opts.integrator = 'vode'
-opts.nsteps = 150000
+opts.nsteps = 50000
 
 scenario = 1
 
@@ -100,7 +100,7 @@ for param, new_value in zip(opts.estimate_params, fitted_values):
     values = (param.name, param.value, new_value, change)
     print '%-10s %-12.2g %-12.2g %-+6.2f' % values
 
-# plot data and simulated cleaved PARP trajectories before and after the fit
+# plot data and simulated trajectories before and after the fit
 colors = ('r', 'g', 'b')
 patterns = ('k--', 'k', 'k:x')
 # generate a legend with the deconvolved colors and styles
@@ -122,3 +122,5 @@ for il, dl, fl, c in zip(initial_lines, data_lines, final_lines, colors):
     dl.set_linestyle(':')
     dl.set_marker('x')
 plt.show()
+numpy.save('calibration_allpositions_A431_highEGF.npy', mcmc.get_mixed_accepts(burn=opts.nsteps/10))
+numpy.save('calibration_fittedparams_A431_highEGF.npy', zip(opts.estimate_params, mcmc.cur_params()[mcmc.estimate_idx]))
