@@ -85,7 +85,7 @@ obs_names = ['obsAKTPP', 'obsErbB1_ErbB_P_CE', 'obsERKPP']
 opts = bayessb.MCMCOpts()
 opts.model = hem
 opts.tspan = tspan
-opts.integrator = 'lsoda'
+opts.integrator = 'vode'
 opts.nsteps = 50000
 
 scenario = 1
@@ -118,7 +118,7 @@ opts.seed = 1
 opts.atol=1e-6
 opts.rtol=1e-3
 opts.intsteps = 5000
-opts.with_jacobian = False
+opts.with_jacobian = True
 mcmc = bayessb.MCMC(opts)
 
 mcmc.run()
