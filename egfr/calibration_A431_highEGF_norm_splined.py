@@ -34,7 +34,7 @@ def likelihood(mcmc, position):
     ysim_norm = normalize(ysim_array)
     #FIXME: exp_var is really a sdev (and so is prior_var)
     # Column 0 = AKTPP, column 1 = ErbB1P, column 2 = ERKPP
-    return numpy.sum((ydata_norm - ysim_norm) ** 2 / (2 * exp_var_norm ** 2))
+    return numpy.sum((ydata_exp - ysim_norm) ** 2 / (2 * exp_var ** 2))
 
 def prior(mcmc, position):
     """Distance to original parameter values"""
@@ -48,12 +48,10 @@ def step(mcmc):
              mcmc.accept_likelihood, mcmc.accept_prior, mcmc.accept_posterior)
 
 # data is already scaled to 0-1
-data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data_A431_highEGF_unnorm_splined.npy')
+data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data_A431_highEGF_norm_splined.npy')
 ydata_exp = numpy.load(data_filename)
-ydata_norm = normalize(ydata_exp)
-var_data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data_var_A431_highEGF_unnorm_splined.npy')
+var_data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data_var_A431_highEGF_norm_splined.npy')
 exp_var = numpy.load(var_data_filename) #Standard deviation was calculated from the mean by assuming a coefficient of variation of .25; sdev's equal to 0 were set to 1 to avoid division by 0 errors
-exp_var_norm = normalize(exp_var)
 
 tspan = numpy.linspace(0,7200, num=1000)
 
