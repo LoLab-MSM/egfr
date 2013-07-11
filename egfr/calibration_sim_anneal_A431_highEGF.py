@@ -10,6 +10,12 @@ import pickle
 
 from erbb_exec import model
 
+with open('calibration_A431_highEGF_fittedparams_norm_splined_priorvar6_25000_2.txt', 'rb') as handle:
+    fittedparams = pickle.loads(handle.read())
+
+for i in range(len(model.parameters)):
+    if model.parameters[i].name in fittedparams:
+        model.parameters[i].value = fittedparams[model.parameters[i].name]
 
 # List of model observables and corresponding data file columns for
 # point-by-point fitting
