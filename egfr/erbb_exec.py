@@ -21,6 +21,7 @@ chen_modules.akt_events()
 chen_modules.crosstalk_events()
 
 # Initial protein concentrations
+chen_modules.rec_initial_lig_hEGF()
 chen_modules.rec_initial()
 chen_modules.mapk_initial()
 chen_modules.akt_initial()

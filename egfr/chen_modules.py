@@ -15,7 +15,7 @@ pathway in three modules:
 """
 
 from pysb import *
-from pysb.macros import *
+from pysb.new_macros import *
 from pysb.util import alias_model_components
 # from egfr.shared import * # modified model aliases
 
@@ -52,11 +52,28 @@ def rec_monomers():
     Monomer('ADP')
     Monomer('CPP', ['b', 'loc'], {'loc':['C', 'E']})
 
+def rec_initial_lig_hEGF():
+    Parameter('EGF_0',      3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    alias_model_components()
+    
+def rec_initial_lig_lEGF():
+    Parameter('EGF_0',      6.02e9) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    alias_model_components()
+
+def rec_initial_lig_hHRG():
+    Parameter('EGF_0',      0) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('HRG_0',       3.01e12) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    alias_model_components()
+
+def rec_initial_lig_lHRG():
+    Parameter('EGF_0',      0) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('HRG_0',         6.02e9) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    alias_model_components()
+    
 def rec_initial():
     # # Initial concentrations (except DEP1) for all cell types taken from Chen et al 2009 -- see Jacobian files
-    Parameter('EGF_0',      3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell 
-    Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
-    # Other initial values set in parameter dictionary file for given cell type.
     alias_model_components()
 
     Initial(EGF(b=None, st='M'), EGF_0)
@@ -86,6 +103,20 @@ def rec_events():
                 [erbb(ty='4', bd=None, b=None, st='U', loc='C'),            None,                                 (par['HRG_bind_ErbB4'])]],
                 'bl', 'b')
 
+    # Fudge factor: to fit Chen-Sorger experimental data for low EGF and both HRG concentrations, some AKTPP and ERKPP should be produced with very little (experimental data shows no) phosphorylated ErbB1.  
+    # The model as written could theoretically create this scenario for the HRG experimental data, but a 'fudge factor' needs to be added to allow EGF to trigger signaling NOT through ErbB1.
+    # The Chen-Sorger model handles this with the following rules (can't be what is happening biologically since EGF only binds ErbB1).
+
+    Rule('EGF_bind_ErbB2_ErbB3',
+         EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='U', loc='C', bl=None) <>
+         erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
+         *par['EGF_bind_ErbB2_ErbB3'])
+
+    Rule('EGF_bind_ErbB2_ErbB4',
+         EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='U', loc='C', bl=None) <>
+         erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
+         *par['EGF_bind_ErbB2_ErbB4'])
+        
     # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
     Rule('EGFE_bind_ErbBE',
          erbb(ty='1', bd=None, b=None, st='U', loc='E') + EGF(st='E', b=None) <>
