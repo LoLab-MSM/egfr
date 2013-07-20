@@ -359,7 +359,7 @@ parameter_dict = OrderedDict([
       ]),
        # Crosstalk event rates:
     ('ERKPP_phos_GAB1P',
-     [Parameter('ERKPP_phos_GAB1Pkf', 3.33-4), #k110
+     [Parameter('ERKPP_phos_GAB1Pkf', 3.33e-4), #k110
       Parameter('ERKPP_phos_GAB1Pkr', 1e-1), #kd110
       Parameter('ERKPP_phos_GAB1Pkc', 6.57) #kd111
       ]),
