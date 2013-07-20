@@ -166,7 +166,7 @@ parameter_dict = OrderedDict([
       Parameter('SHC_phoskr', 6e-2) #kd23
       ]),
     ('SHC_unbound_phos',
-     [Parameter('SHC_unbound_phoskf', 0), #kd36 - Chen-Sorger model written P --> U
+     [Parameter('SHC_unbound_phoskf', 1e-15), #kd36 - Chen-Sorger model written P --> U
       Parameter('SHC_unbound_phoskr', 5e-3) #k36
       ]),
     ('GRB2_SOS_bind_SHCP_GAP',
