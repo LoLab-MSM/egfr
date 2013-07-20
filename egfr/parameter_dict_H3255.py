@@ -349,7 +349,7 @@ parameter_dict = OrderedDict([
       ]),
     ('AKTPP_dephos',
      [Parameter('AKTPP_dephoskf', 1.79301e-5), #k74
-      Parameter('AKTPP_dephoskr', ..0632456), #kd74
+      Parameter('AKTPP_dephoskr', .0632456), #kd74
       Parameter('AKTPP_dephoskc', .00711312) #kd75
       ]),
     ('PIP3_dephos',
