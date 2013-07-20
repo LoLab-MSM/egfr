@@ -126,12 +126,12 @@ parameter_dict = OrderedDict([
       Parameter('CPP_bind_ErbB1dimerskr', 1.66e-4) #kd4
       ]),
     ('CPPE_bind_ErbB1dimers',
-     [Parameter('CPPE_bind_ErbB1dimerskf', 0), #k5 or k5b
+     [Parameter('CPPE_bind_ErbB1dimerskf', 1e-15), #k5 or k5b
       Parameter('CPPE_bind_ErbB1dimerskr', 8.0833e-3) #kd5b
       ]),
     ('CPP_int',
      [Parameter('CPP_intkf', 1.667e-8), #k15 Endo --> Cyto
-      Parameter('CPP_intkr', 0) #kd15
+      Parameter('CPP_intkr', 1e-15) #kd15
       ]),
     ('kdeg_1',
      Parameter('kdeg_1', .00015) #k60
@@ -166,7 +166,7 @@ parameter_dict = OrderedDict([
       Parameter('SHC_phoskr', 6e-2) #kd23
       ]),
     ('SHC_unbound_phos',
-     [Parameter('SHC_unbound_phoskf', 0), #kd36 - Chen-Sorger model written P --> U
+     [Parameter('SHC_unbound_phoskf', 1e-15), #kd36 - Chen-Sorger model written P --> U
       Parameter('SHC_unbound_phoskr', 5e-3) #k36
       ]),
     ('GRB2_SOS_bind_SHCP_GAP',
@@ -329,7 +329,7 @@ parameter_dict = OrderedDict([
       Parameter('PIP3_bind_AKTkr', 1e-1) #kd69
       ]),
     ('PIP3_bind_PDK1',
-     [Parameter('PIP3_bind_PDK1kf', 0), #k76
+     [Parameter('PIP3_bind_PDK1kf', 1e-15), #k76
       Parameter('PIP3_bind_PDK1kr', 4.0095) #kd76
       ]),
     ('AKT_PIP3_bind_PDK1',

@@ -126,12 +126,12 @@ parameter_dict = OrderedDict([
       Parameter('CPP_bind_ErbB1dimerskr', 1.66e-4) #kd4
       ]),
     ('CPPE_bind_ErbB1dimers',
-     [Parameter('CPPE_bind_ErbB1dimerskf', 0), #k5 or k5b
+     [Parameter('CPPE_bind_ErbB1dimerskf', 1e-15), #k5 or k5b
       Parameter('CPPE_bind_ErbB1dimerskr', 8.0833e-3) #kd5b
       ]),
     ('CPP_int',
      [Parameter('CPP_intkf', 1.667e-8), #k15 Endo --> Cyto
-      Parameter('CPP_intkr', 0) #kd15
+      Parameter('CPP_intkr', 1e-15) #kd15
       ]),
     ('kdeg_1',
      Parameter('kdeg_1', .000266742) #k60
@@ -329,7 +329,7 @@ parameter_dict = OrderedDict([
       Parameter('PIP3_bind_AKTkr', 1e-1) #kd69
       ]),
     ('PIP3_bind_PDK1',
-     [Parameter('PIP3_bind_PDK1kf', 0), #k76
+     [Parameter('PIP3_bind_PDK1kf', 1e-15), #k76
       Parameter('PIP3_bind_PDK1kr', 1.42262) #kd76
       ]),
     ('AKT_PIP3_bind_PDK1',
