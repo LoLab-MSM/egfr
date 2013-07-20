@@ -25,15 +25,15 @@ parameter_dict = OrderedDict([
       Parameter('PP1_0', 28117.1), #c44
       Parameter('PP2_0', 39363.9), #c53
       Parameter('PP3_0', 168702), #c60
-      Parameter('GRB2_SOS_0', 2.81171e6) #This added to better represent Chen Sorger model c30
-      Parameter('GAB1_0', 5.33484e7) #c426
-      Parameter('PI3K_0', 3.55656e5) #c287 c455?
-      Parameter('SHP2_0', 1.12202e5) #c463
-      Parameter('PIP_0',     1.2448e6) #c444
-      Parameter('PTEN_0',    5000) #c279
-      Parameter('SHP_0',     7000) #c461
-      Parameter('AKT_0',     9.05e5) #c107
-      Parameter('PDK1_0',     1.8955e6) #c109
+      Parameter('GRB2_SOS_0', 2.81171e6), #This added to better represent Chen Sorger model c30
+      Parameter('GAB1_0', 5.33484e7), #c426
+      Parameter('PI3K_0', 3.55656e5), #c287 c455?
+      Parameter('SHP2_0', 1.12202e5), #c463
+      Parameter('PIP_0',     1.2448e6), #c444
+      Parameter('PTEN_0',    5000), #c279
+      Parameter('SHP_0',     7000), #c461
+      Parameter('AKT_0',     9.05e5), #c107
+      Parameter('PDK1_0',     1.8955e6), #c109
       Parameter('PP2A_III_0', 401063), #c113
       Parameter('Pase9t_0', 0) #c521
     ]),
