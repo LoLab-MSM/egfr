@@ -51,6 +51,14 @@ parameter_dict = OrderedDict([
      [Parameter('HRG_bind_ErbB4kf', 1e7), #k119
       Parameter('HRG_bind_ErbB4kr', .00073) #kd119
       ]),
+    ('EGF_bind_ErbB2_ErbB3',
+     [Parameter('EGF_bind_ErbB2_ErbB3kf', 800), #k1c
+      Parameter('EGF_bind_ErbB2_ErbB3kr', 1) #kd1c
+      ]),
+    ('EGF_bind_ErbB2_ErbB4',
+     [Parameter('EGF_bind_ErbB2_ErbB4kf', 518), #k1d
+      Parameter('EGF_bind_ErbB2_ErbB4kr', 1e-1), #kd1d
+      ]),
     ('EGFE_bind_ErbBE',
      [Parameter('EGFE_bind_ErbBEkf', 5.426e-2), #k10b
       Parameter('EGFE_bind_ErbBEkr', 1.1e-2) #kd10
