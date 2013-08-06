@@ -35,7 +35,11 @@ parameter_dict = OrderedDict([
       Parameter('AKT_0',     9.05e5), #c107
       Parameter('PDK1_0',     1.8955e6), #c109
       Parameter('PP2A_III_0', 401063), #c113
-      Parameter('Pase9t_0', 0) #c521
+      Parameter('Pase9t_0', 0), #c521
+      # Parameter('ERKPP_0', 354450), #Added to fit experimental data
+      # Parameter('AKTPP_0', 126700) #Added to fit experimental data
+      Parameter('ERKPP_0', 0),
+      Parameter('AKTPP_0', 0)
     ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:
