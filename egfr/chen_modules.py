@@ -1,5 +1,5 @@
 """
-Overview
+Overview:
 ========
 
 PySB implementation of the ErbB related MAPK and AKT signaling
@@ -15,7 +15,7 @@ pathway in three modules:
 """
 
 from pysb import *
-from pysb.new_macros import *
+from pysb.macros import *
 from pysb.util import alias_model_components
 # from egfr.shared import * # modified model aliases
 
@@ -85,7 +85,8 @@ def rec_initial():
     Initial(ATP(b=None), ATP_0)
     Initial(DEP(b=None), DEP_0)
     Initial(CPP(b=None, loc='C'), CPP_0)
-
+    Initial(erbb(bl=None, bd=1, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N') % erbb(bl=None, bd=1, b=None, ty='2', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB12P_0)
+    Initial(erbb(bl=None, bd=1, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N') % erbb(bl=None, bd=1, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB11P_0)
             
 def rec_events():
     """ Describe receptor-level events here. 
@@ -369,6 +370,7 @@ def mapk_initial():
     Initial(PP2(b=None), PP2_0)
     Initial(PP3(b=None), PP3_0)
     Initial(GRB2(b=None, bsos=1, bgap=None, bgab1=None, bcpp=None) % SOS(bgrb=1, bras=None, bERKPP=None, st='U'), GRB2_SOS_0)
+    Initial(ERK(b=None, st='PP'), ERKPP_0)
 
     
 def mapk_events():
@@ -627,6 +629,8 @@ def akt_initial():
     Initial(AKT(bpip3=None, both=None, S='U'), AKT_0)
     Initial(PDK1(bakt=None, both=None), PDK1_0)
     Initial(PP2A_III(bakt=None, both=None), PP2A_III_0)
+    Initial(AKT(bpip3=None, both=None, S='PP'), AKTPP_0)
+    
 def akt_events():
     #GRB2 binds GAP-complex (without requiring SHC bound to complex):
     #Bind GRB2 without SOS already bound (two Chen-Sorger rate constants for different receptor dimers):
