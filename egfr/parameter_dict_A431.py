@@ -38,14 +38,16 @@ parameter_dict = OrderedDict([
       Parameter('Pase9t_0', 0), #c521
       Parameter('ERKPP_0', 0),
       Parameter('AKTPP_0', 0),
-      Parameter('ErbB11P_0', 0),
-      Parameter('ErbB12P_0', 0)
     ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:
     ('EGF_bind_ErbB1',
      [Parameter('EGF_bind_ErbB1kf', 1e7), #k1
       Parameter('EGF_bind_ErbB1kr', .0033) #kd1
+      ]),
+    ('EGF_bind_ErbB1d',
+     [Parameter('EGF_bind_ErbB1dkf', 1e7), #k1
+      Parameter('EGF_bind_ErbB1dkr', .0033) #kd1
       ]),
     ('HRG_bind_ErbB3',
      [Parameter('HRG_bind_ErbB3kf', 1e7), #k119
@@ -67,6 +69,10 @@ parameter_dict = OrderedDict([
      [Parameter('EGFE_bind_ErbBEkf', 5.426e-2), #k10b
       Parameter('EGFE_bind_ErbBEkr', 1.1e-2) #kd10
       ]),
+    ('ErbB1_bind_ErbB1L',
+     [Parameter('ErbB1_bind_ErbB1Lkf', 7.44622e-6), #k2
+      Parameter('ErbB1_bind_ErbB1Lkr', 1.6e-1) #kd2
+      ]),
     ('ErbB1_bind_ErbB1',
      [Parameter('ErbB1_bind_ErbB1kf', 7.44622e-6), #k2
       Parameter('ErbB1_bind_ErbB1kr', 1.6e-1) #kd2
@@ -75,21 +81,37 @@ parameter_dict = OrderedDict([
      [Parameter('ErbB1_bind_ErbB2kf', 3.73632e-8), #k2b 
       Parameter('ErbB1_bind_ErbB2kr', 1.6e-2) #kd2b
       ]),
+    ('ErbB1_bind_ErbB3',
+     [Parameter('ErbB1_bind_ErbB3kf', 3.73632e-8), #k2b
+      Parameter('ErbB1_bind_ErbB3kr', 1.6e-2) #kd2b
+      ]),
+    ('ErbB1_bind_ErbB4',
+     [Parameter('ErbB1_bind_ErbB4kf', 3.73632e-8), #k2b
+      Parameter('ErbB1_bind_ErbB4kr', 1.6e-2) #kd2b
+      ]),
+    ('ErbB1L_bind_ErbB1L',
+     [Parameter('ErbB1L_bind_ErbB1Lkf', 7.44622e-6), #k2
+      Parameter('ErbB1L_bind_ErbB1Lkr', 1.6e-1) #kd2
+      ]),
+    ('ErbB1L_bind_ErbB2',
+     [Parameter('ErbB1L_bind_ErbB2kf', 3.73632e-8), #k2b 
+      Parameter('ErbB1L_bind_ErbB2kr', 1.6e-2) #kd2b
+      ]),
     ('ErbB2_bind_ErbB2',
      [Parameter('ErbB2_bind_ErbB2kf', 8.36983e-9), #k103
       Parameter('ErbB2_bind_ErbB2kr', 1.6e-2) #kd103
       ]),
-    ('ErbB1_bind_ErbB3',
-     [Parameter('ErbB1_bind_ErbB3kf', 3.73632e-8), #k2b
-      Parameter('ErbB1_bind_ErbB3kr', 1.6e-2) #kd2b
+    ('ErbB1L_bind_ErbB3',
+     [Parameter('ErbB1L_bind_ErbB3kf', 3.73632e-8), #k2b
+      Parameter('ErbB1L_bind_ErbB3kr', 1.6e-2) #kd2b
       ]),
     ('ErbB2_bind_ErbB3',
      [Parameter('ErbB2_bind_ErbB3kf', 1.48131e-8), #k120
       Parameter('ErbB2_bind_ErbB3kr', 1e-1) #kd120
       ]),
-    ('ErbB1_bind_ErbB4',
-     [Parameter('ErbB1_bind_ErbB4kf', 3.73632e-8), #k2b
-      Parameter('ErbB1_bind_ErbB4kr', 1.6e-2) #kd2b
+    ('ErbB1L_bind_ErbB4',
+     [Parameter('ErbB1L_bind_ErbB4kf', 3.73632e-8), #k2b
+      Parameter('ErbB1L_bind_ErbB4kr', 1.6e-2) #kd2b
       ]),
     ('ErbB2_bind_ErbB4',
      [Parameter('ErbB2_bind_ErbB4kf', 1.48131e-8), #k120
@@ -99,24 +121,46 @@ parameter_dict = OrderedDict([
      [Parameter('ErbB1_bind_ATPkf', 1.8704e-8), #k122
       Parameter('ErbB1_bind_ATPkr', 1), #kd122
       ]),
-    ('ErbB2_bind_ATP',
-     [Parameter('ErbB2_bind_ATPkf', 1.8704e-8), #k122
+    ('ErbB22_bind_ATP',
+     [Parameter('ErbB2_bind_ATPkf', 1.8704-8),
       Parameter('ErbB2_bind_ATPkr', 1) #kd122
       ]),
-    ('ErbB4_bind_ATP',
+    ('ErbB23_bind_ATP',
+     [Parameter('ErbB3_bind_ATPkf', 1.8704e-8), #k122
+      Parameter('ErbB3_bind_ATPkr', 1) #kd122
+      ]),
+    ('ErbB24_bind_ATP',
      [Parameter('ErbB4_bind_ATPkf', 1.8704e-8), #k122
       Parameter('ErbB4_bind_ATPkr', 1) #kd122
       ]),
       #All unphosphorylated ErbB dimers binding DEP rate constants are set to 0 in Jacobian files (k95). 
-    ('ErbBP_bind_DEP',
-     [Parameter('ErbBP_bind_DEPkf', 5e-5), #k94 or k94b (equal in Jacobian files)
-      Parameter('ErbBP_bind_DEPkr', 1e-2) #kd94
+    ('ErbBP1_bind_DEP',
+     [Parameter('ErbBP1_bind_DEPkf', 5e-5), #k94 or k94b (equal in Jacobian files)
+      Parameter('ErbBP1_bind_DEPkr', 1e-2) #kd94
+      ]),
+    ('ErbBP2_bind_DEP',
+     [Parameter('ErbBP2_bind_DEPkf', 5e-5), #k94 or k94b (equal in Jacobian files)
+      Parameter('ErbBP2_bind_DEPkr', 1e-2) #kd94
+      ]),
+    ('ErbBP4_bind_DEP',
+     [Parameter('ErbBP4_bind_DEPkf', 5e-5), #k94 or k94b (equal in Jacobian files)
+      Parameter('ErbBP4_bind_DEPkr', 1e-2) #kd94
       ]),
       #All phosphorylated ErbB dimers binding ATP rate constants are set to 0 in Jacobian files (k123).
     ('ATP_phos_ErbB', #kd123
      .177828),
     ('DEP_dephos_ErbB', #kd95
      33),
+    ('ErbB1P_ErbBXP_bind',
+     [Parameter('ErbB1P_ErbBXP_bindkf', 5e-7), #k102
+      Parameter('ErbB1P_ErbBXP_bindkr', 5.61009) #kd102
+      ]),
+    ('ErbB2P_ErbBXP_bind',
+     [Parameter('ErbB2P_ErbBXP_bindkf', 8.36983e-9), #k103
+      Parameter('ErbB2P_ErbBXP_bindkr', 1.6e-2) #kd103
+      ]),
+    ('ErbB2_lateralsignal',
+      8.36983e-9), #k103
     ('kint_no_cPP_1', 
      [Parameter('kint_no_cPP_1kf', .013), #k6
       Parameter('kint_no_cPP_1kr', 5e-5) #kd6
@@ -329,6 +373,10 @@ parameter_dict = OrderedDict([
     ('PIP2_PI3K_catalysis',
      Parameter('PIP2_PI3K_catalysiskc', 2e-1) #kd68
      ),
+    ('ErbB23_bind_PI3K',
+     [Parameter('ErbB23_bind_PI3Kkf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3Kkr', 1e-1) #kd106
+      ]),
     ('PIP3_bind_AKT',
      [Parameter('PIP3_bind_AKTkf', 3.33e-5), #k69
       Parameter('PIP3_bind_AKTkr', 1e-1) #kd69
