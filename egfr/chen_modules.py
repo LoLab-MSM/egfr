@@ -53,7 +53,7 @@ def rec_monomers():
     Monomer('CPP', ['b', 'loc'], {'loc':['C', 'E']})
 
 def rec_initial_lig_hEGF():
-    Parameter('EGF_0',      3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('EGF_0',     3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     alias_model_components()
     
@@ -85,8 +85,6 @@ def rec_initial():
     Initial(ATP(b=None), ATP_0)
     Initial(DEP(b=None), DEP_0)
     Initial(CPP(b=None, loc='C'), CPP_0)
-    Initial(erbb(bl=None, bd=1, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N') % erbb(bl=None, bd=1, b=None, ty='2', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB12P_0)
-    Initial(erbb(bl=None, bd=1, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N') % erbb(bl=None, bd=1, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB11P_0)
             
 def rec_events():
     """ Describe receptor-level events here. 
@@ -98,25 +96,30 @@ def rec_events():
     alias_model_components()
     # EGF / HRG binding to receptors
     # EGF / HRG receptor binding rates obtained from Chen et al Jacobian files
-    bind_table([[                                                          EGF(st='M'),                                   HRG],
-                [erbb(ty='1', bd=None, b=None, st='U', loc='C'),           (par['EGF_bind_ErbB1']),               None],
-                [erbb(ty='3', bd=None, b=None, st='U', loc='C'),            None,                                 (par['HRG_bind_ErbB3'])],
-                [erbb(ty='4', bd=None, b=None, st='U', loc='C'),            None,                                 (par['HRG_bind_ErbB4'])]],
+    bind_table([[                                                                                    EGF(st='M'),                                   HRG],
+                [erbb(ty='1', bl=None, bd=None, b=None, st='U', loc='C'),                            (par['EGF_bind_ErbB1']),                       None],
+                [erbb(ty='3', b=None, bd=None, st='U', loc='C'),                                     None,                                          (par['HRG_bind_ErbB3'])],
+                [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                     None,                                          (par['HRG_bind_ErbB4'])]],
                 'bl', 'b')
+
+    Rule('EGF_bind_ErbB1dimers',
+         erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bd=1, b=None, st='U', loc='C') + EGF(st='M', b=None) <>
+         erbb(ty='1', bl=2, bd=1, b=None, st='U', loc='C') % erbb(bd=1, b=None, st='U', loc='C') % EGF(st='M', b=2),
+         *par['EGF_bind_ErbB1d'])
 
     # Fudge factor: to fit Chen-Sorger experimental data for low EGF and both HRG concentrations, some AKTPP and ERKPP should be produced with very little (experimental data shows no) phosphorylated ErbB1.  
     # The model as written could theoretically create this scenario for the HRG experimental data, but a 'fudge factor' needs to be added to allow EGF to trigger signaling NOT through ErbB1.
     # The Chen-Sorger model handles this with the following rules (can't be what is happening biologically since EGF only binds ErbB1).
 
-    Rule('EGF_bind_ErbB2_ErbB3',
-         EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='U', loc='C', bl=None) <>
-         erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
-         *par['EGF_bind_ErbB2_ErbB3'])
+    # Rule('EGF_bind_ErbB2_ErbB3',
+    #      EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='U', loc='C', bl=None) <>
+    #      erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
+    #      *par['EGF_bind_ErbB2_ErbB3'])
 
-    Rule('EGF_bind_ErbB2_ErbB4',
-         EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='U', loc='C', bl=None) <>
-         erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
-         *par['EGF_bind_ErbB2_ErbB4'])
+    # Rule('EGF_bind_ErbB2_ErbB4',
+    #      EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='U', loc='C', bl=None) <>
+    #      erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
+    #      *par['EGF_bind_ErbB2_ErbB4'])
         
     # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
     Rule('EGFE_bind_ErbBE',
@@ -126,17 +129,19 @@ def rec_events():
     
     # ErbB dimerization
     # Dimerization rates obtained from Chen et al Jacobian files
-    # erbbs are required to contain a ligand (except for erbb2 which cannot bind a ligand)
+    # erbb1 is not required to contain a ligand in order to dimerize (3 and 4 are)
+    erbb1 = erbb(ty='1', bl=None, b=None, st='U', loc='C')
     erbb1Lig = erbb(ty='1', bl=ANY, b=None, st='U', loc='C')
-    erbb2Lig = erbb(ty='2', bl=None, b=None, st='U', loc='C')
-    erbb3Lig = erbb(ty='3',bl=ANY, b=None, st='U', loc='C')
-    erbb4Lig = erbb(ty='4',bl=ANY, b=None, st='U', loc='C')
-    bind_table([[                          erbb1Lig,                    erbb2Lig,                     erbb3Lig, erbb4Lig],
-                [erbb1Lig,                 (par['ErbB1_bind_ErbB1']),   None,                         None,     None],
-                [erbb2Lig,                 (par['ErbB1_bind_ErbB2']),   (par['ErbB2_bind_ErbB2']),    None,     None],
-                [erbb3Lig,                 (par['ErbB1_bind_ErbB3']),   (par['ErbB2_bind_ErbB3']),    None,     None],
-                [erbb4Lig,                 (par['ErbB1_bind_ErbB4']),   (par['ErbB2_bind_ErbB4']),    None,     None]],
-        'bd', 'bd')
+    erbb2Lig = erbb(ty='2', b=None, st='U', loc='C')
+    erbb3Lig = erbb(ty='3', bl=ANY, b=None, st='U', loc='C')
+    erbb4Lig = erbb(ty='4', bl=ANY, b=None, st='U', loc='C')
+    bind_table([[                          erbb1,                      erbb1Lig,                     erbb2Lig,                    erbb3Lig, erbb4Lig],
+                [erbb1,                    (par['ErbB1_bind_ErbB1']),  None,                         None,                        None,     None],
+                [erbb1Lig,                 (par['ErbB1_bind_ErbB1L']), (par['ErbB1L_bind_ErbB1L']),  None,                        None,     None],
+                [erbb2Lig,                 (par['ErbB1_bind_ErbB2']),  (par['ErbB1L_bind_ErbB2']),   (par['ErbB2_bind_ErbB2']),   None,     None],
+                [erbb3Lig,                 (par['ErbB1_bind_ErbB3']),  (par['ErbB1L_bind_ErbB3']),   (par['ErbB2_bind_ErbB3']),   None,     None],
+                [erbb4Lig,                 (par['ErbB1_bind_ErbB4']),  (par['ErbB1L_bind_ErbB4']),   (par['ErbB2_bind_ErbB4']),   None,     None]],
+                'bd', 'bd')
 
     # ATP binding: ATP only binds to dimers
     # ATP binding rates obtained from Chen et al (Supplementary)
@@ -148,11 +153,19 @@ def rec_events():
     #                     [erbb(ty='4', st='U', loc='C', b=None), (par['ErbB4_bind_ATP'])]],
     #                     'b', 'b')
 
-    for i in ['1', '2', '4']:
-        Rule('ATP_bind_ErbB'+i,
-             erbb(ty=i, st='U', loc='C', b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
-             erbb(ty=i, st='U', loc='C', b=2, bd=1) % erbb(st='U', loc='C', b=None, bd=1) % ATP(b=2),
-             *par['ErbB'+i+'_bind_ATP'])
+    
+
+    for i in ['3', '4']:
+        Rule('ATP_bind_ErbB2'+i,
+             erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
+             erbb(ty='2', st='U', loc='C', b=2, bd=1) % erbb(ty=i, st='U', loc='C', b=None, bd=1) % ATP(b=2),
+             *par['ErbB2'+i+'_bind_ATP'])
+
+    Rule('ATP_bind_ErbB1',
+             erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
+             erbb(ty='1', st='U', loc='C', bl=ANY, b=2, bd=1) % erbb(st='U', loc='C', b=None, bd=1) % ATP(b=2),
+             *par['ErbB1_bind_ATP'])
+        
     
 
     # bind_table([                                                           [DEP],
@@ -165,7 +178,7 @@ def rec_events():
         Rule('DEP_bind_ErbB'+i,
              erbb(ty=i, st='P', loc='C', b=None, bd=1) % erbb(st='P', loc='C', b=None, bd=1) + DEP(b=None) <>
              erbb(ty=i, st='P', loc='C', b=2, bd=1) % erbb(st='P', loc='C', b=None, bd=1) % DEP(b=2),
-             *par['ErbBP_bind_DEP'])
+             *par['ErbBP'+i+'_bind_DEP'])
 
     # Cross phosphorylation: only erbb1, 2, and 4 have ATP, and they can cross-phosphorylate any other receptor
     # erbb2:erbb2 pairs only happen by dissociation of phosphorylated monomers
@@ -190,6 +203,21 @@ def rec_events():
                  DEP(b=None) + erbb(ty=i, b=None, bd=2, st='U') % erbb(ty=j, bd=2, b=None, st='U'),
                  Parameter("kcd"+i+j, par['DEP_dephos_ErbB']))
 
+
+    #ErbB2 lateral signaling - ErbB2P-ErbB2P dimers can only form by the dissociation of ligand-containing, phosphorylated dimers containing ErbB2.  The monomeric activated ErbB2 can then bind and activate other monomers (ErbB1, 3, or 4 -- allows EGF signal to be transmitted by ErbB2/ErbB3 and ErbB2/ErbB4 complexes, even though 3 and 4 can't bind EGF) or bind another phosphorylated ErbB2 to form an active complex (that still requires an EGF signal to get started)
+
+    bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB1P_ErbBXP_bind'])
+
+    bind(erbb(ty='2', bd=None, st='P', b=None, loc='C'), 'bd', erbb(bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB2P_ErbBXP_bind'])
+
+    for i in ['3', '4']:
+        Rule('ErbB2_lateralsignal_'+i,
+             erbb(ty='2', bd=None, st='P', b=None, loc='C') + erbb(ty=i, bd=None, st='U', b=None, loc='C') >>
+             erbb(ty='2', bd=None, st='P', b=None, loc='C') % erbb(ty=i, bd=None, st='P', b=None, loc='C'),
+             Parameter('ErbB2_lateralsignal_k'+i, par['ErbB2_lateralsignal']))
+
+
+    alias_model_components()
     # Receptor internalization
     # This internalizes receptors (with/without complexes) after binding to CPP (coated pit protein) as well as without CPP (first 2 sets of rules).  Only ErbB1/ErbB1 dimers and ErbB1/ErbBX:GAP:GRB2:SOS:RAS-GTP can bind and be internalized by CPP.
     # The Chen/Sorger model implements different internalization rates for different receptor combinations/complexes:
