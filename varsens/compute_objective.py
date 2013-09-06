@@ -41,4 +41,3 @@ samples = np.loadtxt(samplefile)
 result = np.array([objective(sample) for sample in samples])
 np.savetxt(outfilename, result)
 
-return 0
