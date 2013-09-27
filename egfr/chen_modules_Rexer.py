@@ -32,7 +32,7 @@ KINTF = 1.3e-3
 KINTR = 5.0e-5
 KDEG = .1
 
-from parameter_dict_BT474 import parameter_dict as par
+from parameter_dict_SKBR3 import parameter_dict as par
 #FIXME: What is Inh in reaction list?
         
 # Monomer declarations
@@ -52,6 +52,7 @@ def rec_monomers():
     Monomer('ADP')
     Monomer('CPP', ['b', 'loc'], {'loc':['C', 'E']})
     Monomer('LAP', ['b', 'loc'], {'loc':['M', 'C', 'E']})
+    Monomer('BKM120', ['b', 'loc'], {'loc':['M', 'C']})
 
 def rec_initial_lig_hEGF():
     Parameter('EGF_0',      3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
@@ -79,6 +80,9 @@ def rec_initial_lig_lHRG():
 def rec_initial_inhib_LAP():
     Parameter('LAP_0', 6.02e14) # 1 microM lapatinib = 6.02e14 molec/cell
 
+def rec_initial_inhib_PI3K():
+    Parameter('BKM120_0', 0) # 1 microM BKM120 = 6.02e14 molec/cell
+
 def rec_initial():
     # # Initial concentrations (except DEP1) for all cell types taken from Chen et al 2009 -- see Jacobian files
     alias_model_components()
@@ -93,6 +97,7 @@ def rec_initial():
     Initial(DEP(b=None), DEP_0)
     Initial(CPP(b=None, loc='C'), CPP_0)
     Initial(LAP(b=None, loc='M'), LAP_0)
+    Initial(BKM120(b=None, loc='M'), BKM120_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB1P_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='2', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB2P_0)
             
@@ -136,8 +141,11 @@ def rec_events():
     # Dimerization rates obtained from Chen et al Jacobian files
 
     # MODIFICATION - Added lapatinib transport into the cell.
+    # FURTHER MOD - Added BKM120 (PI3K inhibitor) transport into cell.
 
     equilibrate(LAP(loc='M', b=None), LAP(loc='C', b=None), par['LAP_transport_MC'])
+
+    equilibrate(BKM120(loc='M', b=None), BKM120(loc='C', b=None), par['BKM120_transport_MC'])
     
     # MODIFICATION for Rexer model -- Monomers are not required to contain a ligand to form dimers but won't form active phosphorylated dimers without ligand (except ErbB2 containing dimers).
     erbb1Lig = erbb(ty='1', b=None, st='U', loc='C')
@@ -792,6 +800,12 @@ def akt_events():
 
 
     # MODIFICATION for Rexer model: Added synthesis of PI3K
+    # FURTHER MODFICIATION: Added binding of inhibitor BKM120 to PI3K
+    # FURTHER MODIFICATION: Added 'mutated' PI3K (PI3K that is catalytically active regardless of what it's bound to)
+
+    catalyze_state(PI3K, 'bpip', PIP(both=None, bakt=None, bself2=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', par['PIP2_PI3Kmut_catalysis'])
+
+    bind(PI3K(), 'bpip', BKM120(loc='C'), 'b', par['BKM120_bind_PI3K'])
 
     synthesize(PI3K(bpip=None, bgab1=None, bras=None, berb=None), par['PI3K_syn'])
     

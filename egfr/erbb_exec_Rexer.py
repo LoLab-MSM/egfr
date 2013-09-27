@@ -23,7 +23,8 @@ chen_modules_Rexer.akt_events()
 chen_modules_Rexer.crosstalk_events()
 
 # Initial protein concentrations
-chen_modules_Rexer.rec_initial_inhib_LAP() 
+chen_modules_Rexer.rec_initial_inhib_LAP()
+chen_modules_Rexer.rec_initial_inhib_PI3K()
 chen_modules_Rexer.rec_initial()
 chen_modules_Rexer.mapk_initial()
 chen_modules_Rexer.akt_initial()
@@ -42,6 +43,13 @@ Observable('obsMEK', MEK())
 Observable('obsPDK1', PDK1())
 Observable('obsPI3K', PI3K())
 Observable('obsPTEN', PTEN())
+
+Observable('AKTP_PIP3', AKT(bpip3=ANY, S='P'))
+Observable('AKTP_PIP3_PDK1', AKT(bpip3=ANY, S='P', both=ANY))
+Observable('AKT_PIP3_PDK1', AKT(bpip3=ANY, S='U', both=ANY))
+Observable('PIP3_PDK1', PIP(S='PIP3', bakt=None, bpi3k_self=None, both=1) % PDK1(bakt=None, both=1))
+Observable('PDK1_free', PDK1(bakt=None, both=None))
+Observable('PIP3', PIP(S='PIP3'))
 
 # # Observable('obsEGF', EGF())
 
