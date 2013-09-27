@@ -47,9 +47,9 @@ def step(mcmc):
              mcmc.accept_likelihood, mcmc.accept_prior, mcmc.accept_posterior)
 
 # data is already scaled to 0-1
-data_filename = os.path.join(os.path.dirname(__file__), 'RPPA_experimental_data_BT474_1htp.npy')
+data_filename = os.path.join(os.path.dirname(__file__), 'RPPA_experimental_data_SKBR3_1htp.npy')
 ydata_exp = numpy.load(data_filename)
-var_data_filename = os.path.join(os.path.dirname(__file__), 'RPPA_experimental_data_var_BT474_1htp.npy')
+var_data_filename = os.path.join(os.path.dirname(__file__), 'RPPA_experimental_data_var_SKBR3_1htp.npy')
 ydata_exp_var = numpy.load(var_data_filename) #Standard deviation was calculated from the mean by assuming a coefficient of variation of .25; sdev's equal to 0 were set to 1 to avoid division by 0 errors
 
 tspan = numpy.linspace(0,3600, num=57600)
@@ -115,7 +115,7 @@ for param, new_value in zip(opts.estimate_params, fitted_values):
     print '%-10s %-12.2g %-12.2g %-+6.2f' % values
     param_dict[param.name] = new_value
 
-with open('calibration_Rexer_model_1htp', 'wb') as handle:
+with open('calibration_Rexer_model_skbr3_1htp', 'wb') as handle:
     pickle.dump(param_dict, handle)
 
 print 'with activated ErbB2'
@@ -129,8 +129,8 @@ oldvalues_array = numpy.array(oldvalues)
 newvalues_array = numpy.array(newvalues)
 change = numpy.log10(newvalues_array / oldvalues_array)
 combined = numpy.column_stack((name, oldvalues, newvalues, change))
-numpy.savetxt('calibration_Rexer_model_1htp.txt', combined, delimiter=' ', fmt='%s')
-numpy.save('calibration_alltestedparams_Rexer_model_1htp.npy', mcmc.positions)
-numpy.save('calibration_allpositions_Rexer_model_1htp.npy', mcmc.get_mixed_accepts(burn=opts.nsteps/10))
-numpy.save('calibration_fittedparams_Rexer_model_1htp.npy', zip(opts.estimate_params, mcmc.cur_params()[mcmc.estimate_idx]))
-numpy.save('calibration_likelihoods_Rexer_model_1htp.npy', mcmc.likelihoods)
+numpy.savetxt('calibration_Rexer_model_skbr3_1htp.txt', combined, delimiter=' ', fmt='%s')
+numpy.save('calibration_alltestedparams_Rexer_model_skbr3_1htp.npy', mcmc.positions)
+numpy.save('calibration_allpositions_Rexer_model_skbr3_1htp.npy', mcmc.get_mixed_accepts(burn=opts.nsteps/10))
+numpy.save('calibration_fittedparams_Rexer_model_skbr3_1htp.npy', zip(opts.estimate_params, mcmc.cur_params()[mcmc.estimate_idx]))
+numpy.save('calibration_likelihoods_Rexer_model_skbr3_1htp.npy', mcmc.likelihoods)
