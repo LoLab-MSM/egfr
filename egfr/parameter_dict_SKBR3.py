@@ -345,7 +345,7 @@ parameter_dict = OrderedDict([
       Parameter('RAFP_PP1kc', 31.6228) #kd43
       ]),
     ('MEK_syn',
-     Parameter('MEK_syn', .14)
+     Parameter('MEK_syn', .216)
      ),
     ('RAFP_MEK',
      [Parameter('RAFP_MEKkf', 1.07e-5), #k44
@@ -429,7 +429,7 @@ parameter_dict = OrderedDict([
       Parameter('PIP2_PI3Kmut_catalysiskc', 1617)
       ]),
     ('PI3K_syn',
-     Parameter('PI3K_syn', .03)
+     Parameter('PI3K_syn', .002)
      ),
     ('GAB1_bind_PI3K_1',
      [Parameter('GAB1_bind_PI3Kkf', 1.5e-5), #k66
@@ -465,13 +465,13 @@ parameter_dict = OrderedDict([
      Parameter('ErbB23_PI3K_cat_PIP3kc', 123)
      ),
     ('AKT_syn',
-     Parameter('AKT_syn', 6.6)
+     Parameter('AKT_syn', 4.13)
      ),
     ('PDK1_syn',
-     Parameter('PDK1_syn', 2)
+     Parameter('PDK1_syn', 9.05)
      ),
     ('PTEN_syn',
-     Parameter('PTEN_syn', .31)
+     Parameter('PTEN_syn', .04)
      ),
     ('PIP3_bind_AKT',
      [Parameter('PIP3_bind_AKTkf', 3.33e-5), #k69
