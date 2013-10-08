@@ -24,7 +24,7 @@ chen_modules_Rexer.crosstalk_events()
 
 # Initial protein concentrations
 chen_modules_Rexer.rec_initial_inhib_LAP()
-chen_modules_Rexer.rec_initial_inhib_PI3K()
+#chen_modules_Rexer.rec_initial_inhib_PI3K()
 chen_modules_Rexer.rec_initial()
 chen_modules_Rexer.mapk_initial()
 chen_modules_Rexer.akt_initial()

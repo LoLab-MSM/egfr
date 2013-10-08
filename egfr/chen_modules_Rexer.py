@@ -32,7 +32,7 @@ KINTF = 1.3e-3
 KINTR = 5.0e-5
 KDEG = .1
 
-from parameter_dict_SKBR3 import parameter_dict as par
+from parameter_dict_BT474 import parameter_dict as par
 #FIXME: What is Inh in reaction list?
         
 # Monomer declarations
@@ -97,7 +97,7 @@ def rec_initial():
     Initial(DEP(b=None), DEP_0)
     Initial(CPP(b=None, loc='C'), CPP_0)
     Initial(LAP(b=None, loc='M'), LAP_0)
-    Initial(BKM120(b=None, loc='M'), BKM120_0)
+    #Initial(BKM120(b=None, loc='M'), BKM120_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='1', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB1P_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='2', st='P', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), ErbB2P_0)
             
@@ -116,26 +116,6 @@ def rec_events():
     #             [erbb(ty='3', bd=None, b=None, st='U', loc='C'),            None,                                 (par['HRG_bind_ErbB3'])],
     #             [erbb(ty='4', bd=None, b=None, st='U', loc='C'),            None,                                 (par['HRG_bind_ErbB4'])]],
     #             'bl', 'b')
-
-    # Fudge factor: to fit Chen-Sorger experimental data for low EGF and both HRG concentrations, some AKTPP and ERKPP should be produced with very little (experimental data shows no) phosphorylated ErbB1.  
-    # The model as written could theoretically create this scenario for the HRG experimental data, but a 'fudge factor' needs to be added to allow EGF to trigger signaling NOT through ErbB1.
-    # The Chen-Sorger model handles this with the following rules (can't be what is happening biologically since EGF only binds ErbB1).
-
-    # Rule('EGF_bind_ErbB2_ErbB3',
-    #      EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='U', loc='C', bl=None) <>
-    #      erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
-    #      *par['EGF_bind_ErbB2_ErbB3'])
-
-    # Rule('EGF_bind_ErbB2_ErbB4',
-    #      EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='U', loc='C', bl=None) <>
-    #      erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
-    #      *par['EGF_bind_ErbB2_ErbB4'])
-        
-    # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
-    # Rule('EGFE_bind_ErbBE',
-    #      erbb(ty='1', bd=None, b=None, st='U', loc='E') + EGF(st='E', b=None) <>
-    #      erbb(ty='1', bd=None, b=None, st='U', loc='E') % EGF(st='M', b=None),
-    #      *par['EGFE_bind_ErbBE'])
     
     # ErbB dimerization
     # Dimerization rates obtained from Chen et al Jacobian files
@@ -145,7 +125,7 @@ def rec_events():
 
     equilibrate(LAP(loc='M', b=None), LAP(loc='C', b=None), par['LAP_transport_MC'])
 
-    equilibrate(BKM120(loc='M', b=None), BKM120(loc='C', b=None), par['BKM120_transport_MC'])
+    #equilibrate(BKM120(loc='M', b=None), BKM120(loc='C', b=None), par['BKM120_transport_MC'])
     
     # MODIFICATION for Rexer model -- Monomers are not required to contain a ligand to form dimers but won't form active phosphorylated dimers without ligand (except ErbB2 containing dimers).
     erbb1Lig = erbb(ty='1', b=None, st='U', loc='C')
@@ -166,16 +146,6 @@ def rec_events():
                 [erbb2Lig,    (par['LAP_bind_ErbB2'])]],
                 'b', 'b')
 
-    # ATP binding: ATP only binds to dimers
-    # ATP binding rates obtained from Chen et al (Supplementary)
-    # include DEP binding here since they both bind to the same site
-    # Once we have a working bind_complex_table macro, use that instead of all these rules:
-    # bind_table([[                                                           ATP],
-    #                     [erbb(ty='1', st='U', loc='C', b=None), (par['ErbB1_bind_ATP'])],
-    #                     [erbb(ty='2', st='U', loc='C', b=None), (par['ErbB2_bind_ATP'])],
-    #                     [erbb(ty='4', st='U', loc='C', b=None), (par['ErbB4_bind_ATP'])]],
-    #                     'b', 'b')
-
     # MODIFICATION for Rexer data: All ErbB2 containing dimers can be directly phosphorylated -- allows signal without ligand
     # Also: All other dimers are only phosphorylated by interaction with dissassociated ErbB2P -- no phosphorylation of others w/o ligand present.
     # Also: Phosphorylation will not occur in lapatinib is bound.
@@ -186,27 +156,13 @@ def rec_events():
              erbb(ty='2', st='U', loc='C', b=2, bd=1) % erbb(ty=i, st='U', loc='C', b=None, bd=1) % ATP(b=2),
              *par['ErbB2'+i+'_bind_ATP'])
     
-    # Rule('ATP_bind_ErbB1',
-    #          erbb(ty='1', st='U', loc='C', b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
-    #          erbb(ty='1', st='U', loc='C', b=2, bd=1) % erbb(st='U', loc='C', b=None, bd=1) % ATP(b=2),
-    #          *par['ErbB1_bind_ATP'])
-        
-    
-
-    # bind_table([                                                           [DEP],
-    #                    [erbb(ty='1', st='P', loc='C', b=None), (par['ErbBP_bind_DEP'])],
-    #                    [erbb(ty='2', st='P', loc='C', b=None), (par['ErbBP_bind_DEP'])],
-    #                    [erbb(ty='4', st='P', loc='C', b=None), (par['ErbBP_bind_DEP'])]],
-    #                    'b', 'b')
-
     for i in ['1', '2', '4']:
         Rule('DEP_bind_ErbB'+i,
              erbb(ty=i, st='P', loc='C', b=None, bd=1) % erbb(st='P', loc='C', b=None, bd=1) + DEP(b=None) <>
              erbb(ty=i, st='P', loc='C', b=2, bd=1) % erbb(st='P', loc='C', b=None, bd=1) % DEP(b=2),
              *par['ErbBP'+i+'_bind_DEP'])
 
-    # Cross phosphorylation: only erbb1, 2, and 4 have ATP, and they can cross-phosphorylate any other receptor
-    # erbb2:erbb2 pairs only happen by dissociation of phosphorylated monomers
+    # Cross phosphorylation: only erbb1, 2, and 4 have ATP, and they can cross-phosphorylate any other receptor (once activated by ligand or in Rexer model, 2 doesn't have to be activated)
     # kcat phosphorylation obtained from Chen et al Table I pg. 5
 
     # Both dimers become phosphorylated/dephosphorylated to agree better w Chen/Schoeberl model
@@ -229,7 +185,7 @@ def rec_events():
                  Parameter("kcd"+i+j, par['DEP_dephos_ErbB']))
 
 
-    #ErbB2 lateral signaling - ErbB2P-ErbB2P dimers can only form by the dissociation of ligand-containing, phosphorylated dimers containing ErbB2.  The monomeric activated ErbB2 can then bind and activate other monomers (ErbB1, 3, or 4 -- allows EGF signal to be transmitted by ErbB2/ErbB3 and ErbB2/ErbB4 complexes, even though 3 and 4 can't bind EGF) or bind another phosphorylated ErbB2 to form an active complex (that still requires an EGF signal to get started)
+    #ErbB2 lateral signaling - ErbB2P-ErbB2P dimers can only form by the dissociation of ligand-containing, phosphorylated dimers containing ErbB2 (in Rexer model, these can form independently of any other ErbB receptor; in normal model, they need another ligand-activated receptor).  The monomeric activated ErbB2 can then bind and activate other monomers (ErbB1, 3, or 4 -- allows EGF signal to be transmitted by ErbB2/ErbB3 and ErbB2/ErbB4 complexes, even though 3 and 4 can't bind EGF) or bind another phosphorylated ErbB2 to form an active complex (that still requires an EGF signal to get started)
 
     bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB1P_ErbBXP_bind'])
 
@@ -328,19 +284,6 @@ def rec_events():
          erbb(ty=i, bd=1, loc='E', cpp='N') % erbb(bd=1, ty='1', loc='E', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bgab1=None, b=None, bcpp=5, bsos=3) % SOS(bgrb=3, bERKPP=None, bras=4) % RAS(bsos=4, braf=None, bpi3k=None, st='GTP') % CPP(loc='E', b=5),
          *par['CPP_bind_ErbB1dimers'])
     
-    # These rules are unnecessary unless separate CPP binding/internalization reactions are wanted.
-    # Rule("CPP_rec_int_1",
-    #      erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3) % CPP(loc='C', b=3) <>
-    #      erbb(bd=1, loc='E') % erbb(bd=1, loc='E') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3) % CPP(loc='E', b=3),
-    #      Parameter('kcppintf_1', 1.3e-3),
-    #      Parameter('kcppintr_1', 5e-5))
-
-    # Rule("CPP_rec_int_2",
-    #      erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4) % CPP(loc='C', b=4) <>
-    #      erbb(bd=1, loc='E') % erbb(bd=1, loc='E') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4) % CPP(loc='E', b=4),
-    #      Parameter('kcppintf_2', 1.3e-3),
-    #      Parameter('kcppintr_2', 5e-5))
-
     Rule('CPPE_bind_GAP_GRB2',
          erbb(bd=1, ty='1', loc='E', cpp='N') % erbb(bd=1, ty='1', loc='E', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=None, bgab1=None, b=None) + CPP(loc='E', b=None) <>
          erbb(bd=1, ty='1', loc='E', cpp='Y') % erbb(bd=1, ty='1', loc='E', cpp='Y') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3, bgab1=None, b=None) % CPP(loc='E', b=3),
@@ -532,17 +475,6 @@ def mapk_events():
          SHC(bgap=None, bgrb=None, batp=None, st='P'),
          *par['SHC_unbound_phos'])
     
-    # The two rules below can be used if a binding kf,kr and a kc are desired:
-    # Rule("Shc_bind_ATP",
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='U') + ATP(b=None) <>
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2),
-    #      Parameter("ShcATPf",KF), Parameter("ShcATPr",KR))
-    
-    # Rule("Shc_phos",
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2) >>
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='P') + ADP(),
-    #      Parameter("ShcPhosc", KCP))
-    
     # GRB2 binds to GAP-SHC:P with or without SOS:
     Rule('GRB2_bind_GAP_SHCP_1',
          SHC(batp=None, st='P', bgrb=None, bgap=ANY) + GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1) <>
@@ -550,9 +482,6 @@ def mapk_events():
          *par['GRB2_SOS_bind_SHCP_GAP'])
 
     bind(SHC(batp=None, st='P', bgap=ANY), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None), 'b', par['GRB2_bind_GAP'])
-    
-    # Can use this simpler version if GRB2-SOS complex isn't present alone:
-    #    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None), 'b', [KF, KR])
 
     # SHC:P can bind GRB2-SOS without being attached to GAP:
     Rule('SHCP_bind_GRB2SOS',
@@ -607,31 +536,15 @@ def mapk_events():
          SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', act='N', bpi3k=None),
          *par['RASGTP_bind_bound_GRB2_SOS'])
 
-    # If a catalytic process is desired instead, use these rules:
-    # Rule("GAP_GRB2_SOS_catRAS",
-    #      GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP') >>
-    #      GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP'),
-    #      Parameter("GAP_GRB2_SOS_catRASc", KCP))
-
-    # Rule("GAP_SHCP_GRB2_SOS_catRAS",
-    #      GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP') >>
-    #      GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP'),
-    #      Parameter("GAP_SHCP_GRB2_SOS_catRASc", KCP))
-
-    #FIXME: Need to add re-binding of RAS-GTP to complexes, deal with RAS active/unactive? and separate pools of internalized/un-internalized RAS (and RAF, MEK, and ERK).
-         
-    #can use this simpler implementation of above if GRB2-SOS isn't present on its own as in Chen Sorger model:
-    #catalyze_state(SOS(bgrb=ANY, st='U', bERKPP=None), 'bras', RAS(braf=None), 'bsos', 'st', 'GDP', 'GTP', (KF, KR, KCD))
-
     # Recycling of activated RAS-GTP --> RAS-GDP.  In Chen/Sorger model, activated RAS-GTP is produced upon Raf phosphorylation.
     Rule('RASGTPact_bind_SOS_SHCP_complex',
          SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP', act='Y', bpi3k=None) <>
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None),
+         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', act='N', bpi3k=None),
          *par['RASGTPact_bind_bound_GRB2_SOS'])
 
     Rule('RASGTPact_bind_SOS_GRB2_GAP_complex',
          GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP', act='Y', bpi3k=None) <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None),
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', act='N', bpi3k=None),
          *par['RASGTPact_bind_bound_GRB2_SOS'])
 
     Rule('RASGTP_unbind_SOS_GRB2_SHCP_complex',
@@ -658,10 +571,6 @@ def mapk_events():
     # Deactivation of RAF:P -> RAF by PP1
     catalyze(PP1(), 'b', RAF(st='P', ser295='U'), 'b', RAF(st='U', ser295='U'),
              (par['RAFP_PP1']))
-
-    # MODIFICATION for Rexer model: Added synthesis of MEK
-
-    synthesize(MEK(st='U', b=None), par['MEK_syn'])
 
     # Activation of MEK -> MEK:P by activated RAF
     catalyze(RAF(st='P', ser295='U'), 'b', MEK(st='U'), 'b', MEK(st='P'),
@@ -797,17 +706,13 @@ def akt_events():
 
     #SHP2 can desphosphorylate GAB1-P
     catalyze_state(SHP2(), 'bgab1', GAB1(bgrb2=ANY, bpi3k=None, batp=None, bERKPP=None, bPase9t=None), 'bshp2', 'S', 'P', 'U', (par['SHP2_dephos_GAB1P']))
-
-
-    # MODIFICATION for Rexer model: Added synthesis of PI3K
-    # FURTHER MODFICIATION: Added binding of inhibitor BKM120 to PI3K
+    
+    # MODFICIATION for Rexer model: Added binding of inhibitor BKM120 to PI3K
     # FURTHER MODIFICATION: Added 'mutated' PI3K (PI3K that is catalytically active regardless of what it's bound to)
 
-    catalyze_state(PI3K, 'bpip', PIP(both=None, bakt=None, bself2=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', par['PIP2_PI3Kmut_catalysis'])
+    #catalyze_state(PI3K, 'bpip', PIP(both=None, bakt=None, bself2=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', par['PIP2_PI3Kmut_catalysis'])
 
-    bind(PI3K(), 'bpip', BKM120(loc='C'), 'b', par['BKM120_bind_PI3K'])
-
-    synthesize(PI3K(bpip=None, bgab1=None, bras=None, berb=None), par['PI3K_syn'])
+    #bind(PI3K(), 'bpip', BKM120(loc='C'), 'b', par['BKM120_bind_PI3K'])
     
     #After GAB1 phosphorylation, all receptor dimer combinations can bind a single PI3K
     #Chen/Sorger model gives two rate constant sets for different receptor dimers:
@@ -889,14 +794,6 @@ def akt_events():
          erbb(bd=1, ty='2', loc='C', st='P', b=None) % erbb(bd=1, ty='3', loc='C', st='P', b=2) % PI3K(bpip=3, bgab1=2, bras=None) % PIP(S='PIP2', both=None, bakt=None, bself2=None, bpi3k_self=3) >>
          erbb(bd=1, ty='2', loc='C', st='P', b=None) % erbb(bd=1, ty='3', loc='C', st='P', b=2) % PI3K(bpip=None, bgab1=2, bras=None) + PIP(S='PIP3', both=None, bakt=None, bself2=None, bpi3k_self=None),
          par['ErbB23_PI3K_cat_PIP3'])
-
-    # MODIFICATION for Rexer model: Added synthesis of AKT, PDK1, and PTEN
-
-    synthesize(AKT(S='U', both=None, bpip3=None), par['AKT_syn'])
-
-    synthesize(PDK1(both=None, bakt=None), par['PDK1_syn'])
-
-    synthesize(PTEN(bpip3=None, both=None), par['PTEN_syn'])
              
      # Setting up the binding reactions necessary for AKT to be phosphorylated and move through the pathway
     bind_table([[                                                 AKT(S='U', both=None),       AKT(S='P', both=None)],
@@ -986,5 +883,7 @@ def crosstalk_events():
     catalyze_state(AKT(S='PP', bpip3=None), 'both', RAF(st='P'), 'b', 'ser295', 'U', 'P', (par['AKTPP_phos_RAFP']))
 
     #RAS-GDP binds PI3K and PI3K catalyzes GDP --> GTP transformation. (Note: Matches model, but is this actually what's happening biologically?)
-    catalyze_state(PI3K(bgab1=ANY, bpip=None), 'bras', RAS(bsos=None, braf=None), 'bpi3k', 'st', 'GDP', 'GTP', (par['RASGDP_bind_PI3K']))
-
+    #MODIFICATION for Rexer model: Reversed direction of this interaction (RAS now activates PI3K) - Castellano Genes and Cancer 2011
+    #catalyze_state(PI3K(bgab1=ANY, bpip=None), 'bras', RAS(bsos=None, braf=None), 'bpi3k', 'st', 'GDP', 'GTP', (par['RASGDP_bind_PI3K']))
+    bind(RAS(bsos=ANY, braf=None, st='GTP', act='N'), 'bpi3k', PI3K(bgab1=None, bpip=None), 'bras', [KF, KR])
+    catalyze_state(PI3K(bgab1=None, bras=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', [KF, KR, KCP])
