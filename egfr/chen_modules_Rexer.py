@@ -811,13 +811,7 @@ def akt_events():
     # PIP3 unbinds PDK1
     bind(PIP(S='PIP3', bakt=None, bpi3k_self=None), 'both', PDK1(bakt=None), 'both', par['PIP3_bind_PDK1'])
 
-    # AKTP-PIP3 is phosphorylated by PDK1 to AKTPP
-    bind(PDK1(both=None), 'bakt', AKT(bpip3=ANY, S='P'), 'both', par['AKT_PIP3_bind_PDK1'])
-    
-    Rule('PDK1_AKTP_catalysis',
-         PDK1(both=None, bakt=1) % AKT(bpip3=2, S='P', both=1) % PIP(S='PIP3', both=None, bpi3k_self=None, bakt=2) >>
-         PDK1(both=3, bakt=None) % PIP(S='PIP3', both=3, bpi3k_self=None, bakt=None) + AKT(bpip3=None, S='PP', both=None),
-         par['PDK1_AKTP_catalysis'])
+    # MODIFICATION for Rexer model: AKT:P -> AKT:PP phosphorylation is done by mTORC2, not by PDK1 (see downstream_signaling_events module below)
 
     # AKTP is dephosphorylated by PP2A-III back to AKT
     catalyze_state(PP2A_III, 'bakt', AKT(bpip3=None), 'both', 'S', 'P', 'U',(par['AKTP_dephos']))
@@ -887,3 +881,135 @@ def crosstalk_events():
     #catalyze_state(PI3K(bgab1=ANY, bpip=None), 'bras', RAS(bsos=None, braf=None), 'bpi3k', 'st', 'GDP', 'GTP', (par['RASGDP_bind_PI3K']))
     bind(RAS(bsos=ANY, braf=None, st='GTP', act='N'), 'bpi3k', PI3K(bgab1=None, bpip=None), 'bras', [KF, KR])
     catalyze_state(PI3K(bgab1=None, bras=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', [KF, KR, KCP])
+
+#These are AKT and ERK downstream signaling events suggested as additions by Brent Rexer.
+
+def downstream_signaling_monomers():
+    Monomer('mTOR', ['bcomplex', 'bcat', 'S2448', 'bFKBP38'], {'S2448':['U','P']})
+    Monomer('TORC1_ptns', ['bmTOR']) #A complex composed of Raptor, MLST8, PRAS40, and DEPTOR.  With mTOR becomes mTORC1 (mTOR complex 1)
+    Monomer('TORC2_ptns', ['bmTOR']) #A complex composed of RICTOR, GbetaL, and mSIN1. With mTOR becomes mTORC2 (mTOR complex 2)
+    Monomer('AMPK', ['T172', 'b'], {'T172':['U', 'P']}) #Phosphorylated at T172 by LKB1
+    Monomer('LKB1', ['b', 'S431'], {'S431':['U', 'P']})
+    Monomer('TSC', ['b', 'S664', 'S1798', 'S1387', 'S939', 'S981'], {'T1462': ['U', 'P'], 'S664':['U', 'P'], 'S1798':['U','P'], 'S1387':['U','P'], 'S939':['U', 'P'], 'S981':['U', 'P']}) #Composed of both TSC1 and TSC2
+    Monomer('S6K', ['T252', 'T412', 'b'], {'T252':['U', 'P'], 'T412':['U','P'])
+    Monomer('Rheb', ['bTSC', 'bFKBP38', 'S', 'bmTOR'], {'S':['GDP', 'GTP']})
+    Monomer('FKBP38', ['b'])
+    Monomer('rpS6', ['b', 'S'], {'S':['U', 'P']})
+    Monomer('EIF4EBP1', ['bEIF4E', 'bmTOR', 'S'], {'S':['U','P']})
+    Monomer('EIF4E', ['b'])
+    Monomer('RSK1', ['b', 'T573', 'S380', 'S221'], {'T573':['U','P'], 'S380':['U','P'], 'S221':['U','P']})
+    alias_model_components()
+    
+def downstream_signaling_initial():
+    Initial(mTOR(bcomplex=None, bcat=None, bFKBP38=None, S2448='U'), mTOR_0)
+    Initial(TORC1_ptns(bmTOR=None), TORC1_ptns_0)
+    Initial(TORC2_ptns(bmTOR=None), TORC2_ptns_0)
+    Initial(AMPK(T172='U', b=None), AMPK_0)
+    Initial(LKB1(b=None, S431='U'), LKB1_0)
+    Initial(TSC(b=None, S664='U', S1798='U', S1387='U', S939='U', S981='U'), TSC_0)
+    Initial(S6K(b=None, T252='U', T412='U'), S6K_0)
+    Initial(Rheb(bTSC=None, bFKBP38=None, S='GTP', bmTOR=None), Rheb_0)
+    Initial(FKBP38(b=None), FKBP38_0)
+    Initial(rpS6(b=None, S='U'), rpS6_0)
+    Initial(EIF4EBP1(bEIF4E=None, bmTOR=None, S='U'), EIF4EBP1_0)
+    Initial(EIF4E(b=None), EIF4E_0)
+    Initial(RSK1(b=None, T573='U', S380='U', S221='U'), RSK1_0)
+    
+def downstream_signaling_events():
+    
+    # mTOR can bind either the proteins in mTORC1 or mTORC2:
+    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC1_ptns(), 'bmTOR', [KF, KR])
+    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC2_ptns(), 'bmTOR', [KF, KR])
+
+    # mTORC2 phosphorylates AKT:P -> AKT:PP
+    bind_complex(TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bcat', AKT(S='P'), 'both', [KF,KR])
+
+    Rule('mTOR_AKT_cat',
+         TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=2) % AKT(S='P', both=2) >>
+         TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=None) + AKT(S='PP', both=None),
+         KCP)
+
+    # AKT:PP phosphorylates TSC2 at S939 and S981, which causes it to translocate from the membrane to the cytosol and stops TSC2's GAP activity on Rheb (Cai 2006, Journal of Cell Biology).
+    # ERK:PP can also phosphorylate TSC2 at S664, again inhibiting its GAP activity.
+    catalyze_state(AKT(S='PP', bpip3=None), 'both', TSC(), 'b', 'S939', 'U', 'P', [KF, KR, KCP])
+
+    catalyze_state(AKT(S='PP', bpip3=None), 'both', TSC(), 'b', 'S981', 'U', 'P', [KF, KR, KCP])
+
+    catalyze_state(ERK(st='PP'), 'b', TSC(), 'b', 'S664', 'U', 'P', [KF, KR, KCP])
+
+    # ERK:PP phosphorylates RSK1 at T573. RSK1 then autocatalyzes phosphorylation at S380, which allows binding of PDK1, which phosphorylates S221, giving fully active RSK1.
+    catalyze_state(ERK(st='PP'), 'b', RSK1(S380='U', S221='U'), 'b', 'T573', 'U', 'P', [KF, KR, KCP])
+
+    Rule('RSK1_autocatalysis',
+         RSK1(S380='U', S221='U', T573='P') >>
+         RSK1(S380='P', S221='U', T573='P'),
+         KCP)
+
+    catalyze_state(PDK1(bakt=None), 'both', RSK1(S380='P', T573='P'), 'b', 'S221', 'U', 'P', [KF, KR, KCP])
+
+    # Active RSK1 can phosphorylate TSC2 at S1798, inhibiting its GAP activity.
+    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', TSC(), 'b', 'S1798', 'U', 'P', [KF, KR, KCP])
+
+    # Active RSK1 phosphorylates LKB1 at S431, activating LKB1.
+    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', LKB1(), 'b', 'S431', 'U', 'P', [KF, KR, KCP])
+
+    # Active LKB1 phosphorylates AMPK at T172, activating it.
+    catalyze_state(LKB1(S431='P'), 'b', AMPK(), 'b', 'T172', 'U', 'P', [KF, KR, KCP])
+
+    # Active AMPK phosphorylates S1387 on TSC2, activating its GAP activity.
+    catalyze_state(AMPK(T172='P'), 'b', TSC(), 'b', 'S1387', 'U', 'P', [KF, KR, KCP])
+
+    # Rheb possesess its own intrinsic GTPase activity.
+    Rule('Rheb_GTPase',
+         Rheb(bTSC=None, S='GTP', bFKBP38=None, bmTOR=None) >>
+         Rheb(bTSC=None, S='GDP', bFKBP38=None, bmTOR=None),
+         KCD)
+
+    # Replacement of GDP with GTP in Rheb site (to give cycle) -- this rxn should not be rate limiting:
+    Rule('Rheb_GDP_GTP',
+         Rheb(S='GDP') >>
+         Rheb(S='GTP'),
+         1e8)
+
+    # TSC2 can bind Rheb, inhibiting its GTPase activity if TSC2 is phosphorylated on S939, S981, S664, or S1798.
+    bind(TSC(), 'b', Rheb(S='GTP', bmTOR=None), 'bTSC', [KF, KR])
+    
+    for site in ['S939', 'S981', 'S664', 'S1798']:
+        Rule('TSC2_'+site+'_Rheb',
+             TSC({b:1, site:'P'}) % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
+             TSC({b:1, site:'P'}) % Rheb(S='GDP', bTSC=1, bmTOR=None),
+             KCD)
+
+    # If TSC2 is phosphorylated on S1387, its GAP activity is increased.
+    Rule('TSC2_S1387_Rheb',
+         TSC(b=1, S1387='P') % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
+         TSC(b=1, S1387='P') % Rheb(S='GDP', bTSC=1, bmTOR=None),
+         KCD)
+
+    # Rheb-GTP phosphorylates mTOR in mTORC1 on S2448, activating it.
+    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1, S2448='U'), 'bcat', Rheb(S='GTP', bTSC=None), 'bmTOR', [KF, KR])
+
+    Rule('RhebGTP_cat_mTOR'
+         mTOR(bcomplex=ANY, bcat=2, S2448='U', bFKBP38=None) % Rheb(S='GTP', bTSC=None, bmTOR=2) >>
+         mTOR(bcomplex=ANY, bcat=None, S2448='P', bFKBP38=None) + Rheb(S='GTP', bTSC=None, bmTOR=None),
+         KCP)
+
+    # FKBP38 can bind mTOR in mTORC1, preventing its activity.
+    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bFKBP38', FKBP38(), 'b', [KF, KR])
+
+    # Rheb-GTP can also bind FKBP38, keeping it from inhibiting mTOR.
+    bind(Rheb(S='GTP', bmTOR=None), 'bFKBP38', FKBP38(), 'b', [KF, KR])
+    
+    # Active mTORC1 phosphorylates S6K at T412, allowing PDK1 to phosphorylate S6K at T252.
+    catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', S6K(T252='U'), 'b', 'T412', 'U', 'P', [KF, KR, KCP])
+
+    catalyze_state(PDK1(bakt=None), 'both', S6K(T412='P'), 'b', 'T252', 'U', 'P', [KF, KR, KCP])
+
+    # Active S6K phosphorylates rpS6.
+    catalyze_state(S6K(T252='P', T412='P'), 'b', rpS6(), 'b', 'S', 'U', 'P', [KF, KR, KCP])
+
+    # Unphosphorylated EIF4EBP1 binds EIF4E (EIF4E is necessary for mRNA translation, which this binding interaction prevents).
+    bind(EIF4EBP1(bmTOR=None, S='U'), 'bEIF4E', EIF4E(), 'b', [KF, KR])
+
+    # Active mTORC1 phosphorylates EIF4EBP1, preventing its interaction with EIF4E and activating mRNA translation.
+    catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', EIF4EBP1(bEIF4E=None), 'bmTOR', 'S', 'U', 'P', [KF, KR, KCP])
