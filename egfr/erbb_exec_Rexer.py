@@ -15,12 +15,14 @@ chen_modules_Rexer.rec_monomers()
 chen_modules_Rexer.mapk_monomers()
 chen_modules_Rexer.akt_monomers()
 chen_modules_Rexer.crosstalk_monomers()
+chen_modules_Rexer.downstream_signaling_monomers()
 
 # Generate the upstream and downstream sections
 chen_modules_Rexer.rec_events()
 chen_modules_Rexer.mapk_events()
 chen_modules_Rexer.akt_events()
 chen_modules_Rexer.crosstalk_events()
+chen_modules_Rexer.downstream_signaling_events()
 
 # Initial protein concentrations
 chen_modules_Rexer.rec_initial_inhib_LAP()
@@ -29,6 +31,7 @@ chen_modules_Rexer.rec_initial()
 chen_modules_Rexer.mapk_initial()
 chen_modules_Rexer.akt_initial()
 chen_modules_Rexer.crosstalk_initial()
+chen_modules_Rexer.downstream_signaling_initial()
 
 #Declare observables
 Observable('obsAKTPP', AKT(S='PP'))

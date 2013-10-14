@@ -41,12 +41,30 @@ parameter_dict = OrderedDict([
       Parameter('AKTP_0', 1847), #RPPA
       Parameter('ErbB1P_0', 1130), #RPPA
       Parameter('ErbB2P_0', 2838), #RPPA
+      Parameter('mTOR_0', 2095), #RPPA
+      Parameter('TORC1_ptns_0', 2095), # These and mTORC2 ptns have been set to same as mTOR to make mTOR the limiting factor in complex formation (NOT sure if this is actually the case).
+      Parameter('TORC2_ptns_0', 2095), # See comment above for mTORC1
+      Parameter('AMPK_0', 846), #RPPA
+      Parameter('LKB1_0', 1910), #RPPA
+      Parameter('TSC_0', 1570), #Based on relative protein amounts in Pezze et al 2012 (AKT amount is 14x the TSC amount -- done in HeLa cells)
+      Parameter('S6K_0', 2.3e8), #RPPA - p70S6K
+      Parameter('Rheb_0', 1500), #Not sure what to make this -- set to TSC level so that it can be completely inhibited under the right circumstances
+      Parameter('FKBP38_0', 6000), #Calculated based on absolute prostate cancer protein values at MOPED ~3x FKBP38 as mTOR (used relative to our RPPA measurement).
+      Parameter('rpS6_0', 28742), #RPPA
+      Parameter('EIF4EBP1_0', 1835), #RPPA
+      Parameter('EIF4E_0', 3600), #Calculated based on 2:1 EIF4E:EIF4EBP1 ratio in HEK293 cells (MOPED) -- Not cancer cell line so not sure how true this holds for other cell lines.
+      Parameter('RSK1_0', 1666), #Calculated based on relative amounts of EIF4EBP1 and RSK1 in HEK293 cells -- see caveat above.
+      Parameter('ELK1_0', 80000) #Calculated based on relative amounts of ERK in model/HEK293 cells and ELK1 in HEK293 cells -- see caveat above.
     ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:
     ('LAP_transport_MC',
      [Parameter('LAP_transport_MCkf', 1.3e-3), #from generic internalization rate constant in Chen Sorger paper
       Parameter('LAP_transport_MCkr', 5e-5)
+      ]),
+    ('BKM120_transport_MC',
+     [Parameter('BKM120_transport_MCkf', 1.3e-3), #Based on fitted lapatinib internalization rate.
+      Parameter('BKM120_transport_MCkr', 9e-4)
       ]),
     ('LAP_bind_ErbB1',
      [Parameter('LAP_bind_ErbB1kf', 1e7),
@@ -415,6 +433,15 @@ parameter_dict = OrderedDict([
       Parameter('SHP2_dephos_GAB1Pkr', 1e-1), #kd107
       Parameter('SHP2_dephos_GAB1Pkc', 5) #kd108
       ]),
+    ('BKM120_bind_PI3K',
+     [Parameter('BKM120_bind_PI3Kkf', 1e7), #Calculated assuming competitive inhibition with equation Ki = IC50/([S]/Km+1); IC50=.052 microM, Km and [S] from Maira et al 2011
+      Parameter('BKM120_bind_PI3Kkr', .5)
+      ]),
+    ('PIP2_PI3Kmut_catalysis',
+     [Parameter('PIP2_PI3Kmut_catalysiskf', 1.33e-5), #Taken from fitted values for PI3K/PIP2 binding and catalysis in ErbB2 containing dimers. Other possible choices: Rates for ErbB1/ErbBX containing dimers, or for ErbB2/ErbB3 direct binding complex.
+      Parameter('PIP2_PI3Kmut_catalysiskr', 7.89e-11),
+      Parameter('PIP2_PI3Kmut_catalysiskc', 1617)
+      ]),
     ('PI3K_syn',
      Parameter('PI3K_syn', .03)
      ),
@@ -518,9 +545,147 @@ parameter_dict = OrderedDict([
       Parameter('AKTPP_phos_RAFPkr', 1e-1), #kd114
       Parameter('AKTPP_phos_RAFPkc', 1) #kd115
       ]),
-    ('RASGDP_bind_PI3K',
-     [Parameter('RASGDP_bind_PI3Kkf', .0047067), #k112
-      Parameter('RASGDP_bind_PI3Kkr', 1e-1), #kd112
-      Parameter('RASGDP_bind_PI3Kkc', 177.828) #kd113
+    ('RAS_bind_PI3K',
+     [Parameter('RAS_bind_PI3Kkf', 1e-5), #Generic
+      Parameter('RAS_bind_PI3Kkr', 1e-1) #Generic
+      ]),
+    ('RAS_cat_PI3K',
+     [Parameter('RAS_cat_PI3Kkf', 1e-5), #Generic
+      Parameter('RAS_cat_PI3Kkr', 1e-1), #Generic
+      Parameter('RAS_cat_PI3Kkc', 1e-1) #Generic
+      ]),
+      # All parameters below are for mTOR pathway -- used generic Chen Sorger rate constants unless otherwise specified.
+    ('mTOR_bind_TORC1ptns',
+     [Parameter('mTOR_bind_TORC1ptnskf', 1e-5),
+      Parameter('mTOR_bind_TORC1ptnskr', 1e-1)
+      ]),
+    ('mTOR_bind_TORC2ptns',
+     [Parameter('mTOR_bind_TORC2ptnskf', 1e-5),
+      Parameter('mTOR_bind_TORC2ptnskr', 1e-1)
+      ]),
+    ('mTORC2_bind_AKTP',
+     [Parameter('mTORC2_bind_AKTPkf', 1e-5),
+      Parameter('mTORC2_bind_AKTPkr', 1e-1)
+      ]),
+    ('mTORC2_cat_AKTPP',
+     Parameter('mTORC2_cat_AKTPPkc', 1e-1)
+     ),
+    ('AKTPP_bind_TSC2',
+     [Parameter('AKTPP_bind_TSC2kf', 1e-5),
+      Parameter('AKTPP_bind_TSC2kr', 1e-1),
+      ]),
+    ('AKTPP_phosS939_TSC2',
+      Parameter('AKTPP_phosS939_TSC2kc', 1e-1)
+      ),
+    ('AKTPP_phosS981_TSC2',
+      Parameter('AKTPP_phosS981_TSC2kc', 1e-1)
+      ),
+    ('AKTPP_phosT1462_TSC2',
+      Parameter('AKTPP_phosT1462_TSC2kc', 1e-1)
+      ),
+    ('ERKPP_phos_TSC2',
+     [Parameter('ERKPP_phos_TSC2kf', 1e-5),
+      Parameter('ERKPP_phos_TSC2kr', 1e-1),
+      Parameter('ERKPP_phos_TSC2kc', 1e-1)
+      ]),
+    ('ERKPP_phos_RSK1',
+     [Parameter('ERKPP_phos_RSK1kf', 1e-5),
+      Parameter('ERKPP_phos_RSK1kr', 1e-1),
+      Parameter('ERKPP_phos_RSK1kc', 1e-1)
+      ]),
+    ('RSK1_autocat',
+     Parameter('RSK1_autocatkc', 1e-1)
+     ),
+    ('PDK1_phos_RSK1',
+     [Parameter('PDK1_phos_RSK1kf', 1e-5),
+     Parameter('PDK1_phos_RSK1kr', 1e-1),
+     Parameter('PDK1_phos_RSK1kc', 1e-1)
+     ]),
+    ('RSK1_phos_TSC2',
+     [Parameter('RSK1_phos_TSC2kf', 1e-5),
+      Parameter('RSK1_phos_TSC2kr', 1e-1),
+      Parameter('RSK1_phos_TSC2kc', 1e-1)
+      ]),
+    ('RSK1_phos_LKB1',
+     [Parameter('RSK1_phos_LKB1kf', 1e-5),
+      Parameter('RSK1_phos_LKB1kr', 1e-1),
+      Parameter('RSK1_phos_LKB1kc', 1e-1)
+      ]),
+    ('LKB1_phos_AMPK',
+     [Parameter('LKB1_phos_AMPKkf', 1e-5),
+      Parameter('LKB1_phos_AMPKkr', 1e-1),
+      Parameter('LKB1_phos_AMPKkc', 1e-1)
+      ]),
+    ('AMPK_phos_TSC2',
+     [Parameter('AMPK_phos_TSC2kf', 1e-5),
+      Parameter('AMPK_phos_TSC2kr', 1e-1),
+      Parameter('AMPK_phos_TSC2kc', 1e-1)
+      ]),
+    ('Rheb_intrinsic_GTPase',
+     Parameter('Rheb_intrinsic_GTPasekc', 6.7e-4) #From Marshall et al 2009
+     ),
+    ('Rheb_GDP_GTP',
+     Parameter('Rheb_GDP_GTPkf', 1e10) #Chosen to not be rate limiting
+     ),
+    ('TSC2_bind_Rheb',
+     [Parameter('TSC2_bind_Rhebkf', 1e-5),
+      Parameter('TSC2_bind_Rhebkr', 1e-1)
+      ]),
+    ('TSC2_Rheb_GTPase',
+     Parameter('TSC2_Rheb_GTPasekc', .0335) #From Marshall et al 2009
+     ),
+    ('TSC2p_Rheb_GTPase',
+     Parameter('TSC2p_Rheb_GTPasekc', .00335) #Made a factor of 10 lower.
+     ),
+    ('TSC2pS1387_Rheb_GTPase',
+     Parameter('TSC2pS1387_Rheb_GTPasekc', .335) #Made a factor of 10 higher.
+     ),
+    ('Rheb_bind_mTORC1',
+     [Parameter('Rheb_bind_mTORC1kf', 1e-5),
+      Parameter('Rheb_bind_mTORC1kr', 1e-1)
+      ]),
+    ('RhebGTP_phos_mTOR',
+     Parameter('RhebGTP_phos_mTORkc', 1e-1)
+     ),
+    ('FKBP38_bind_mTOR',
+     [Parameter('FKBP38_bind_mTORkf', 1e-5),
+      Parameter('FKBP38_bind_mTORkr', 1e-1)
+      ]),
+    ('Rheb_bind_FKBP38',
+     [Parameter('Rheb_bind_FKBP38kf', 1e-5),
+      Parameter('Rheb_bind_FKBP38kr', 1e-1)
+      ]),
+    ('mTORC1_phos_S6K',
+     [Parameter('mTORC1_phos_S6Kkf', 1e-5),
+      Parameter('mTORC1_phos_S6Kkr', 1e-1),
+      Parameter('mTORC1_phos_S6Kkc', 1e-1)
+      ]),
+    ('PDK1_phos_S6K',
+     [Parameter('PDK1_phos_S6Kkf', 1e-5),
+      Parameter('PDK1_phos_S6Kkr', 1e-1),
+      Parameter('PDK1_phos_S6Kkc', 1e-1)
+      ]),
+    ('S6K_phos_rpS6',
+     [Parameter('S6K_phos_rpS6kf', 1e-5),
+      Parameter('S6K_phos_rpS6kr', 1e-1),
+      Parameter('S6K_phos_rpS6kc', 1e-1)
+      ]),
+    ('EIF4EBP1_bind_EIF4E',
+     [Parameter('EIF4EBP1_bind_EIF4Ekf', 1e-5),
+      Parameter('EIF4EBP1_bind_EIF4Ekr', 1e-1)
+      ]),
+    ('mTORC1_phos_EIF4EBP1',
+     [Parameter('mTORC1_bind_EIF4EBP1kf', 1e-5),
+      Parameter('mTORC1_bind_EIF4EBP1kr', 1e-1),
+      Parameter('mTORC1_bind_EIF4EBP1kc', 1e-1)
+      ]),
+    ('ERKPP_to_nucleus',
+     [Parameter('ERKPP_to_nucleuskf', 1.3e-3),
+      Parameter('ERKPP_to_nucleuskr', 5e-5)
+      ]),
+    ('ERKPP_phos_ELK1',
+     [Parameter('ERKPP_phos_ELK1kf', 1e-5),
+      Parameter('ERKPP_phos_ELK1kr', 1e-1),
+      Parameter('ERKPP_phos_ELK1kc', 1e-1)
       ])
     ])

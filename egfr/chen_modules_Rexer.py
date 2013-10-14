@@ -389,7 +389,7 @@ def mapk_monomers():
     Monomer('PP2', ['b'])
     Monomer('PP3', ['b'])
     Monomer('MEK', ['b', 'st'], {'st':['U', 'P', 'PP']})
-    Monomer('ERK', ['b', 'st'], {'st':['U', 'P', 'PP']})
+    Monomer('ERK', ['b', 'st', 'loc'], {'st':['U', 'P', 'PP'], 'loc':['C', 'N']})
 
 def mapk_initial():
     # Initial values declared in parameter dictionary for given cell type.
@@ -402,12 +402,12 @@ def mapk_initial():
     Initial(RAS(bsos=None, braf=None, bpi3k=None, st='GDP', act='N'), RAS_0)
     Initial(RAF(b=None, st='U', ser295='U'), RAF_0)
     Initial(MEK(b=None, st='U'), MEK_0)
-    Initial(ERK(b=None, st='U'), ERK_0)
+    Initial(ERK(b=None, st='U', loc='C'), ERK_0)
     Initial(PP1(b=None), PP1_0)
     Initial(PP2(b=None), PP2_0)
     Initial(PP3(b=None), PP3_0)
     Initial(GRB2(b=None, bsos=1, bgap=None, bgab1=None, bcpp=None) % SOS(bgrb=1, bras=None, bERKPP=None, st='U'), GRB2_SOS_0)
-    Initial(ERK(b=None, st='PP'), ERKPP_0)
+    Initial(ERK(b=None, st='PP', loc='C'), ERKPP_0)
 
     
 def mapk_events():
@@ -589,19 +589,19 @@ def mapk_events():
              (par['MEKPP_PP2']))
     
     # Activation of ERK -> ERK:P by activated MEK:P:P
-    catalyze(MEK(st='PP'), 'b', ERK(st='U'), 'b', ERK(st='P'),
+    catalyze(MEK(st='PP'), 'b', ERK(st='U', loc='C'), 'b', ERK(st='P', loc='C'),
              (par['MEKPP_ERK']))
 
     # Deactivation of ERK:P -> ERK by PP3
-    catalyze(PP3(), 'b', ERK(st='P'), 'b', ERK(st='U'),
+    catalyze(PP3(), 'b', ERK(st='P', loc='C'), 'b', ERK(st='U', loc='C'),
              (par['ERKP_PP3']))
 
     # Activation of ERK:P -> ERK:P:P by activated MEK:P:P
-    catalyze(MEK(st='PP'), 'b', ERK(st='P'), 'b', ERK(st='PP'),
+    catalyze(MEK(st='PP'), 'b', ERK(st='P', loc='C'), 'b', ERK(st='PP', loc='C'),
              (par['MEKPP_ERKP']))
 
     # Deactivation of ERK:P:P -> ERK:P by PP3
-    catalyze(PP3(), 'b', ERK(st='PP'), 'b', ERK(st='P'),
+    catalyze(PP3(), 'b', ERK(st='PP', loc='C'), 'b', ERK(st='P', loc='C'),
              (par['ERKPP_PP3']))
 
     # Degradation of PP3
@@ -834,33 +834,33 @@ def crosstalk_initial():
 
 def crosstalk_events():
     #ERK:P:P phosphorylates GAP-GRB2-GAB1:P (making it unable to bind PI3K)
-    catalyze_state(ERK(st='PP'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None), 'bERKPP', 'S', 'P', 'PP', (par['ERKPP_phos_GAB1P']))
+    catalyze_state(ERK(st='PP', loc='C'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None), 'bERKPP', 'S', 'P', 'PP', (par['ERKPP_phos_GAB1P']))
 
     #GAP-GRB2-GAB1:P:P is dephosphorylated by Pase9t
     catalyze_state(Pase9t(), 'bgab1', GAB1(bgrb2=ANY), 'bPase9t', 'S', 'PP', 'P', (par['Pase9t_dephos_GAB1PP']))
 
     #ERK:P:P phosphorylates GRB2-SOS, preventing RAS-GDP->RAS-GTP conversion
     #To conform with Chen/Sorger model, this only effects ErbB1/ErbB1 dimers containing SOS and free SOS, and phosphorylated SOS can only bind ErbB1/ErbB1 complexes, not free GRB2:
-    catalyze_state(ERK(st='PP'), 'b', SOS(bgrb=None, bras=None), 'bERKPP', 'st', 'U', 'P', (par['ERKPP_phos_SOS']))
+    catalyze_state(ERK(st='PP', loc='C'), 'b', SOS(bgrb=None, bras=None), 'bERKPP', 'st', 'U', 'P', (par['ERKPP_phos_SOS']))
 
     Rule('ERKPP_bind_SOS_1',
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=None, st='U') + ERK(st='PP', b=None) <>
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=1, st='U') % ERK(st='PP', b=1),
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=None, st='U') + ERK(st='PP', b=None, loc='C') <>
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=1, st='U') % ERK(st='PP', b=1, loc='C'),
         *par['ERKPP_phos_SOS'][0:2])
 
     Rule('ERKPP_bind_SOS_2',
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=None, st='U', bgrb=ANY) + ERK(st='PP', b=None) <>
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=1, st='U', bgrb=ANY) % ERK(st='PP', b=1),
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=None, st='U', bgrb=ANY) + ERK(st='PP', b=None, loc='C') <>
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=1, st='U', bgrb=ANY) % ERK(st='PP', b=1, loc='C'),
         *par['ERKPP_phos_SOS'][0:2])
 
     Rule('ERKPP_phos_SOS_1',
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=1, st='U') % ERK(st='PP', b=1) >>
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=None, st='P') + ERK(st='PP', b=None),
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=1, st='U') % ERK(st='PP', b=1, loc='C') >>
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=None, bgrb2=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % SOS(bras=None, bgrb=ANY, bERKPP=None, st='P') + ERK(st='PP', b=None, loc='C'),
          par['ERKPP_phos_SOS'][2])
 
     Rule('ERKPP_phos_SOS_2',
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=1, st='U', bgrb=ANY) % ERK(st='PP', b=1) >>
-         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=None, st='P', bgrb=ANY) + ERK(st='PP', b=None),
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=1, st='U', bgrb=ANY) % ERK(st='PP', b=1, loc='C') >>
+         erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % GAP(bd=ANY, b=ANY, bgrb2=None) % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None, b=ANY) % SOS(bras=None, bERKPP=None, st='P', bgrb=ANY) + ERK(st='PP', b=None, loc='C'),
          par['ERKPP_phos_SOS'][2])
 
     Rule('SOSP_bind_GRB2_1',
@@ -879,25 +879,27 @@ def crosstalk_events():
     #RAS-GDP binds PI3K and PI3K catalyzes GDP --> GTP transformation. (Note: Matches model, but is this actually what's happening biologically?)
     #MODIFICATION for Rexer model: Reversed direction of this interaction (RAS now activates PI3K) - Castellano Genes and Cancer 2011
     #catalyze_state(PI3K(bgab1=ANY, bpip=None), 'bras', RAS(bsos=None, braf=None), 'bpi3k', 'st', 'GDP', 'GTP', (par['RASGDP_bind_PI3K']))
-    bind(RAS(bsos=ANY, braf=None, st='GTP', act='N'), 'bpi3k', PI3K(bgab1=None, bpip=None), 'bras', [KF, KR])
-    catalyze_state(PI3K(bgab1=None, bras=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', [KF, KR, KCP])
+    bind(RAS(bsos=ANY, braf=None, st='GTP', act='N'), 'bpi3k', PI3K(bgab1=None, bpip=None), 'bras', par['RAS_bind_PI3K'])
+    
+    catalyze_state(PI3K(bgab1=None, bras=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', (par['RAS_cat_PI3K']))
 
 #These are AKT and ERK downstream signaling events suggested as additions by Brent Rexer.
 
 def downstream_signaling_monomers():
     Monomer('mTOR', ['bcomplex', 'bcat', 'S2448', 'bFKBP38'], {'S2448':['U','P']})
-    Monomer('TORC1_ptns', ['bmTOR']) #A complex composed of Raptor, MLST8, PRAS40, and DEPTOR.  With mTOR becomes mTORC1 (mTOR complex 1)
-    Monomer('TORC2_ptns', ['bmTOR']) #A complex composed of RICTOR, GbetaL, and mSIN1. With mTOR becomes mTORC2 (mTOR complex 2)
+    Monomer('TORC1_ptns', ['bmTOR']) #A complex composed of Raptor, mLST8, PRAS40, and DEPTOR.  With mTOR becomes mTORC1 (mTOR complex 1)
+    Monomer('TORC2_ptns', ['bmTOR']) #A complex composed of Rictor, GbetaL, and mSIN1, mLST8, and DEPTOR. With mTOR becomes mTORC2 (mTOR complex 2)
     Monomer('AMPK', ['T172', 'b'], {'T172':['U', 'P']}) #Phosphorylated at T172 by LKB1
     Monomer('LKB1', ['b', 'S431'], {'S431':['U', 'P']})
-    Monomer('TSC', ['b', 'S664', 'S1798', 'S1387', 'S939', 'S981'], {'T1462': ['U', 'P'], 'S664':['U', 'P'], 'S1798':['U','P'], 'S1387':['U','P'], 'S939':['U', 'P'], 'S981':['U', 'P']}) #Composed of both TSC1 and TSC2
-    Monomer('S6K', ['T252', 'T412', 'b'], {'T252':['U', 'P'], 'T412':['U','P'])
+    Monomer('TSC', ['b', 'S664', 'S1798', 'S1387', 'S939', 'S981', 'T1462'], {'T1462': ['U', 'P'], 'S664':['U', 'P'], 'S1798':['U','P'], 'S1387':['U','P'], 'S939':['U', 'P'], 'S981':['U', 'P']}) #Composed of both TSC1 and TSC2
+    Monomer('S6K', ['T252', 'T412', 'b'], {'T252':['U', 'P'], 'T412':['U','P']})
     Monomer('Rheb', ['bTSC', 'bFKBP38', 'S', 'bmTOR'], {'S':['GDP', 'GTP']})
     Monomer('FKBP38', ['b'])
     Monomer('rpS6', ['b', 'S'], {'S':['U', 'P']})
     Monomer('EIF4EBP1', ['bEIF4E', 'bmTOR', 'S'], {'S':['U','P']})
     Monomer('EIF4E', ['b'])
     Monomer('RSK1', ['b', 'T573', 'S380', 'S221'], {'T573':['U','P'], 'S380':['U','P'], 'S221':['U','P']})
+    Monomer('ELK1', ['b', 'S383'], {'S383':['U','P']})
     alias_model_components()
     
 def downstream_signaling_initial():
@@ -906,7 +908,7 @@ def downstream_signaling_initial():
     Initial(TORC2_ptns(bmTOR=None), TORC2_ptns_0)
     Initial(AMPK(T172='U', b=None), AMPK_0)
     Initial(LKB1(b=None, S431='U'), LKB1_0)
-    Initial(TSC(b=None, S664='U', S1798='U', S1387='U', S939='U', S981='U'), TSC_0)
+    Initial(TSC(b=None, S664='U', S1798='U', S1387='U', S939='U', S981='U', T1462='U'), TSC_0)
     Initial(S6K(b=None, T252='U', T412='U'), S6K_0)
     Initial(Rheb(bTSC=None, bFKBP38=None, S='GTP', bmTOR=None), Rheb_0)
     Initial(FKBP38(b=None), FKBP38_0)
@@ -914,102 +916,119 @@ def downstream_signaling_initial():
     Initial(EIF4EBP1(bEIF4E=None, bmTOR=None, S='U'), EIF4EBP1_0)
     Initial(EIF4E(b=None), EIF4E_0)
     Initial(RSK1(b=None, T573='U', S380='U', S221='U'), RSK1_0)
+    Initial(ELK1(b=None, S383='U'), ELK1_0)
     
 def downstream_signaling_events():
     
     # mTOR can bind either the proteins in mTORC1 or mTORC2:
-    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC1_ptns(), 'bmTOR', [KF, KR])
-    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC2_ptns(), 'bmTOR', [KF, KR])
+    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC1_ptns(), 'bmTOR', (par['mTOR_bind_TORC1ptns']))
+    
+    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC2_ptns(), 'bmTOR', (par['mTOR_bind_TORC2ptns']))
 
     # mTORC2 phosphorylates AKT:P -> AKT:PP
-    bind_complex(TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bcat', AKT(S='P'), 'both', [KF,KR])
+    bind_complex(TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bcat', AKT(S='P', bpip3=None), 'both', par['mTORC2_bind_AKTP'])
 
     Rule('mTOR_AKT_cat',
-         TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=2) % AKT(S='P', both=2) >>
-         TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=None) + AKT(S='PP', both=None),
-         KCP)
+         TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=2) % AKT(S='P', both=2, bpip3=None) >>
+         TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=None) + AKT(S='PP', both=None, bpip3=None),
+         par['mTORC2_cat_AKTPP'])
 
-    # AKT:PP phosphorylates TSC2 at S939 and S981, which causes it to translocate from the membrane to the cytosol and stops TSC2's GAP activity on Rheb (Cai 2006, Journal of Cell Biology).
+    # AKT:PP phosphorylates TSC2 at S939, S981, and T1462, which causes it to translocate from the membrane to the cytosol and stops TSC2's GAP activity on Rheb (Cai 2006, Journal of Cell Biology).
     # ERK:PP can also phosphorylate TSC2 at S664, again inhibiting its GAP activity.
-    catalyze_state(AKT(S='PP', bpip3=None), 'both', TSC(), 'b', 'S939', 'U', 'P', [KF, KR, KCP])
 
-    catalyze_state(AKT(S='PP', bpip3=None), 'both', TSC(), 'b', 'S981', 'U', 'P', [KF, KR, KCP])
+    bind(AKT(S='PP', bpip3=None), 'both', TSC(), 'b', par['AKTPP_bind_TSC2'])
+    
+    for site in ['S939', 'S981', 'T1462']:
+        Rule('AKTPP_phos_TSC2_'+site,
+        AKT(S='PP', bpip3=None, both=1) % TSC({'b':1, site:'U'}) >>
+        AKT(S='PP', bpip3=None, both=None) + TSC({'b':None, site:'P'}),
+        par['AKTPP_phos'+site+'_TSC2'])
 
-    catalyze_state(ERK(st='PP'), 'b', TSC(), 'b', 'S664', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(ERK(st='PP'), 'b', TSC(), 'b', 'S664', 'U', 'P', (par['ERKPP_phos_TSC2']))
 
     # ERK:PP phosphorylates RSK1 at T573. RSK1 then autocatalyzes phosphorylation at S380, which allows binding of PDK1, which phosphorylates S221, giving fully active RSK1.
-    catalyze_state(ERK(st='PP'), 'b', RSK1(S380='U', S221='U'), 'b', 'T573', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(ERK(st='PP'), 'b', RSK1(S380='U', S221='U'), 'b', 'T573', 'U', 'P', (par['ERKPP_phos_RSK1']))
 
     Rule('RSK1_autocatalysis',
          RSK1(S380='U', S221='U', T573='P') >>
          RSK1(S380='P', S221='U', T573='P'),
-         KCP)
+         par['RSK1_autocat'])
 
-    catalyze_state(PDK1(bakt=None), 'both', RSK1(S380='P', T573='P'), 'b', 'S221', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(PDK1(bakt=None), 'both', RSK1(S380='P', T573='P'), 'b', 'S221', 'U', 'P', (par['PDK1_phos_RSK1']))
 
     # Active RSK1 can phosphorylate TSC2 at S1798, inhibiting its GAP activity.
-    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', TSC(), 'b', 'S1798', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', TSC(), 'b', 'S1798', 'U', 'P', (par['RSK1_phos_TSC2']))
 
     # Active RSK1 phosphorylates LKB1 at S431, activating LKB1.
-    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', LKB1(), 'b', 'S431', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', LKB1(), 'b', 'S431', 'U', 'P', (par['RSK1_phos_LKB1']))
 
     # Active LKB1 phosphorylates AMPK at T172, activating it.
-    catalyze_state(LKB1(S431='P'), 'b', AMPK(), 'b', 'T172', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(LKB1(S431='P'), 'b', AMPK(), 'b', 'T172', 'U', 'P', (par['LKB1_phos_AMPK']))
 
     # Active AMPK phosphorylates S1387 on TSC2, activating its GAP activity.
-    catalyze_state(AMPK(T172='P'), 'b', TSC(), 'b', 'S1387', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(AMPK(T172='P'), 'b', TSC(), 'b', 'S1387', 'U', 'P', (par['AMPK_phos_TSC2']))
 
     # Rheb possesess its own intrinsic GTPase activity.
     Rule('Rheb_GTPase',
          Rheb(bTSC=None, S='GTP', bFKBP38=None, bmTOR=None) >>
          Rheb(bTSC=None, S='GDP', bFKBP38=None, bmTOR=None),
-         KCD)
+         par['Rheb_intrinsic_GTPase'])
 
     # Replacement of GDP with GTP in Rheb site (to give cycle) -- this rxn should not be rate limiting:
     Rule('Rheb_GDP_GTP',
          Rheb(S='GDP') >>
          Rheb(S='GTP'),
-         1e8)
+         par['Rheb_GDP_GTP'])
 
-    # TSC2 can bind Rheb, inhibiting its GTPase activity if TSC2 is phosphorylated on S939, S981, S664, or S1798.
-    bind(TSC(), 'b', Rheb(S='GTP', bmTOR=None), 'bTSC', [KF, KR])
+    # TSC2 can bind Rheb, inhibiting its GTPase activity if TSC2 is phosphorylated on S939, S981, S664, T1462, or S1798.
+    bind(TSC(), 'b', Rheb(S='GTP', bmTOR=None), 'bTSC', par['TSC2_bind_Rheb'])
+
+    Rule('TSC2_Rheb',
+         TSC(b=1, S1387='U', S939='U', S981='U', S664='U', S1798='U', T1462='U') % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
+         TSC(b=1, S1387='U', S939='U', S981='U', S664='U', S1798='U', T1462='U') % Rheb(S='GDP', bTSC=1, bmTOR=None),
+         par['TSC2_Rheb_GTPase'])
     
-    for site in ['S939', 'S981', 'S664', 'S1798']:
+    for site in ['S939', 'S981', 'S664', 'S1798', 'T1462']:
         Rule('TSC2_'+site+'_Rheb',
-             TSC({b:1, site:'P'}) % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
-             TSC({b:1, site:'P'}) % Rheb(S='GDP', bTSC=1, bmTOR=None),
-             KCD)
+             TSC({'b':1, site:'P'}) % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
+             TSC({'b':1, site:'P'}) % Rheb(S='GDP', bTSC=1, bmTOR=None),
+             par['TSC2p_Rheb_GTPase'])
 
     # If TSC2 is phosphorylated on S1387, its GAP activity is increased.
     Rule('TSC2_S1387_Rheb',
          TSC(b=1, S1387='P') % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
          TSC(b=1, S1387='P') % Rheb(S='GDP', bTSC=1, bmTOR=None),
-         KCD)
+         par['TSC2pS1387_Rheb_GTPase'])
 
     # Rheb-GTP phosphorylates mTOR in mTORC1 on S2448, activating it.
-    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1, S2448='U'), 'bcat', Rheb(S='GTP', bTSC=None), 'bmTOR', [KF, KR])
+    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1, S2448='U'), 'bcat', Rheb(S='GTP', bTSC=None), 'bmTOR', par['Rheb_bind_mTORC1'])
 
-    Rule('RhebGTP_cat_mTOR'
+    Rule('RhebGTP_cat_mTOR',
          mTOR(bcomplex=ANY, bcat=2, S2448='U', bFKBP38=None) % Rheb(S='GTP', bTSC=None, bmTOR=2) >>
          mTOR(bcomplex=ANY, bcat=None, S2448='P', bFKBP38=None) + Rheb(S='GTP', bTSC=None, bmTOR=None),
-         KCP)
+         par['RhebGTP_phos_mTOR'])
 
     # FKBP38 can bind mTOR in mTORC1, preventing its activity.
-    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bFKBP38', FKBP38(), 'b', [KF, KR])
+    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bFKBP38', FKBP38(), 'b', par['FKBP38_bind_mTOR'])
 
     # Rheb-GTP can also bind FKBP38, keeping it from inhibiting mTOR.
-    bind(Rheb(S='GTP', bmTOR=None), 'bFKBP38', FKBP38(), 'b', [KF, KR])
+    bind(Rheb(S='GTP', bmTOR=None), 'bFKBP38', FKBP38(), 'b', par['Rheb_bind_FKBP38'])
     
     # Active mTORC1 phosphorylates S6K at T412, allowing PDK1 to phosphorylate S6K at T252.
-    catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', S6K(T252='U'), 'b', 'T412', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', S6K(T252='U'), 'b', 'T412', 'U', 'P', (par['mTORC1_phos_S6K']))
 
-    catalyze_state(PDK1(bakt=None), 'both', S6K(T412='P'), 'b', 'T252', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(PDK1(bakt=None), 'both', S6K(T412='P'), 'b', 'T252', 'U', 'P', (par['PDK1_phos_S6K']))
 
     # Active S6K phosphorylates rpS6.
-    catalyze_state(S6K(T252='P', T412='P'), 'b', rpS6(), 'b', 'S', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(S6K(T252='P', T412='P'), 'b', rpS6(), 'b', 'S', 'U', 'P', (par['S6K_phos_rpS6']))
 
     # Unphosphorylated EIF4EBP1 binds EIF4E (EIF4E is necessary for mRNA translation, which this binding interaction prevents).
-    bind(EIF4EBP1(bmTOR=None, S='U'), 'bEIF4E', EIF4E(), 'b', [KF, KR])
+    bind(EIF4EBP1(bmTOR=None, S='U'), 'bEIF4E', EIF4E(), 'b', par['EIF4EBP1_bind_EIF4E'])
 
     # Active mTORC1 phosphorylates EIF4EBP1, preventing its interaction with EIF4E and activating mRNA translation.
-    catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', EIF4EBP1(bEIF4E=None), 'bmTOR', 'S', 'U', 'P', [KF, KR, KCP])
+    catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', EIF4EBP1(bEIF4E=None), 'bmTOR', 'S', 'U', 'P', (par['mTORC1_phos_EIF4EBP1']))
+
+    # ERK:PP can translocate to the nucleus and activate ELK-1 by phosphorylating S383 and S389.
+    equilibrate(ERK(st='PP', loc='C'), ERK(st='PP', loc='N'), par['ERKPP_to_nucleus'])
+
+    catalyze_state(ERK(st='PP', loc='N'), 'b', ELK1(), 'b', 'S383', 'U', 'P', (par['ERKPP_phos_ELK1']))
