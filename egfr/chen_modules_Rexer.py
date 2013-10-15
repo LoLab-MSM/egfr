@@ -921,9 +921,9 @@ def downstream_signaling_initial():
 def downstream_signaling_events():
     
     # mTOR can bind either the proteins in mTORC1 or mTORC2:
-    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC1_ptns(), 'bmTOR', (par['mTOR_bind_TORC1ptns']))
+    bind(mTOR(bcat=None, S2448='U', bFKBP38=None), 'bcomplex', TORC1_ptns(), 'bmTOR', (par['mTOR_bind_TORC1ptns']))
     
-    bind(mTOR(bcat=None, S2448='U'), 'bcomplex', TORC2_ptns(), 'bmTOR', (par['mTOR_bind_TORC2ptns']))
+    bind(mTOR(bcat=None, S2448='U', bFKBP38=None), 'bcomplex', TORC2_ptns(), 'bmTOR', (par['mTOR_bind_TORC2ptns']))
 
     # mTORC2 phosphorylates AKT:P -> AKT:PP
     bind_complex(TORC2_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bcat', AKT(S='P', bpip3=None), 'both', par['mTORC2_bind_AKTP'])
@@ -936,7 +936,7 @@ def downstream_signaling_events():
     # AKT:PP phosphorylates TSC2 at S939, S981, and T1462, which causes it to translocate from the membrane to the cytosol and stops TSC2's GAP activity on Rheb (Cai 2006, Journal of Cell Biology).
     # ERK:PP can also phosphorylate TSC2 at S664, again inhibiting its GAP activity.
 
-    bind(AKT(S='PP', bpip3=None), 'both', TSC(), 'b', par['AKTPP_bind_TSC2'])
+    bind(AKT(S='PP', bpip3=None), 'both', TSC(S939='U', S981='U', T1462='U'), 'b', par['AKTPP_bind_TSC2'])
     
     for site in ['S939', 'S981', 'T1462']:
         Rule('AKTPP_phos_TSC2_'+site,
@@ -944,10 +944,25 @@ def downstream_signaling_events():
         AKT(S='PP', bpip3=None, both=None) + TSC({'b':None, site:'P'}),
         par['AKTPP_phos'+site+'_TSC2'])
 
-    catalyze_state(ERK(st='PP'), 'b', TSC(), 'b', 'S664', 'U', 'P', (par['ERKPP_phos_TSC2']))
+    # Rule('AKTPP_phos_TSC2_S939',
+    #     AKT(S='PP', bpip3=None, both=1) % TSC(b=1, S939='U', S981='U', T1462='U') >>
+    #     AKT(S='PP', bpip3=None, both=None) + TSC(b=None, S939='P', S981='U', T1462='U'),
+    #     par['AKTPP_phosS939_TSC2'])
+
+    # Rule('AKTPP_phos_TSC2_S981',
+    #     AKT(S='PP', bpip3=None, both=1) % TSC(b=1, S939='U', S981='U', T1462='U') >>
+    #     AKT(S='PP', bpip3=None, both=None) + TSC(b=None, S939='U', S981='P', T1462='U'),
+    #     par['AKTPP_phosS981_TSC2'])
+
+    # Rule('AKTPP_phos_TSC2_T1462',
+    #     AKT(S='PP', bpip3=None, both=1) % TSC(b=1, S939='U', S981='U', T1462='U') >>
+    #     AKT(S='PP', bpip3=None, both=None) + TSC(b=None, S939='U', S981='U', T1462='P'),
+    #     par['AKTPP_phosT1462_TSC2'])
+
+    catalyze_state(ERK(st='PP', loc='C'), 'b', TSC(S939='U', S981='U', T1462='U'), 'b', 'S664', 'U', 'P', (par['ERKPP_phos_TSC2']))
 
     # ERK:PP phosphorylates RSK1 at T573. RSK1 then autocatalyzes phosphorylation at S380, which allows binding of PDK1, which phosphorylates S221, giving fully active RSK1.
-    catalyze_state(ERK(st='PP'), 'b', RSK1(S380='U', S221='U'), 'b', 'T573', 'U', 'P', (par['ERKPP_phos_RSK1']))
+    catalyze_state(ERK(st='PP', loc='C'), 'b', RSK1(S380='U', S221='U'), 'b', 'T573', 'U', 'P', (par['ERKPP_phos_RSK1']))
 
     Rule('RSK1_autocatalysis',
          RSK1(S380='U', S221='U', T573='P') >>
@@ -957,7 +972,7 @@ def downstream_signaling_events():
     catalyze_state(PDK1(bakt=None), 'both', RSK1(S380='P', T573='P'), 'b', 'S221', 'U', 'P', (par['PDK1_phos_RSK1']))
 
     # Active RSK1 can phosphorylate TSC2 at S1798, inhibiting its GAP activity.
-    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', TSC(), 'b', 'S1798', 'U', 'P', (par['RSK1_phos_TSC2']))
+    catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', TSC(S939='U', S981='U', T1462='U'), 'b', 'S1798', 'U', 'P', (par['RSK1_phos_TSC2']))
 
     # Active RSK1 phosphorylates LKB1 at S431, activating LKB1.
     catalyze_state(RSK1(S380='P', T573='P', S221='P'), 'b', LKB1(), 'b', 'S431', 'U', 'P', (par['RSK1_phos_LKB1']))
@@ -966,7 +981,7 @@ def downstream_signaling_events():
     catalyze_state(LKB1(S431='P'), 'b', AMPK(), 'b', 'T172', 'U', 'P', (par['LKB1_phos_AMPK']))
 
     # Active AMPK phosphorylates S1387 on TSC2, activating its GAP activity.
-    catalyze_state(AMPK(T172='P'), 'b', TSC(), 'b', 'S1387', 'U', 'P', (par['AMPK_phos_TSC2']))
+    catalyze_state(AMPK(T172='P'), 'b', TSC(S939='U', S981='U', T1462='U'), 'b', 'S1387', 'U', 'P', (par['AMPK_phos_TSC2']))
 
     # Rheb possesess its own intrinsic GTPase activity.
     Rule('Rheb_GTPase',
@@ -980,15 +995,15 @@ def downstream_signaling_events():
          Rheb(S='GTP'),
          par['Rheb_GDP_GTP'])
 
-    # TSC2 can bind Rheb, inhibiting its GTPase activity if TSC2 is phosphorylated on S939, S981, S664, T1462, or S1798.
-    bind(TSC(), 'b', Rheb(S='GTP', bmTOR=None), 'bTSC', par['TSC2_bind_Rheb'])
+    # TSC2 can bind Rheb, inhibiting its GTPase activity if TSC2 is phosphorylated on S664 or S1798 (if phosphorylated on S939, S981, or T1462, TSC2 translocates from the membrane to the cytosol and can't bind Rheb at all).
+    bind(TSC(S939='U', S981='U', T1462='U'), 'b', Rheb(S='GTP', bmTOR=None), 'bTSC', par['TSC2_bind_Rheb'])
 
     Rule('TSC2_Rheb',
-         TSC(b=1, S1387='U', S939='U', S981='U', S664='U', S1798='U', T1462='U') % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
-         TSC(b=1, S1387='U', S939='U', S981='U', S664='U', S1798='U', T1462='U') % Rheb(S='GDP', bTSC=1, bmTOR=None),
+         TSC(b=1, S1387='U', S664='U', S1798='U') % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
+         TSC(b=1, S1387='U', S664='U', S1798='U') % Rheb(S='GDP', bTSC=1, bmTOR=None),
          par['TSC2_Rheb_GTPase'])
     
-    for site in ['S939', 'S981', 'S664', 'S1798', 'T1462']:
+    for site in ['S664', 'S1798']:
         Rule('TSC2_'+site+'_Rheb',
              TSC({'b':1, site:'P'}) % Rheb(S='GTP', bTSC=1, bmTOR=None) >>
              TSC({'b':1, site:'P'}) % Rheb(S='GDP', bTSC=1, bmTOR=None),
@@ -1001,7 +1016,7 @@ def downstream_signaling_events():
          par['TSC2pS1387_Rheb_GTPase'])
 
     # Rheb-GTP phosphorylates mTOR in mTORC1 on S2448, activating it.
-    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1, S2448='U'), 'bcat', Rheb(S='GTP', bTSC=None), 'bmTOR', par['Rheb_bind_mTORC1'])
+    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1, S2448='U', bFKBP38=None), 'bcat', Rheb(S='GTP', bTSC=None), 'bmTOR', par['Rheb_bind_mTORC1'])
 
     Rule('RhebGTP_cat_mTOR',
          mTOR(bcomplex=ANY, bcat=2, S2448='U', bFKBP38=None) % Rheb(S='GTP', bTSC=None, bmTOR=2) >>
@@ -1009,7 +1024,7 @@ def downstream_signaling_events():
          par['RhebGTP_phos_mTOR'])
 
     # FKBP38 can bind mTOR in mTORC1, preventing its activity.
-    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1), 'bFKBP38', FKBP38(), 'b', par['FKBP38_bind_mTOR'])
+    bind_complex(TORC1_ptns(bmTOR=1) % mTOR(bcomplex=1, bcat=None), 'bFKBP38', FKBP38(), 'b', par['FKBP38_bind_mTOR'])
 
     # Rheb-GTP can also bind FKBP38, keeping it from inhibiting mTOR.
     bind(Rheb(S='GTP', bmTOR=None), 'bFKBP38', FKBP38(), 'b', par['Rheb_bind_FKBP38'])
@@ -1029,6 +1044,6 @@ def downstream_signaling_events():
     catalyze_state(mTOR(bcomplex=ANY, bFKBP38=None, S2448='P'), 'bcat', EIF4EBP1(bEIF4E=None), 'bmTOR', 'S', 'U', 'P', (par['mTORC1_phos_EIF4EBP1']))
 
     # ERK:PP can translocate to the nucleus and activate ELK-1 by phosphorylating S383 and S389.
-    equilibrate(ERK(st='PP', loc='C'), ERK(st='PP', loc='N'), par['ERKPP_to_nucleus'])
-
+    equilibrate(ERK(st='PP', loc='C', b=None), ERK(st='PP', loc='N', b=None), par['ERKPP_to_nucleus'])
+    
     catalyze_state(ERK(st='PP', loc='N'), 'b', ELK1(), 'b', 'S383', 'U', 'P', (par['ERKPP_phos_ELK1']))
