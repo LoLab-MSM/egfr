@@ -6,10 +6,10 @@ from collections import OrderedDict
 
 parameter_dict = OrderedDict([
     ('initial_amounts', # Initial values for all starting species (in molecules/cell)
-     [Parameter('erbb1_0', 1.29e6), #531
-      Parameter('erbb2_0', 3.16e4), #c141
-      Parameter('erbb3_0', 4.48e4), #c140
-      Parameter('erbb4_0', 2.58e1), #c143
+     [Parameter('erbb1_0', 7e4), #531 #Taken from final parameter fit
+      Parameter('erbb2_0', 1.62e5), #c141 #Taken from final parameter fit
+      Parameter('erbb3_0', 4.44e3), #c140 #Taken from final parameter fit
+      Parameter('erbb4_0', 7.4e2), #c143 #Taken from final parameter fit
       Parameter('ATP_0',   1.2e9), #c105
       Parameter('DEP_0',   1.2448e9), #c280
       Parameter('CPP_0',   4.49873e6), #c12
@@ -35,7 +35,15 @@ parameter_dict = OrderedDict([
       Parameter('AKT_0',     9.05e5), #c107
       Parameter('PDK1_0',     3.00416e8), #c109
       Parameter('PP2A_III_0', 2.53054e7), #c113
-      Parameter('Pase9t_0', 0) #c521
+      Parameter('Pase9t_0', 0), #c521
+      # Parameter('ERKPP_0', 9035), #Added to fit experimental data
+      # Parameter('AKTPP_0', 32580), #Added to fit experimental data
+      # Parameter('ErbB11P_0', 7224), #Added to fit experimental data
+      # Parameter('ErbB12P_0', 65016)
+      Parameter('ERKPP_0', 0),
+      Parameter('AKTPP_0', 0),
+      Parameter('ErbB11P_0', 0),
+      Parameter('ErbB12P_0', 0)
      ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:

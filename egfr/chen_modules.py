@@ -213,7 +213,7 @@ def rec_events():
     for i in ['3', '4']:
         Rule('ErbB2_lateralsignal_'+i,
              erbb(ty='2', bd=None, st='P', b=None, loc='C') + erbb(ty=i, bd=None, st='U', b=None, loc='C') >>
-             erbb(ty='2', bd=None, st='P', b=None, loc='C') % erbb(ty=i, bd=None, st='P', b=None, loc='C'),
+             erbb(ty='2', bd=1, st='P', b=None, loc='C') % erbb(ty=i, bd=1, st='P', b=None, loc='C'),
              Parameter('ErbB2_lateralsignal_k'+i, par['ErbB2_lateralsignal']))
 
 
