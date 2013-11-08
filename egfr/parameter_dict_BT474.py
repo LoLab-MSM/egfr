@@ -687,5 +687,10 @@ parameter_dict = OrderedDict([
      [Parameter('ERKPP_phos_ELK1kf', 1e-5),
       Parameter('ERKPP_phos_ELK1kr', 1e-1),
       Parameter('ERKPP_phos_ELK1kc', 1e-1)
+      ]),
+    ('RASGDP_bind_PI3K',
+     [Parameter('RASGDP_bind_PI3Kkf', .0047067), #k112
+      Parameter('RASGDP_bind_PI3Kkr', 1e-1), #kd112
+      Parameter('RASGDP_bind_PI3Kkc', 177.828) #kd113
       ])
     ])
