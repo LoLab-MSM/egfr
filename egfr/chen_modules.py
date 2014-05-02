@@ -5,7 +5,7 @@ Overview:
 PySB implementation of the ErbB related MAPK and AKT signaling
 pathways originally published in [Chen2009]_.
 
-This file containst functions that implement the ErbB execution
+This file contains functions that implement the ErbB execution
 pathway in three modules:
 
 - Receptor layer events, taking into account all ErbB1-4 interactions with ligand.
@@ -46,7 +46,6 @@ def rec_monomers():
     Monomer('EGF', ['b', 'st'], {'st':['M', 'E']}) # Epidermal Growth Factor ligand
     Monomer('HRG', ['b']) # Heregulin ligand
     Monomer('erbb', ['bl', 'bd', 'b', 'ty', 'st', 'loc', 'pi3k1', 'pi3k2', 'pi3k3', 'pi3k4', 'pi3k5', 'pi3k6', 'cpp'], {'ty':['1','2','3','4'], 'st':['U','P'], 'loc':['C','E'], 'cpp':['Y', 'N']}) # bl: lig, bd: dimer, b: binding, ty: rec type, st: (U)n(P)hosphorylated, loc: (C)yto 'brane or (E)ndosome 'brane, cpp: No real biophysical meaning; useful model marker for presence of CPP bound downstream.
-
     Monomer('DEP', ['b'])
     Monomer('ATP', ['b'])
     Monomer('ADP')
