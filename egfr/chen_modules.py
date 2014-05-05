@@ -110,20 +110,6 @@ def rec_events():
          erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C') + EGF(st='M', b=None) <>
          erbb(ty='1', bl=2, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C') % EGF(st='M', b=2),
          *par['EGF_bind_ErbB1d'])
-
-    # Fudge factor: to fit Chen-Sorger experimental data for low EGF and both HRG concentrations, some AKTPP and ERKPP should be produced with very little (experimental data shows no) phosphorylated ErbB1.  
-    # The model as written could theoretically create this scenario for the HRG experimental data, but a 'fudge factor' needs to be added to allow EGF to trigger signaling NOT through ErbB1.
-    # The Chen-Sorger model handles this with the following rules (can't be what is happening biologically since EGF only binds ErbB1).
-
-    # Rule('EGF_bind_ErbB2_ErbB3',
-    #      EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='U', loc='C', bl=None) <>
-    #      erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='3', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
-    #      *par['EGF_bind_ErbB2_ErbB3'])
-
-    # Rule('EGF_bind_ErbB2_ErbB4',
-    #      EGF(st='M') + erbb(ty='2', bd=1, b=None, st='U', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='U', loc='C', bl=None) <>
-    #      erbb(ty='2', bd=1, b=None, st='P', loc='C', bl=None) % erbb(ty='4', bd=1, b=None, st='P', loc='C', bl=None) + EGF(st='M'),
-    #      *par['EGF_bind_ErbB2_ErbB4'])
         
     # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
     Rule('EGFE_bind_ErbBE',
@@ -150,14 +136,6 @@ def rec_events():
     # ATP binding: ATP only binds to dimers
     # ATP binding rates obtained from Chen et al (Supplementary)
     # include DEP binding here since they both bind to the same site
-    # Once we have a working bind_complex_table macro, use that instead of all these rules:
-    # bind_table([[                                                           ATP],
-    #                     [erbb(ty='1', st='U', loc='C', b=None), (par['ErbB1_bind_ATP'])],
-    #                     [erbb(ty='2', st='U', loc='C', b=None), (par['ErbB2_bind_ATP'])],
-    #                     [erbb(ty='4', st='U', loc='C', b=None), (par['ErbB4_bind_ATP'])]],
-    #                     'b', 'b')
-
-    
 
     for i in ['3', '4']:
         Rule('ATP_bind_ErbB2'+i,
@@ -169,14 +147,6 @@ def rec_events():
              erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
              erbb(ty='1', st='U', loc='C', bl=ANY, b=2, bd=1) % erbb(st='U', loc='C', b=None, bd=1) % ATP(b=2),
              *par['ErbB1_bind_ATP'])
-        
-    
-
-    # bind_table([                                                           [DEP],
-    #                    [erbb(ty='1', st='P', loc='C', b=None), (par['ErbBP_bind_DEP'])],
-    #                    [erbb(ty='2', st='P', loc='C', b=None), (par['ErbBP_bind_DEP'])],
-    #                    [erbb(ty='4', st='P', loc='C', b=None), (par['ErbBP_bind_DEP'])]],
-    #                    'b', 'b')
 
     for i in ['1', '2', '4']:
         Rule('DEP_bind_ErbB'+i,
@@ -273,11 +243,6 @@ def rec_events():
              erbb(bd=1, loc='E', cpp='N', ty='1', st='P', b=None) % erbb(bd=1, loc='E', cpp='N', b=None, ty=i),
             *par['kint_no_cPP_2'])
 
-            #Rule('rec_intern_7_'+i,
-            #erbb(bd=1, loc='C', cpp='N', ty=i, b=None) % erbb(bd=1, loc='C', cpp='N', b=None, st='P', ty='1') <>
-            #erbb(bd=1, loc='E', cpp='N', ty=i, b=None) % erbb(bd=1, loc='E', cpp='N', b=None, st='P', ty='1'),
-            #*par['kint_no_cPP_2'])
-
     Rule('rec_intern_8',
          erbb(bd=1, loc='C', cpp='N', ty='2') % erbb(bd=1, loc='C', cpp='N', ty='2') % GAP(bd=ANY, b=None, bgrb2=None) <>
          erbb(bd=1, loc='E', cpp='N', ty='2') % erbb(bd=1, loc='E', cpp='N', ty='2') % GAP(bd=ANY, b=None, bgrb2=None),
@@ -293,11 +258,6 @@ def rec_events():
              erbb(bl=None, bd=1, loc='C', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='C', cpp='N', b=None, ty=i, st='P') <>
              erbb(bl=None, bd=1, loc='E', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='E', cpp='N', b=None, ty=i, st='P'),
             *par['kint_no_cPP_2'])
-
-            #Rule('rec_intern_11_'+i,
-            #erbb(bd=1, loc='C', cpp='N', ty=i, b=None) % erbb(bd=1, loc='C', cpp='N', b=None, st='P', ty='2') <>
-            #erbb(bd=1, loc='E', cpp='N', ty=i, b=None) % erbb(bd=1, loc='E', cpp='N', b=None, st='P', ty='2'),
-            #*par['kint_no_cPP_2'])
         
     # CPP bound to receptors can catalyze their internalization (when they are bound to any complex containing GRB2, except GAB1 complex):
     # Binding to CPP and internalization rates are conflated in order to better match Chen-Sorger model.
@@ -316,24 +276,6 @@ def rec_events():
         erbb(ty='1', bd=1, loc='C', cpp='N') % erbb(bd=1, ty=i, loc='C', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bgab1=None, b=None, bcpp=None, bsos=3) % SOS(bgrb=3, bERKPP=None, bras=4) % RAS(bsos=4, braf=None, bpi3k=None, st='GTP') + CPP(loc='C', b=None) <>
         erbb(ty='1', bd=1, loc='E', cpp='N') % erbb(bd=1, ty=i, loc='E', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bgab1=None, b=None, bcpp=5, bsos=3) % SOS(bgrb=3, bERKPP=None, bras=4) % RAS(bsos=4, braf=None, bpi3k=None, st='GTP') % CPP(loc='E', b=5),
         *par['CPP_bind_ErbB1dimers'])
-
-            #Rule('CPP_bind_ErbB1_RASGTP_complex2_'+i,
-            #erbb(ty=i, bd=1, loc='C', cpp='N') % erbb(bd=1, ty='1', loc='C', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bgab1=None, b=None, bcpp=None, bsos=3) % SOS(bgrb=3, bERKPP=None, bras=4) % RAS(bsos=4, braf=None, bpi3k=None, st='GTP') + CPP(loc='C', b=None) <>
-            #erbb(ty=i, bd=1, loc='E', cpp='N') % erbb(bd=1, ty='1', loc='E', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bgab1=None, b=None, bcpp=5, bsos=3) % SOS(bgrb=3, bERKPP=None, bras=4) % RAS(bsos=4, braf=None, bpi3k=None, st='GTP') % CPP(loc='E', b=5),
-            #*par['CPP_bind_ErbB1dimers'])
-    
-    # These rules are unnecessary unless separate CPP binding/internalization reactions are wanted.
-    # Rule("CPP_rec_int_1",
-    #      erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3) % CPP(loc='C', b=3) <>
-    #      erbb(bd=1, loc='E') % erbb(bd=1, loc='E') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=3) % CPP(loc='E', b=3),
-    #      Parameter('kcppintf_1', 1.3e-3),
-    #      Parameter('kcppintr_1', 5e-5))
-
-    # Rule("CPP_rec_int_2",
-    #      erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4) % CPP(loc='C', b=4) <>
-    #      erbb(bd=1, loc='E') % erbb(bd=1, loc='E') % GAP(bd=ANY, b=2) % SHC(bgap=2, batp=None, st='P', bgrb=3) % GRB2(b=3, bcpp=4) % CPP(loc='E', b=4),
-    #      Parameter('kcppintf_2', 1.3e-3),
-    #      Parameter('kcppintr_2', 5e-5))
 
     Rule('CPPE_bind_GAP_GRB2',
          erbb(bd=1, ty='1', loc='E', cpp='N') % erbb(bd=1, ty='1', loc='E', cpp='N') % GAP(bd=ANY, bgrb2=2) % GRB2(bgap=2, bcpp=None, bgab1=None, b=None) + CPP(loc='E', b=None) <>
@@ -366,14 +308,12 @@ def rec_events():
     # Rate 2: These rules degrade all ErbB1/ErbBX species and all ErbB2/ErbB2 species in MAPK pathway.  Chen/Sorger model also included degradation of single ErbB2, 3, and 4 under this constant, but as these are never internalized by Chen/Sorger rule set, these degradation rxns were ignored.
     for i in ['2', '3', '4']:
         degrade(erbb(bd=1, loc='E', ty='1') % erbb(bd=1, loc='E', ty=i) % GAP(bd=ANY), par['kdeg_2'])
-        #degrade(erbb(bd=1, loc='E', ty=i) % erbb(bd=1, loc='E', ty='1') % GAP(bd=ANY), par['kdeg_2'])
 
     degrade(erbb(bd=1, loc='E', ty='2') % erbb(bd=1, loc='E', ty='2') % GAP(bd=ANY), par['kdeg_2'])
 
     # Rate 3: These rules degrade all ErbB2/ErbB3 and all ErbB2/ErbB4 complexes in MAPK pathway.
     for i in ['3', '4']:
         degrade(erbb(bd=1, loc='E', ty='2') % erbb(bd=1, loc='E', ty=i) % GAP(bd=ANY), par['kdeg_3'])
-        #degrade(erbb(bd=1, loc='E', ty=i) % erbb(bd=1, loc='E', ty='2') % GAP(bd=ANY), par['kdeg_3'])
 
     # Rate 4: degradation of EGF
     degrade(EGF(b=None, st='E'), par['kdeg_4'])
@@ -381,11 +321,9 @@ def rec_events():
     # Rate 5: Degrades ErbB1/ErbBX, ErbB2/ErbB3, and ErbB2/ErbB4 dimers (when no complex attached).
     for i in ['2', '3', '4']:
         degrade(erbb(bd=1, loc='E', ty='1', b=None) % erbb(bd=1, loc='E', ty=i, b=None), par['kdeg_5'])
-        #degrade(erbb(bd=1, loc='E', ty=i, b=None) % erbb(bd=1, loc='E', ty='1', b=None), par['kdeg_5'])
 
     for i in ['3', '4']:
         degrade(erbb(bd=1, loc='E', ty='2', b=None) % erbb(bd=1, loc='E', ty=i, b=None), par['kdeg_5'])
-        #degrade(erbb(bd=1, loc='E', ty=i, b=None) % erbb(bd=1, loc='E', ty='2', b=None), par['kdeg_5'])
 
 def mapk_monomers():
     Monomer('GAP', ['bd', 'b', 'bgrb2'])
