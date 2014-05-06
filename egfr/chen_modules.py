@@ -139,8 +139,8 @@ def rec_events():
 
     for i in ['3', '4']:
         Rule('ATP_bind_ErbB2'+i,
-             erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
-             erbb(ty='2', st='U', loc='C', b=2, bd=1) % erbb(ty=i, st='U', loc='C', b=None, bd=1) % ATP(b=2),
+             erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1) + ATP(b=None) <>
+             erbb(ty='2', st='U', loc='C', b=2, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1) % ATP(b=2),
              *par['ErbB2'+i+'_bind_ATP'])
 
     Rule('ATP_bind_ErbB1',
