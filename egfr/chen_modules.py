@@ -101,15 +101,9 @@ def rec_events():
                 [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                     None,                                          (par['HRG_bind_ErbB4'])]],
                 'bl', 'b')
 
-    Rule('EGF_bind_ErbB1dimers_1',
-         erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=None, ty='1', bd=1, b=None, st='U', loc='C') + EGF(st='M', b=None) <>
-         erbb(ty='1', bl=2, bd=1, b=None, st='U', loc='C') % erbb(bl=None, ty='1', bd=1, b=None, st='U', loc='C') % EGF(st='M', b=2),
-         *par['EGF_bind_ErbB1d'])
+    bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=None, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
     
-    Rule('EGF_bind_ErbB1dimers_2',
-         erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C') + EGF(st='M', b=None) <>
-         erbb(ty='1', bl=2, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C') % EGF(st='M', b=2),
-         *par['EGF_bind_ErbB1d'])
+    bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
         
     # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
     Rule('EGFE_bind_ErbBE',
@@ -136,23 +130,13 @@ def rec_events():
     # ATP binding: ATP only binds to dimers
     # ATP binding rates obtained from Chen et al (Supplementary)
     # include DEP binding here since they both bind to the same site
-
     for i in ['3', '4']:
-        Rule('ATP_bind_ErbB2'+i,
-             erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1) + ATP(b=None) <>
-             erbb(ty='2', st='U', loc='C', b=2, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1) % ATP(b=2),
-             *par['ErbB2'+i+'_bind_ATP'])
-
-    Rule('ATP_bind_ErbB1',
-             erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1) + ATP(b=None) <>
-             erbb(ty='1', st='U', loc='C', bl=ANY, b=2, bd=1) % erbb(st='U', loc='C', b=None, bd=1) % ATP(b=2),
-             *par['ErbB1_bind_ATP'])
+        bind_complex(erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1), 'b', ATP(b=None), 'b', par['ErbB2'+i+'_bind_ATP'], m1=erbb(ty='2', st='U', loc='C', b=None, bd=1))
+    
+    bind_complex(erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1), 'b', ATP(b=None), 'b', par['ErbB1_bind_ATP'], m1=erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1))
 
     for i in ['1', '2', '4']:
-        Rule('DEP_bind_ErbB'+i,
-             erbb(ty=i, st='P', loc='C', b=None, bd=1) % erbb(st='P', loc='C', b=None, bd=1) + DEP(b=None) <>
-             erbb(ty=i, st='P', loc='C', b=2, bd=1) % erbb(st='P', loc='C', b=None, bd=1) % DEP(b=2),
-             *par['ErbBP'+i+'_bind_DEP'])
+        bind_complex(erbb(ty=i, st='P', loc='C', b=None, bd=1) % erbb(st='P', loc='C', b=None, bd=1), 'b', DEP(b=None), 'b', par['ErbBP'+i+'_bind_DEP'], m1=erbb(ty=i, st='P', loc='C', b=None, bd=1))
 
     # Cross phosphorylation: only erbb1, 2, and 4 have ATP, and they can cross-phosphorylate any other receptor
     # erbb2:erbb2 pairs only happen by dissociation of phosphorylated monomers
@@ -309,7 +293,6 @@ def rec_events():
 
 def mapk_monomers():
     Monomer('SHC', ['bgap', 'bgrb', 'batp', 'st'], {'st':['U','P']})
-    # Monomer('SHCPase', ['b'])
     Monomer('GRB2', ['b', 'bsos', 'bgap', 'bgab1', 'bcpp'])
     Monomer('SOS', ['bgrb', 'bras', 'bERKPP', 'st'], {'st':['U', 'P']})
     Monomer('RAS', ['bsos', 'braf', 'bpi3k', 'st', 'act'], {'st':['GDP', 'GTP'], 'act':['N', 'Y']})
@@ -326,7 +309,6 @@ def mapk_initial():
 
     Initial(SHC(bgap=None, bgrb=None, batp=None, st='U'), SHC_0)
     Initial(GRB2(b=None, bsos=None, bgap=None, bgab1=None, bcpp=None), GRB2_0)
-    #Initial(SOS(bgrb=None, bras=None, bERKPP=None, st='U'), SOS_0)
     Initial(RAS(bsos=None, braf=None, bpi3k=None, st='GDP', act='N'), RAS_0)
     Initial(RAF(b=None, st='U', ser295='U'), RAF_0)
     Initial(MEK(b=None, st='U'), MEK_0)
