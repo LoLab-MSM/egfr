@@ -370,10 +370,7 @@ def mapk_events():
     #      Parameter("ShcPhosc", KCP))
     
     # GRB2 binds to GAP-SHC:P with or without SOS:
-    Rule('GRB2_bind_GAP_SHCP_1',
-         SHC(batp=None, st='P', bgrb=None, bgap=ANY) + GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1) <>
-         SHC(batp=None, st='P', bgrb=2, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=1),
-         *par['GRB2_SOS_bind_SHCP_GAP'])
+    bind_complex(SHC(batp=None, st='P', bgrb=None, bgap=ANY), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1), 'b', par['GRB2_SOS_bind_SHCP_GAP'])
 
     bind(SHC(batp=None, st='P', bgap=ANY), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None), 'b', par['GRB2_bind_GAP'])
     
@@ -381,10 +378,8 @@ def mapk_events():
     #    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None), 'b', [KF, KR])
 
     # SHC:P can bind GRB2-SOS without being attached to GAP:
-    Rule('SHCP_bind_GRB2SOS',
-         SHC(batp=None, st='P', bgrb=None, bgap=None) + GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1) <>
-         SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=1),
-         *par['SHCP_bind_GRB2SOS'])
+    
+    bind_complex(SHC(batp=None, st='P', bgrb=None, bgap=None), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1), 'b', par['SHCP_bind_GRB2SOS'])
 
     # ErbB dimers can bind the free SHC:P-GRB2-SOS complex:
     bind_complex(erbb(bd=1, st='P', b=None) % erbb(bd=1, st='P', b=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=3, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=3), 'bgap', par['GAP_bind_SHCP_GRB2_SOS'], m1=erbb(bd=1, st='P', b=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
@@ -394,41 +389,23 @@ def mapk_events():
 
     #Although no free SOS is present initially in Chen Sorger model, GRB2-SOS can disassociate (see above), so these are necessary.
     # SOS binds to GAP-SHC:P-GRB2  
-    bind(GRB2(b=ANY, bgap=None, bgab1=None, bcpp=None), 'bsos', SOS(bras=None, st='U', bERKPP=None), 'bgrb', par['SOS_bind_GAP_SHCP_GRB2'])
+    bind_complex(SHC(batp=None, st='P', bgrb=1, bgap=ANY) % GRB2(b=1, bgap=None, bgab1=None, bcpp=None), 'bsos', SOS(bras=None, st='U', bERKPP=None), 'bgrb', par['SOS_bind_GAP_SHCP_GRB2'])
 
     #SOS binds SHC:P-GRB2 without complex
-    Rule('SOS_bind_SHCP_GRB2',
-         SOS(bras=None, st='U', bERKPP=None, bgrb=None) + SHC(batp=None, st='P', bgrb=1, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=1) <>
-         SHC(batp=None, st='P', bgrb=1, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=2, bcpp=None, b=1) % SOS(bras=None, st='U', bERKPP=None, bgrb=2),
-         *par['SOS_bind_SHCP_GRB2'])
+    bind_complex(SOS(bras=None, st='U', bERKPP=None, bgrb=None), 'bgrb', SHC(batp=None, st='P', bgrb=1, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=1), 'bsos', par['SOS_bind_SHCP_GRB2'])
 
     # SOS also binds GAP-GRB2
-    Rule("GAP_GRB2_bind_SOS",
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=None, bcpp=None) + SOS(bras=None, bgrb=None, bERKPP=None, st='U') <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, st='U', bERKPP=None),
-         *par['SOS_bind_GAP_GRB2'])
+    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=None, bcpp=None), 'bsos', SOS(bras=None, bgrb=None, bERKPP=None, st='U'), 'bgrb', par['SOS_bind_GAP_GRB2'])
 
     # GAP-GRB2-SOS and GAP-SHC:P-GRB2-SOS catalyze RAS-GDP->RAS-GTP:
-    Rule("GAP_GRB2_SOS_bind_RASGDP",
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None) <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', act='N', bpi3k=None),
-         *par['RASGDP_bind_bound_GRB2_SOS'])
+    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
-    Rule("GAP_SHCP_GRB2_SOS_bind_RASGDP",
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None) <>
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', act='N', bpi3k=None),
-         *par['RASGDP_bind_bound_GRB2_SOS'])
+    bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
     # Instead of a one-way catalytic process, the Chen-Sorger model implements this as a bidirectional process, as below:
-    Rule('GAP_GRB2_SOS_bind_RASGTP',
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None) <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', act='N', bpi3k=None),
-         *par['RASGTP_bind_bound_GRB2_SOS'])
+    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
 
-    Rule('GAP_SHCP_GRB2_SOS_bind_RASGTP',
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None) <>
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', act='N', bpi3k=None),
-         *par['RASGTP_bind_bound_GRB2_SOS'])
+    bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
 
     # If a catalytic process is desired instead, use these rules:
     # Rule("GAP_GRB2_SOS_catRAS",
@@ -468,15 +445,7 @@ def mapk_events():
          *par['RASGTP_unbind_GRB2_SOS'])
 
     # Activation of RAF -> RAF:P by RAS-GTP
-    Rule('RASGTP_bind_RAF',
-         RAS(bsos=None, bpi3k=None, st='GTP', act='N', braf=None) + RAF(st='U', ser295='U', b=None) <>
-         RAS(bsos=None, bpi3k=None, st='GTP', act='N', braf=1) % RAF(st='U', ser295='U', b=1),
-         *par['RASGTP_bind_RAF'])
-
-    Rule('RASGTP_RAF_cat',
-         RAS(bsos=None, bpi3k=None, st='GTP', act='Y', braf=None) + RAF(st='P', ser295='U', b=None) <>
-         RAS(bsos=None, bpi3k=None, st='GTP', act='N', braf=1) % RAF(st='U', ser295='U', b=1),
-         *par['RASGTP_RAF_cat'])
+    catalyze_state(RAF(st='U', ser295='U'), 'b', RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', 'act', 'N', 'Y', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])
     
     # Deactivation of RAF:P -> RAF by PP1
     catalyze(PP1(), 'b', RAF(st='P', ser295='U'), 'b', RAF(st='U', ser295='U'),
