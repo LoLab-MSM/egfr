@@ -397,55 +397,33 @@ def mapk_events():
     # SOS also binds GAP-GRB2
     bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=None, bcpp=None), 'bsos', SOS(bras=None, bgrb=None, bERKPP=None, st='U'), 'bgrb', par['SOS_bind_GAP_GRB2'])
 
-    # GAP-GRB2-SOS and GAP-SHC:P-GRB2-SOS catalyze RAS-GDP->RAS-GTP:
+    # GAP-GRB2-SOS and GAP-SHC:P-GRB2-SOS can bind either Ras-GDP or Ras-GTP: k1, k1r
     bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
     bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
-    # Instead of a one-way catalytic process, the Chen-Sorger model implements this as a bidirectional process, as below:
     bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
 
     bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
 
-    # If a catalytic process is desired instead, use these rules:
-    # Rule("GAP_GRB2_SOS_catRAS",
-    #      GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP') >>
-    #      GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP'),
-    #      Parameter("GAP_GRB2_SOS_catRASc", KCP))
+    #Ras-GDP --> Ras-GTP transition (GDP exchange) occurs at a different (faster) rate when bound to Sos (a guanine exchange factor - GEF) than when unbound
+    #Ras-GTP --> Ras-GDP transition (GTP hydrolysis) is also covered by these rules.  A GAP (GTPase activating protein) would theoretically affect this rate.
 
-    # Rule("GAP_SHCP_GRB2_SOS_catRAS",
-    #      GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP') >>
-    #      GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP'),
-    #      Parameter("GAP_SHCP_GRB2_SOS_catRASc", KCP))
-
-    #FIXME: Need to add re-binding of RAS-GTP to complexes, deal with RAS active/unactive? and separate pools of internalized/un-internalized RAS (and RAF, MEK, and ERK).
-         
-    #can use this simpler implementation of above if GRB2-SOS isn't present on its own as in Chen Sorger model:
-    #catalyze_state(SOS(bgrb=ANY, st='U', bERKPP=None), 'bras', RAS(braf=None), 'bsos', 'st', 'GDP', 'GTP', (KF, KR, KCD))
-
-    # Recycling of activated RAS-GTP --> RAS-GDP.  In Chen/Sorger model, activated RAS-GTP is produced upon Raf phosphorylation.
-    Rule('RASGTPact_bind_SOS_SHCP_complex',
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP', act='Y', bpi3k=None) <>
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None),
-         *par['RASGTPact_bind_bound_GRB2_SOS'])
-
-    Rule('RASGTPact_bind_SOS_GRB2_GAP_complex',
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GTP', act='Y', bpi3k=None) <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None),
-         *par['RASGTPact_bind_bound_GRB2_SOS'])
-
-    Rule('RASGTP_unbind_SOS_GRB2_SHCP_complex',
+    Rule('RASGTP_to_GDP_SOS_GRB2_SHCP_complex',
          SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', act='N', bpi3k=None) <>
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None),
+         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None),
          *par['RASGTP_unbind_GRB2_SOS'])
 
-    Rule('RASGTP_unbind_SOS_GRB2_GAP_complex',
+    Rule('RASGTP_to_GDP_SOS_GRB2_GAP_complex',
          GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', act='N', bpi3k=None) <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') + RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None),
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None),
          *par['RASGTP_unbind_GRB2_SOS'])
+    
+    #Ras has its own intrinsic (slower) GTPase and GDP exchange rates when it is unbound.
+    equilibrate(RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), par['Ras_intrinsic_function'])
 
     # Activation of RAF -> RAF:P by RAS-GTP
-    catalyze_state(RAF(st='U', ser295='U'), 'b', RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', 'act', 'N', 'Y', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])
+    catalyze_state(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', RAF(ser295='U'), 'b', 'st', 'U', 'P', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])
     
     # Deactivation of RAF:P -> RAF by PP1
     catalyze(PP1(), 'b', RAF(st='P', ser295='U'), 'b', RAF(st='U', ser295='U'),

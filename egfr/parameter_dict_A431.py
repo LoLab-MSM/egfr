@@ -266,6 +266,10 @@ parameter_dict = OrderedDict([
      [Parameter('RASGTP_unbind_GRB2_SOSkf', 2.3e-1), #kd21
       Parameter('RASGTP_unbind_GRB2_SOSkr', 3.67e-7) #k21
       ]),
+    ('Ras_intrinsic_function',
+     [Parameter('Ras_intrinsic_function_GTPase', 2.3e-1),
+      Parameter('Ras_intrinsic_function_GDPexchange', 3.67e-10)
+      ]),
     ('RASGTP_bind_RAF',
      [Parameter('RASGTP_bind_RAFkf', 5e-6), #k28
       Parameter('RASGTP_bind_RAFkr', 5.3e-3) #kd28
