@@ -95,10 +95,10 @@ def rec_events():
     alias_model_components()
     # EGF / HRG binding to receptors
     # EGF / HRG receptor binding rates obtained from Chen et al Jacobian files
-    bind_table([[                                                                                    EGF(st='M'),                                   HRG],
-                [erbb(ty='1', bl=None, bd=None, b=None, st='U', loc='C'),                            (par['EGF_bind_ErbB1']),                       None],
-                [erbb(ty='3', b=None, bd=None, st='U', loc='C'),                                     None,                                          (par['HRG_bind_ErbB3'])],
-                [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                     None,                                          (par['HRG_bind_ErbB4'])]],
+    bind_table([[                                                                                                                           EGF(st='M'),                                   HRG],
+                [erbb(ty='1', bl=None, bd=None, b=None, st='U', loc='C'),                                                                   (par['EGF_bind_ErbB1']),                       None],
+                [erbb(ty='3', b=None, bd=None, st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),    None,                                          (par['HRG_bind_ErbB3'])],
+                [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                                                            None,                                          (par['HRG_bind_ErbB4'])]],
                 'bl', 'b')
 
     bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=None, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
@@ -117,7 +117,7 @@ def rec_events():
     erbb1 = erbb(ty='1', bl=None, b=None, st='U', loc='C')
     erbb1Lig = erbb(ty='1', bl=ANY, b=None, st='U', loc='C')
     erbb2Lig = erbb(ty='2', b=None, st='U', loc='C')
-    erbb3Lig = erbb(ty='3', bl=ANY, b=None, st='U', loc='C')
+    erbb3Lig = erbb(ty='3', bl=ANY, b=None, st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None)
     erbb4Lig = erbb(ty='4', bl=ANY, b=None, st='U', loc='C')
     bind_table([[                          erbb1,                      erbb1Lig,                     erbb2Lig,                    erbb3Lig, erbb4Lig],
                 [erbb1,                    (par['ErbB1_bind_ErbB1']),  None,                         None,                        None,     None],
@@ -131,12 +131,12 @@ def rec_events():
     # ATP binding rates obtained from Chen et al (Supplementary)
     # include DEP binding here since they both bind to the same site
     for i in ['3', '4']:
-        bind_complex(erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1), 'b', ATP(b=None), 'b', par['ErbB2'+i+'_bind_ATP'], m1=erbb(ty='2', st='U', loc='C', b=None, bd=1))
+        bind_complex(erbb(ty='2', st='U', loc='C', b=None, bd=1) % erbb(ty=i, st='U', loc='C', bl=ANY, b=None, bd=1, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', ATP(b=None), 'b', par['ErbB2'+i+'_bind_ATP'], m1=erbb(ty='2', st='U', loc='C', b=None, bd=1))
     
-    bind_complex(erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1), 'b', ATP(b=None), 'b', par['ErbB1_bind_ATP'], m1=erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1))
+    bind_complex(erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1) % erbb(st='U', loc='C', b=None, bd=1, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', ATP(b=None), 'b', par['ErbB1_bind_ATP'], m1=erbb(ty='1', st='U', loc='C', bl=ANY, b=None, bd=1))
 
     for i in ['1', '2', '4']:
-        bind_complex(erbb(ty=i, st='P', loc='C', b=None, bd=1) % erbb(st='P', loc='C', b=None, bd=1), 'b', DEP(b=None), 'b', par['ErbBP'+i+'_bind_DEP'], m1=erbb(ty=i, st='P', loc='C', b=None, bd=1))
+        bind_complex(erbb(ty=i, st='P', loc='C', b=None, bd=1) % erbb(st='P', loc='C', b=None, bd=1, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', DEP(b=None), 'b', par['ErbBP'+i+'_bind_DEP'], m1=erbb(ty=i, st='P', loc='C', b=None, bd=1))
 
     # Cross phosphorylation: only erbb1, 2, and 4 have ATP, and they can cross-phosphorylate any other receptor
     # erbb2:erbb2 pairs only happen by dissociation of phosphorylated monomers
@@ -153,12 +153,12 @@ def rec_events():
     for i in ['1','2','4']:
         for j in ['1','2','3','4']:
             Rule("cross_phospho_"+i+"_"+j,
-                 ATP(b=1) % erbb(ty=i, b=1,    bd=2, st='U') % erbb(ty=j, bd=2, b=None, st='U') >>
-                 ADP()    + erbb(ty=i, b=None, bd=2, st='P') % erbb(ty=j, bd=2, b=None, st='P'),
+                 ATP(b=1) % erbb(ty=i, b=1,    bd=2, st='U') % erbb(ty=j, bd=2, b=None, st='U', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) >>
+                 ADP()    + erbb(ty=i, b=None, bd=2, st='P') % erbb(ty=j, bd=2, b=None, st='P', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
                  Parameter("kcp"+i+j, par['ATP_phos_ErbB']))
             Rule("cross_DEphospho_"+i+"_"+j,
-                 DEP(b=1)   %  erbb(ty=i, b=1,    bd=2, st='P') % erbb(ty=j, bd=2, b=None, st='P') >>
-                 DEP(b=None) + erbb(ty=i, b=None, bd=2, st='U') % erbb(ty=j, bd=2, b=None, st='U'),
+                 DEP(b=1)   %  erbb(ty=i, b=1,    bd=2, st='P') % erbb(ty=j, bd=2, b=None, st='P', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) >>
+                 DEP(b=None) + erbb(ty=i, b=None, bd=2, st='U') % erbb(ty=j, bd=2, b=None, st='U', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
                  Parameter("kcd"+i+j, par['DEP_dephos_ErbB']))
 
 
@@ -166,17 +166,17 @@ def rec_events():
 
     bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB1P_ErbBXP_bind'])
     bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='2', bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB1P_ErbBXP_bind'])
-    bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='3', bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB1P_ErbBXP_bind'])
+    bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='3', bd=None, st='P', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'bd', par['ErbB1P_ErbBXP_bind'])
     bind(erbb(ty='1', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='4', bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB1P_ErbBXP_bind'])
 
     bind(erbb(bl=None, ty='2', bd=None, st='P', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), 'bd', erbb(bl=None, ty='2', bd=None, st='P', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), 'bd', par['ErbB2P_ErbBXP_bind'])
-    bind(erbb(ty='2', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='3', bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB2P_ErbBXP_bind'])
+    bind(erbb(ty='2', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='3', bd=None, st='P', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'bd', par['ErbB2P_ErbBXP_bind'])
     bind(erbb(ty='2', bd=None, st='P', b=None, loc='C'), 'bd', erbb(ty='4', bd=None, st='P', b=None, loc='C'), 'bd', par['ErbB2P_ErbBXP_bind'])
     
     for i in ['3', '4']:
         Rule('ErbB2_lateralsignal_'+i,
-             erbb(ty='2', bd=None, st='P', b=None, loc='C') + erbb(ty=i, bd=None, st='U', b=None, loc='C') >>
-             erbb(ty='2', bd=1, st='P', b=None, loc='C') % erbb(ty=i, bd=1, st='P', b=None, loc='C'),
+             erbb(ty='2', bd=None, st='P', b=None, loc='C') + erbb(ty=i, bd=None, st='U', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) >>
+             erbb(ty='2', bd=1, st='P', b=None, loc='C') % erbb(ty=i, bd=1, st='P', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
              Parameter('ErbB2_lateralsignal_k'+i, par['ErbB2_lateralsignal']))
 
 
@@ -218,8 +218,8 @@ def rec_events():
     # Rate 3: These rules internalize ErbB1/ErbBX dimers, ErbB2/ErbB2:GAP:SHC complexes and intermediates, and ErbB2/ErbB3 and ErbB2/ErbB4 dimers.
     for i in ['2', '3', '4']:
         Rule('rec_intern_6_'+i,
-             erbb(bd=1, loc='C', cpp='N', ty='1', st='P', b=None) % erbb(bd=1, loc='C', cpp='N', b=None, ty=i) <>
-             erbb(bd=1, loc='E', cpp='N', ty='1', st='P', b=None) % erbb(bd=1, loc='E', cpp='N', b=None, ty=i),
+             erbb(bd=1, loc='C', cpp='N', ty='1', st='P', b=None) % erbb(bd=1, loc='C', cpp='N', b=None, ty=i, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) <>
+             erbb(bd=1, loc='E', cpp='N', ty='1', st='P', b=None) % erbb(bd=1, loc='E', cpp='N', b=None, ty=i, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
             *par['kint_no_cPP_2'])
 
     Rule('rec_intern_9',
@@ -229,8 +229,8 @@ def rec_events():
 
     for i in ['2', '3', '4']:
         Rule('rec_intern_10_'+i,
-             erbb(bl=None, bd=1, loc='C', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='C', cpp='N', b=None, ty=i, st='P') <>
-             erbb(bl=None, bd=1, loc='E', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='E', cpp='N', b=None, ty=i, st='P'),
+             erbb(bl=None, bd=1, loc='C', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='C', cpp='N', b=None, ty=i, st='P', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) <>
+             erbb(bl=None, bd=1, loc='E', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='E', cpp='N', b=None, ty=i, st='P', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
             *par['kint_no_cPP_2'])
         
     # CPP bound to receptors can catalyze their internalization (when they are bound to any complex containing GRB2, except GAB1 complex):
@@ -286,10 +286,10 @@ def rec_events():
 
     # Rate 5: Degrades ErbB1/ErbBX, ErbB2/ErbB3, and ErbB2/ErbB4 dimers (when no complex attached).
     for i in ['2', '3', '4']:
-        degrade(erbb(bd=1, loc='E', ty='1', b=None) % erbb(bd=1, loc='E', ty=i, b=None), par['kdeg_5'])
+        degrade(erbb(bd=1, loc='E', ty='1', b=None) % erbb(bd=1, loc='E', ty=i, b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), par['kdeg_5'])
 
     for i in ['3', '4']:
-        degrade(erbb(bd=1, loc='E', ty='2', b=None) % erbb(bd=1, loc='E', ty=i, b=None), par['kdeg_5'])
+        degrade(erbb(bd=1, loc='E', ty='2', b=None) % erbb(bd=1, loc='E', ty=i, b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), par['kdeg_5'])
 
 def mapk_monomers():
     Monomer('SHC', ['bgap', 'bgrb', 'batp', 'st'], {'st':['U','P']})
@@ -337,13 +337,13 @@ def mapk_events():
     # SHC binds to GAP-complex
     # Chen-Sorger model assigns 2 sets of rate constants to different dimer combinations.  The kf is the same variable; two different kr variables are used but are assigned the same values in the Jacobian files.  These have been combined into one set in this model.
     
-    bind_complex(erbb(bd=1, st='P', b=None) % erbb(bd=1, st='P', b=None),'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'], m1=erbb(bd=1, st='P', b=None))
+    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
 
     #SHC:P binds ErbB dimers
-    bind_complex(erbb(bd=1, st='P', b=None) % erbb(bd=1, st='P', b=None), 'b', SHC(batp=None, st='P', bgrb=None), 'bgap', par['GAP_bind_SHCP'], m1=erbb(bd=1, st='P', b=None))
+    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=None), 'bgap', par['GAP_bind_SHCP'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
 
     #SHC:P-GRB2 binds ErbB dimers
-    bind_complex(erbb(bd=1, st='P', b=None) % erbb(bd=1, st='P', b=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=2), 'bgap', par['GAP_bind_SHCP'], m1=erbb(bd=1, st='P', b=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=2), 'bgap', par['GAP_bind_SHCP'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
 
     # Bound and unbound SHC phosphorylation - These are represented by two kf, kr pairs in the Chen-Sorger model:
     
@@ -382,7 +382,7 @@ def mapk_events():
     bind_complex(SHC(batp=None, st='P', bgrb=None, bgap=None), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1), 'b', par['SHCP_bind_GRB2SOS'])
 
     # ErbB dimers can bind the free SHC:P-GRB2-SOS complex:
-    bind_complex(erbb(bd=1, st='P', b=None) % erbb(bd=1, st='P', b=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=3, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=3), 'bgap', par['GAP_bind_SHCP_GRB2_SOS'], m1=erbb(bd=1, st='P', b=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=3, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=3), 'bgap', par['GAP_bind_SHCP_GRB2_SOS'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
 
     # GRB2 and SOS bind/disassociate:
     bind(GRB2(bgap=None, bgab1=None, b=None, bcpp=None), 'bsos', SOS(bras=None, bERKPP=None, st='U'), 'bgrb', par['GRB2_bind_SOS'])
@@ -504,19 +504,19 @@ def akt_events():
     
     bind_complex(erbb(bd=1, st='P', ty='2', b=None) % erbb(bd=1, st='P', ty='2', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='2', b=None))
     
-    bind_complex(erbb(bd=1, st='P', ty='2', loc='C', b=None) % erbb(bd=1, st='P', ty='3', loc='C', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='1', loc='C', b=None))
+    bind_complex(erbb(bd=1, st='P', ty='2', loc='C', b=None) % erbb(bd=1, st='P', ty='3', loc='C', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='1', loc='C', b=None))
     
     bind_complex(erbb(bd=1, st='P', ty='2', loc='E', b=None) % erbb(bd=1, st='P', ty='4', loc='E', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='2', loc='E', b=None))
 
     #Rate 2: ErbB1/ErbBX, X=2, 3, 4 (endosomal and plasma membrane), ErbB2/ErbB3 dimers (endosomal membrane), and ErbB2/ErbB4 dimers (plasma membrane):
-    bind_complex(erbb(bd=1, st='P', ty='1', b=None) % erbb(bd=1, st='P', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='1', b=None))
+    bind_complex(erbb(bd=1, st='P', ty='1', b=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='1', b=None))
 
-    bind_complex(erbb(bd=1, st='P', ty='2', loc='E', b=None) % erbb(bd=1, st='P', ty='3', loc='E', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='2', loc='E', b=None))
+    bind_complex(erbb(bd=1, st='P', ty='2', loc='E', b=None) % erbb(bd=1, st='P', ty='3', loc='E', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='2', loc='E', b=None))
 
     bind_complex(erbb(bd=1, st='P', ty='2', loc='C', b=None) % erbb(bd=1, st='P', ty='4', loc='C', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='2', loc='C', b=None))
 
     #Bind GRB2 to ErbB dimers with SOS already bound (one rate constant set for all dimer combinations):
-    bind_complex(erbb(bd=1, st='P', b=None) % erbb(bd=1, st='P', b=None), 'b', GRB2(b=None, bsos=2, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=2), 'bgap', par['GRB2_SOS_bind_GAP'], m1=erbb(bd=1, st='P', b=None))
+    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=2, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=2), 'bgap', par['GRB2_SOS_bind_GAP'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
 
     #GAB1 binds ErbB:ErbB-GRB2. Specify plasma membrane complexes in order to prevent complex building on endosomal receptors, so that degradation rxns (above in receptor events) can be simplified -- GAB1 complexes are not degraded as per Chen/Sorger model 
     
@@ -538,45 +538,71 @@ def akt_events():
     #Rate 1: ErbB1/ErbB1, ErbB1/ErbB2, ErbB1/ErbB4, and ErbB2/ErbB4 dimers:
     
     for i in ['1', '2', '4']:
-        bind_complex(erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty=i) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None), 'bgab1', par['GAB1_bind_PI3K_1'])
+        bind_complex(erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty=i) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None, berb=None), 'bgab1', par['GAB1_bind_PI3K_1'])
                      
-    bind_complex(erbb(bd=ANY, ty='2') % erbb(bd=ANY, ty='4') % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None), 'bgab1', par['GAB1_bind_PI3K_1'])
+    bind_complex(erbb(bd=ANY, ty='2') % erbb(bd=ANY, ty='4') % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None, berb=None), 'bgab1', par['GAB1_bind_PI3K_1'])
 
     #Rate 2: ErbB1/ErbB3, ErbB2/ErbB2, and ErbB2/ErbB3 dimers:
     for i in ['1', '2']:
-        bind_complex(erbb(bd=1, ty=i) % erbb(bd=1, ty='3') % GRB2(b=None, bsos=None, bgap=None, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None), 'bgab1', par['GAB1_bind_PI3K_2'])
+        bind_complex(erbb(bd=1, ty=i) % erbb(bd=1, ty='3') % GRB2(b=None, bsos=None, bgap=None, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None, berb=None), 'bgab1', par['GAB1_bind_PI3K_2'])
 
-    bind_complex(erbb(bd=1, ty='2') % erbb(bd=1, ty='2') % GRB2(b=None, bsos=None, bgap=None, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None), 'bgab1', par['GAB1_bind_PI3K_2']) 
-
-    #GAB1-PI3K bound to complex containing ErbB2/ErbB3 binds 1-6 PIP2 (creates chains; doesn't necessarily represent biology but accurately reproduces Chen Sorger 2009 model).
-    #First bind a single PIP2 to PI3K complex - this rule created by catalyze_state below
-
-    #Then create chains of up to 6 PIP2 molecules attached to a single PI3K:
-    assemble_chain_sequential_base(PI3K(berb=None, bras=None, bgab1=ANY, bpip=None), 'bpip', PIP(bakt=None, both=None, S='PIP2'), 'bpi3k_self', 'bself2', 6, [par['PIP2_chain_PI3K']]*5, \
-                                   erbb(bd=ANY, ty='2', b=ANY, loc='C') % erbb(bd=ANY, ty='3', b=None, loc='C') % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=ANY, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'))
-    
-    #To accurately reproduce Chen Sorger model, allow PIP2 to catalyze PIP2->PIP3 conversion of final chain unit.
-    Rule('PIP2_self_catalysis_1',
-         PIP(bakt=None, both=None, S='PIP2', bpi3k_self=ANY, bself2=1) % PIP(bakt=None, both=None, S='PIP2', bpi3k_self=1, bself2=None) >>
-         PIP(bakt=None, both=None, S='PIP2', bpi3k_self=ANY, bself2=None) + PIP(bakt=None, both=None, S='PIP3', bpi3k_self=None, bself2=None),
-          par['PIP2_self_catalysis'])
+    bind_complex(erbb(bd=1, ty='2') % erbb(bd=1, ty='2') % GRB2(b=None, bsos=None, bgap=None, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None, berb=None), 'bgab1', par['GAB1_bind_PI3K_2']) 
     
     #ErbB2-ErbB3 dimers contain 6 binding domains for PI3K (don't need to be bound to adaptor complex).
     """This is the improved ErbB2/ErB3-PI3K sequence of events -- different from Chen Sorger 2009"""
-    #for i in range(1,6):
+    # Warning: hack ahead
+
+    #for i in range(1,3):
     #   rfix=Rule('ErbB2_3bindPI3K_'+str(i),
-    #            erbb(bd=1, ty='2') % erbb(bd=1, ty='3') + PI3K(bpip=None, berb=None) <>  erbb(bd=1, ty='2') % erbb(bd=1, ty='3') + PI3K(bpip=None, berb=1),
-    #            Parameter('GAB1PI3Kf'+str(i), 1e-5),
-    #              Parameter('GAB1PI3Kr'+str(i), 1e-1))
+    #            erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P') + PI3K(bgab1=None, bpip=None, berb=None) <>  erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P') % PI3K(bgab1=None, bpip=None, berb=2),
+    #            Parameter('GAB1PI3K_kf'+str(i), 1e-5),
+    #            Parameter('GAB1PI3K_kr'+str(i), 1e-1))
     #   m=rfix.reactant_pattern.complex_patterns[0].monomer_patterns[1]
-    #  m.site_conditions = {'bd' : 1, 'ty':'3', 'pi3k'+str(i):None}
-    #  m=rfix.product_pattern.complex_patterns[0].monomer_patterns[1]
-    #  m.site_conditions = {'bd' : 1, 'ty':'3', 'pi3k'+str(i):1}
+    #   m.site_conditions = {'bd' : 1, 'ty':'3', 'b': None, 'st':'P', 'pi3k'+str(i):None}
+    #   m=rfix.product_pattern.complex_patterns[0].monomer_patterns[1]
+    #   m.site_conditions = {'bd' : 1, 'ty':'3', 'b': None, 'st':'P', 'pi3k'+str(i):2}
+    #   rfix
+
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k1', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_1'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k2', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_2'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k3', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_3'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k4=None, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k4', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_4'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k5', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_5'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k6', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_6'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY))
 
     #PI3K bound directly to ErbB2-ErbB3 dimers (at any of 6 sites) can catalyze PIP2->PIP3:
-    #catalyze_state(PI3K(berb=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k', 'S', 'PIP2', 'PIP3', (1e-5, 1e-1, 1e-1))
+    #catalyze_state(PI3K(berb=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', (1e-5, 1e-1, 1e-1))
     
-
+    Rule('ErbB23_PI3K_cat_1',
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP2') >>
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP3'), 
+         par['ErbB23_PI3K_cat_1'])
+    
+    Rule('ErbB23_PI3K_cat_2',
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP2') >>
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP3'), 
+         par['ErbB23_PI3K_cat_2'])
+    
+    Rule('ErbB23_PI3K_cat_3',
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP2') >>
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP3'), 
+         par['ErbB23_PI3K_cat_3'])
+    
+    Rule('ErbB23_PI3K_cat_4',
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP2') >>
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP3'), 
+         par['ErbB23_PI3K_cat_4'])
+    
+    Rule('ErbB23_PI3K_cat_5',
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY, pi3k6=None) + PIP(bakt=None, both=None, S='PIP2') >>
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY, pi3k6=None) + PIP(bakt=None, both=None, S='PIP3'), 
+         par['ErbB23_PI3K_cat_5'])
+    
+    Rule('ErbB23_PI3K_cat_6',
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY, pi3k6=ANY) + PIP(bakt=None, both=None, S='PIP2') >>
+         erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY, pi3k6=ANY) + PIP(bakt=None, both=None, S='PIP3'), 
+         par['ErbB23_PI3K_cat_6'])
+    
     #PI3K bound to complex catalyzes PIP2 -> PIP3
     #Two rate sets for initial binding in Chen/Sorger model:
     #Rate 1: ErbB1/ErbBX dimers:

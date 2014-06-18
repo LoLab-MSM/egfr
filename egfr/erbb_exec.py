@@ -1,5 +1,5 @@
 """
-Model M1a: Extrinsic apoptosis model with "embedded together" model of MOMP.
+Model of ErbB receptors, MAPK-Ras and Akt-PI3K pathways, based upon Chen Sorger 2008 paper.
 """
 
 

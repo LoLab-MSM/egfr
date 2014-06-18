@@ -377,10 +377,48 @@ parameter_dict = OrderedDict([
     ('PIP2_PI3K_catalysis',
      Parameter('PIP2_PI3K_catalysiskc', 2e-1) #kd68
      ),
-    ('ErbB23_bind_PI3K',
-     [Parameter('ErbB23_bind_PI3Kkf', 1.33e-5), #k106
-      Parameter('ErbB23_bind_PI3Kkr', 1e-1) #kd106
+    ('ErbB23_bind_PI3K_1',
+     [Parameter('ErbB23_bind_PI3K_1kf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3K_1kr', 1e-1) #kd106
       ]),
+    ('ErbB23_bind_PI3K_2',
+     [Parameter('ErbB23_bind_PI3K_2kf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3K_2kr', 1e-1) #kd106
+      ]),
+    ('ErbB23_bind_PI3K_3',
+     [Parameter('ErbB23_bind_PI3K_3kf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3K_3kr', 1e-1) #kd106
+      ]),
+    ('ErbB23_bind_PI3K_4',
+     [Parameter('ErbB23_bind_PI3K_4kf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3K_4kr', 1e-1) #kd106
+      ]),
+    ('ErbB23_bind_PI3K_5',
+     [Parameter('ErbB23_bind_PI3K_5kf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3K_5kr', 1e-1) #kd106
+      ]),
+    ('ErbB23_bind_PI3K_6',
+     [Parameter('ErbB23_bind_PI3K_6kf', 1.33e-5), #k106
+      Parameter('ErbB23_bind_PI3K_6kr', 1e-1) #kd106
+      ]),
+    ('ErbB23_PI3K_cat_1',
+     Parameter('ErbB23_PI3K_cat_1kc', 2e-1),
+      ),
+    ('ErbB23_PI3K_cat_2',
+     Parameter('ErbB23_PI3K_cat_2kc', 2e-1),
+      ),
+    ('ErbB23_PI3K_cat_3',
+     Parameter('ErbB23_PI3K_cat_3kc', 2e-1),
+      ),
+    ('ErbB23_PI3K_cat_4',
+     Parameter('ErbB23_PI3K_cat_4kc', 2e-1),
+      ),
+    ('ErbB23_PI3K_cat_5',
+     Parameter('ErbB23_PI3K_cat_5kc', 2e-1),
+      ),
+    ('ErbB23_PI3K_cat_6',
+     Parameter('ErbB23_PI3K_cat_6kc', 2e-1),
+      ),                        
     ('PIP3_bind_AKT',
      [Parameter('PIP3_bind_AKTkf', 3.33e-5), #k69
       Parameter('PIP3_bind_AKTkr', 1e-1) #kd69
