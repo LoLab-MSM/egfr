@@ -295,7 +295,7 @@ def mapk_monomers():
     Monomer('SHC', ['bgap', 'bgrb', 'batp', 'st'], {'st':['U','P']})
     Monomer('GRB2', ['b', 'bsos', 'bgap', 'bgab1', 'bcpp'])
     Monomer('SOS', ['bgrb', 'bras', 'bERKPP', 'st'], {'st':['U', 'P']})
-    Monomer('RAS', ['bsos', 'braf', 'bpi3k', 'st', 'act'], {'st':['GDP', 'GTP'], 'act':['N', 'Y']})
+    Monomer('RAS', ['bsos', 'braf', 'bpi3k', 'st'], {'st':['GDP', 'GTP']})
     Monomer('RAF', ['b', 'st', 'ser295'], {'st':['U', 'P'], 'ser295':['U', 'P']})
     Monomer('PP1', ['b'])
     Monomer('PP2', ['b'])
@@ -309,7 +309,7 @@ def mapk_initial():
 
     Initial(SHC(bgap=None, bgrb=None, batp=None, st='U'), SHC_0)
     Initial(GRB2(b=None, bsos=None, bgap=None, bgab1=None, bcpp=None), GRB2_0)
-    Initial(RAS(bsos=None, braf=None, bpi3k=None, st='GDP', act='N'), RAS_0)
+    Initial(RAS(bsos=None, braf=None, bpi3k=None, st='GDP'), RAS_0)
     Initial(RAF(b=None, st='U', ser295='U'), RAF_0)
     Initial(MEK(b=None, st='U'), MEK_0)
     Initial(ERK(b=None, st='U'), ERK_0)
@@ -398,29 +398,29 @@ def mapk_events():
     bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=None, bcpp=None), 'bsos', SOS(bras=None, bgrb=None, bERKPP=None, st='U'), 'bgrb', par['SOS_bind_GAP_GRB2'])
 
     # GAP-GRB2-SOS and GAP-SHC:P-GRB2-SOS can bind either Ras-GDP or Ras-GTP: k1, k1r
-    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
+    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
-    bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
+    bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
-    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
+    bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
 
-    bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
+    bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GTP', bpi3k=None), 'bsos', par['RASGTP_bind_bound_GRB2_SOS'])
 
     #Ras-GDP --> Ras-GTP transition (GDP exchange) occurs at a different (faster) rate when bound to Sos (a guanine exchange factor - GEF) than when unbound
     #Ras-GTP --> Ras-GDP transition (GTP hydrolysis) is also covered by these rules.  A GAP (GTPase activating protein) would theoretically affect this rate.
 
     Rule('RASGTP_to_GDP_SOS_GRB2_SHCP_complex',
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', act='N', bpi3k=None) <>
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None),
+         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', bpi3k=None) <>
+         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GDP', bpi3k=None),
          *par['RASGTP_unbind_GRB2_SOS'])
 
     Rule('RASGTP_to_GDP_SOS_GRB2_GAP_complex',
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', act='N', bpi3k=None) <>
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None),
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', bpi3k=None) <>
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=None, st='GDP', bpi3k=None),
          *par['RASGTP_unbind_GRB2_SOS'])
     
     #Ras has its own intrinsic (slower) GTPase and GDP exchange rates when it is unbound.
-    equilibrate(RAS(braf=None, bsos=None, st='GTP', act='N', bpi3k=None), RAS(braf=None, bsos=None, st='GDP', act='N', bpi3k=None), par['Ras_intrinsic_function'])
+    equilibrate(RAS(braf=None, bsos=None, st='GTP', bpi3k=None), RAS(braf=None, bsos=None, st='GDP', bpi3k=None), par['Ras_intrinsic_function'])
 
     # Activation of RAF -> RAF:P by RAS-GTP
     catalyze_state(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', RAF(ser295='U'), 'b', 'st', 'U', 'P', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])
@@ -563,12 +563,12 @@ def akt_events():
     #   m.site_conditions = {'bd' : 1, 'ty':'3', 'b': None, 'st':'P', 'pi3k'+str(i):2}
     #   rfix
 
-    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k1', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_1'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
-    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k2', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_2'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
-    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k3', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_3'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k4=None, pi3k5=None, pi3k6=None))
-    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k4', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_4'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k5=None, pi3k6=None))
-    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k5', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_5'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k6=None))
-    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k6', PI3K(bgab1=None, bpip=None), 'berb', par['ErbB23_bind_PI3K_6'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k1', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_1'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k2', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_2'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k3', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_3'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k4=None, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k4', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_4'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k5=None, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k5', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_5'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k6=None))
+    bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k6', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_6'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY))
 
     #PI3K bound directly to ErbB2-ErbB3 dimers (at any of 6 sites) can catalyze PIP2->PIP3:
     #catalyze_state(PI3K(berb=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', (1e-5, 1e-1, 1e-1))
@@ -709,6 +709,7 @@ def crosstalk_events():
     #AKT:P:P phosphorylates RAF:P at Ser295, preventing MEK phosphorylation.
     catalyze_state(AKT(S='PP', bpip3=None), 'both', RAF(st='P'), 'b', 'ser295', 'U', 'P', (par['AKTPP_phos_RAFP']))
 
-    #RAS-GDP binds PI3K and PI3K catalyzes GDP --> GTP transformation. (Note: Matches model, but is this actually what's happening biologically?)
-    catalyze_state(PI3K(bgab1=ANY, bpip=None), 'bras', RAS(bsos=None, braf=None), 'bpi3k', 'st', 'GDP', 'GTP', (par['RASGDP_bind_PI3K']))
-
+    #RAS-GTP binds PI3K and activates PI3K catalytic function.
+    bind(RAS(bsos=None, braf=None, st='GTP'), 'bpi3k', PI3K(bgab1=None, bpip=None, berb=None), 'bras', par['RASGTP_bind_PI3K'])
+    
+    catalyze_state(PI3K(bras=ANY, bgab1=None, berb=None), 'bpip', PIP(both=None, bakt=None, bself2=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', par['RAS_PI3K_cat_PIP'])

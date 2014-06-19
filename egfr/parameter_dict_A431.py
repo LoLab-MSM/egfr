@@ -481,5 +481,14 @@ parameter_dict = OrderedDict([
      [Parameter('RASGDP_bind_PI3Kkf', .0047067), #k112
       Parameter('RASGDP_bind_PI3Kkr', 1e-1), #kd112
       Parameter('RASGDP_bind_PI3Kkc', 177.828) #kd113
+      ]),
+    ('RASGTP_bind_PI3K',
+     [Parameter('RASGTP_bind_PI3Kkf', .0047067),
+      Parameter('RASGTP_bind_PI3Kkr', 1e-1)
+      ]),
+    ('RAS_PI3K_cat_PIP',
+     [Parameter('RAS_PI3K_cat_PIPkf', 2.6e-8),
+      Parameter('RAS_PI3K_cat_PIPkr', 1e-1),
+      Parameter('RAS_PI3K_cat_PIPkc', 2e-1)
       ])
     ])
