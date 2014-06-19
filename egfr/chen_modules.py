@@ -468,7 +468,7 @@ def akt_monomers():
     """ This is the akt part of the pathway from the Chen et al. 2009 paper.  Initial rules for all binding reactions were generated and then coded again using macros and higher order macros.  Initial parameters and conditions were taken from Chen et al. 2009 paper and supplementary, but were later modified in order to get the model working correctly.  This pathway follows AKT from its initial state to a phosphorylated and then double phosphorylated state before returning to unphosphorylated AKT.  The model works correctly, but parameters and rates may need to be modified in order to get best fit.  Parameters and rates included are from trial and error of what best fit the model.  The last unbinding reactions may not be needed because of the catalyze_state macros, but were left in just in case these are needed later.  
 """
     #This pathway coded by Tim O'Brien.
-    Monomer('GAB1', ['bgrb2', 'bshp2', 'bpi3k', 'bpi3k2', 'bpi3k3', 'bpi3k4', 'bpi3k5', 'bpi3k6','batp','bERKPP','bPase9t','S'],{'S':['U','P','PP']})
+    Monomer('GAB1', ['bgrb2', 'bshp2', 'bpi3k', 'batp','bERKPP','bPase9t','S'],{'S':['U','P','PP']})
     Monomer('PI3K',['bgab1','bpip', 'bras', 'berb'])
     Monomer('SHP2',['bgab1'])
     Monomer('PIP', ['bakt', 'both', 'S', 'bpi3k_self','bself2'], {'S':['PIP2', 'PIP3']})
@@ -484,7 +484,7 @@ def akt_initial():
     alias_model_components()
     
     # Initial conditions 
-    Initial(GAB1(bgrb2=None, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None, batp=None, bERKPP=None, bPase9t=None, S='U'), GAB1_0)
+    Initial(GAB1(bgrb2=None, bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, S='U'), GAB1_0)
     Initial(PI3K(bgab1=None, bpip=None, bras=None, berb=None), PI3K_0)
     Initial(SHP2(bgab1=None), SHP2_0)
     Initial(PIP(bakt=None, both=None, S='PIP2', bpi3k_self=None, bself2=None), PIP_0)
@@ -550,18 +550,6 @@ def akt_events():
     
     #ErbB2-ErbB3 dimers contain 6 binding domains for PI3K (don't need to be bound to adaptor complex).
     """This is the improved ErbB2/ErB3-PI3K sequence of events -- different from Chen Sorger 2009"""
-    # Warning: hack ahead
-
-    #for i in range(1,3):
-    #   rfix=Rule('ErbB2_3bindPI3K_'+str(i),
-    #            erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P') + PI3K(bgab1=None, bpip=None, berb=None) <>  erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P') % PI3K(bgab1=None, bpip=None, berb=2),
-    #            Parameter('GAB1PI3K_kf'+str(i), 1e-5),
-    #            Parameter('GAB1PI3K_kr'+str(i), 1e-1))
-    #   m=rfix.reactant_pattern.complex_patterns[0].monomer_patterns[1]
-    #   m.site_conditions = {'bd' : 1, 'ty':'3', 'b': None, 'st':'P', 'pi3k'+str(i):None}
-    #   m=rfix.product_pattern.complex_patterns[0].monomer_patterns[1]
-    #   m.site_conditions = {'bd' : 1, 'ty':'3', 'b': None, 'st':'P', 'pi3k'+str(i):2}
-    #   rfix
 
     bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k1', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_1'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
     bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k2', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_2'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
@@ -571,7 +559,6 @@ def akt_events():
     bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k6', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_6'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=ANY, pi3k3=ANY, pi3k4=ANY, pi3k5=ANY))
 
     #PI3K bound directly to ErbB2-ErbB3 dimers (at any of 6 sites) can catalyze PIP2->PIP3:
-    #catalyze_state(PI3K(berb=ANY), 'bpip', PIP(bakt=None, both=None), 'bpi3k_self', 'S', 'PIP2', 'PIP3', (1e-5, 1e-1, 1e-1))
     
     Rule('ErbB23_PI3K_cat_1',
          erbb(bd=1, ty='2', b=None, st='P') % erbb(bd=1, ty='3', b=None, st='P', pi3k1=ANY, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) + PIP(bakt=None, both=None, S='PIP2') >>
@@ -679,7 +666,7 @@ def crosstalk_initial():
 
 def crosstalk_events():
     #ERK:P:P phosphorylates GAP-GRB2-GAB1:P (making it unable to bind PI3K)
-    catalyze_state(ERK(st='PP'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None, bpi3k2=None, bpi3k3=None, bpi3k4=None, bpi3k5=None, bpi3k6=None), 'bERKPP', 'S', 'P', 'PP', (par['ERKPP_phos_GAB1P']))
+    catalyze_state(ERK(st='PP'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None), 'bERKPP', 'S', 'P', 'PP', (par['ERKPP_phos_GAB1P']))
 
     #GAP-GRB2-GAB1:P:P is dephosphorylated by Pase9t
     catalyze_state(Pase9t(), 'bgab1', GAB1(bgrb2=ANY), 'bPase9t', 'S', 'PP', 'P', (par['Pase9t_dephos_GAB1PP']))
