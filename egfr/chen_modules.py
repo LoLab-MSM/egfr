@@ -6,18 +6,17 @@ PySB implementation of the ErbB related MAPK and AKT signaling
 pathways originally published in [Chen2009]_.
 
 This file contains functions that implement the ErbB execution
-pathway in three modules:
+pathway in four modules:
 
 - Receptor layer events, taking into account all ErbB1-4 interactions with ligand.
 - AKT pathway
 - MAPK pathway
-
+- crosstalk between AKT/MAPK pathways.
 """
 
 from pysb import *
 from pysb.macros import *
 from pysb.util import alias_model_components
-# from egfr.shared import * # modified model aliases
 
 # Receptor Layer, 0
 
@@ -33,7 +32,6 @@ KINTR = 5.0e-5
 KDEG = .1
 
 from parameter_dict_A431 import parameter_dict as par
-#FIXME: What is Inh in reaction list?
         
 # Monomer declarations
 # ====================
@@ -179,12 +177,10 @@ def rec_events():
              erbb(ty='2', bd=1, st='P', b=None, loc='C') % erbb(ty=i, bd=1, st='P', b=None, loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
              Parameter('ErbB2_lateralsignal_k'+i, par['ErbB2_lateralsignal']))
 
-
-    alias_model_components()
     # Receptor internalization
-    # This internalizes receptors (with/without complexes) after binding to CPP (coated pit protein) as well as without CPP (first 2 sets of rules).  Only ErbB1/ErbB1 dimers and ErbB1/ErbBX:GAP:GRB2:SOS:RAS-GTP can bind and be internalized by CPP.
+    # This internalizes receptors (with/without complexes) after binding to CPP (coated pit protein) as well as without CPP (first 2 sets of rules).  Only ErbB1/ErbB1 dimers and ErbB1/ErbBX:GRB2:SOS:RAS-GTP can bind and be internalized by CPP.
     # The Chen/Sorger model implements different internalization rates for different receptor combinations/complexes:
-    # Rate 1: The first four rules are to internalize all ErbB1/ErbB1 complexes in the MAPK pathway (i.e. ErbB1/ErbB1:GAP:GRB2:SOS:RAS-GDP and ErbB1/ErbB1:GAP:SHC-P:GRB2:SOS:RAS-GDP and all intermediates in their formation.  The last one internalizes undimerized ErbB1.)
+    # Rate 1: The first four rules are to internalize all ErbB1/ErbB1 complexes in the MAPK pathway (i.e. ErbB1/ErbB1:GRB2:SOS:RAS-GDP and ErbB1/ErbB1:SHC-P:GRB2:SOS:RAS-GDP and all intermediates in their formation.  The last one internalizes undimerized ErbB1.)
     Rule("rec_intern_1",
          erbb(bd=1, loc='C', cpp='N', ty='1') % erbb(bd=1, loc='C', cpp='N', ty='1') % GRB2(bgap=2, bgab1=None, b=None, bcpp=None) <> erbb(bd=1, loc='E', cpp='N', ty='1') % erbb(bd=1, loc='E', cpp='N', ty='1') % GRB2(bgap=2, bgab1=None, b=None, bcpp=None),
          *par['kint_no_cPP_1'])
@@ -214,8 +210,8 @@ def rec_events():
          erbb(bd=None, loc='E', cpp='N', ty='1', b=None),
          *par['kint_no_cPP_1'])
 
-# Rate 2: Set to 0 in Chen/Sorger files and not implemented.  Would have internalized single ErbB2, 3, and 4, as well as ErbB2/3,4:GAP:SHC complexes (phos/unphos).
-    # Rate 3: These rules internalize ErbB1/ErbBX dimers, ErbB2/ErbB2:GAP:SHC complexes and intermediates, and ErbB2/ErbB3 and ErbB2/ErbB4 dimers.
+    # Rate 2: Set to 0 in Chen/Sorger files and not implemented.  Would have internalized single ErbB2, 3, and 4, as well as ErbB2/3,4:SHC complexes (phos/unphos).
+    # Rate 3: These rules internalize ErbB1/ErbBX dimers, ErbB2/ErbB2:SHC complexes and intermediates, and ErbB2/ErbB3 and ErbB2/ErbB4 dimers.
     for i in ['2', '3', '4']:
         Rule('rec_intern_6_'+i,
              erbb(bd=1, loc='C', cpp='N', ty='1', st='P', b=None) % erbb(bd=1, loc='C', cpp='N', b=None, ty=i, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) <>
@@ -268,7 +264,7 @@ def rec_events():
     # Receptor degradation
     # This degrades all receptor combos within an endosome
     # The Chen/Sorger model implements different degradation rates for different species:
-    # Rate 1: These rules degrade all 2EGF:ErbB1/ErbB1 complexes in the MAPK pathway (i.e. ErbB1/ErbB1:GAP:GRB2:SOS:RAS-GDP and ErbB1/ErbB1:GAP:SHC-P:GRB2:SOS:RAS-GDP and all intermediates in their formation.), as well as single ErbB1.  
+    # Rate 1: These rules degrade all 2EGF:ErbB1/ErbB1 complexes in the MAPK pathway (i.e. ErbB1/ErbB1:GRB2:SOS:RAS-GDP and ErbB1/ErbB1:SHC-P:GRB2:SOS:RAS-GDP and all intermediates in their formation.), as well as single ErbB1.  
     degrade(EGF(b=3) % EGF(b=4) % erbb(bd=1, loc='E', ty='1', bl=3) % erbb(bd=1, loc='E', ty='1', bl=4) % GRB2(bgap=2, bcpp=None, bgab1=None, b=None), par['kdeg_1'])
 
     degrade(EGF(b=3) % EGF(b=4) % erbb(bd=1, loc='E', ty='1', bl=3) % erbb(bd=1, loc='E', ty='1', bl=4) % SHC(bgap=2, batp=None), par['kdeg_1'])
@@ -326,15 +322,7 @@ def mapk_events():
     # Alias model components for names in present namespace
     alias_model_components()
 
-    # GAP binds to phosphorylated dimers
-    # in the present we use MatchOnce to insure correct representation of the binding
-    # similar to Chen et al
-    # Chen/Sorger model implements 2 rate constants for this rxn, one for ErbB1/ErbB1, ErbB2/ErbB2, ErbB2/ErbB3, and ErbB2/ErbB4 dimers, and one for ErbB1/ErbBX dimers.
-    # Rate 1: ErbB1/ErbB1, ErbB2/ErbB2, ErbB2/ErbB3, and ErbB2/ErbB4 dimers.
-
-    # Rate 2: ErbB1/ErbBX, X=2, 3, 4  Note: In Chen/Sorger rxn list, plasma membrane ErbB1/ErbB2 dimers are assigned Rate 1 (above); however the other 5 ErbB1/ErbBX combinations (plasma and endosomal membranes) are assigned Rate 2.  ErbB1/ErbB2 was assigned the latter in this model under the assumption that this was accidental.
-    
-    # SHC binds to GAP-complex
+    # SHC binds to ErbB dimers
     # Chen-Sorger model assigns 2 sets of rate constants to different dimer combinations.  The kf is the same variable; two different kr variables are used but are assigned the same values in the Jacobian files.  These have been combined into one set in this model.
     
     bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
@@ -358,26 +346,12 @@ def mapk_events():
          SHC(bgap=None, bgrb=None, batp=None, st='P'),
          *par['SHC_unbound_phos'])
     
-    # The two rules below can be used if a binding kf,kr and a kc are desired:
-    # Rule("Shc_bind_ATP",
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='U') + ATP(b=None) <>
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2),
-    #      Parameter("ShcATPf",KF), Parameter("ShcATPr",KR))
-    
-    # Rule("Shc_phos",
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2) >>
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='P') + ADP(),
-    #      Parameter("ShcPhosc", KCP))
-    
-    # GRB2 binds to GAP-SHC:P with or without SOS:
+    # GRB2 binds to ErbBdimer-SHC:P with or without SOS:
     bind_complex(SHC(batp=None, st='P', bgrb=None, bgap=ANY), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1), 'b', par['GRB2_SOS_bind_SHCP_GAP'])
 
     bind(SHC(batp=None, st='P', bgap=ANY), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None), 'b', par['GRB2_bind_GAP'])
-    
-    # Can use this simpler version if GRB2-SOS complex isn't present alone:
-    #    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None), 'b', [KF, KR])
 
-    # SHC:P can bind GRB2-SOS without being attached to GAP:
+    # SHC:P can bind GRB2-SOS without being attached to an ErbB dimer:
     
     bind_complex(SHC(batp=None, st='P', bgrb=None, bgap=None), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1), 'b', par['SHCP_bind_GRB2SOS'])
 
@@ -388,16 +362,16 @@ def mapk_events():
     bind(GRB2(bgap=None, bgab1=None, b=None, bcpp=None), 'bsos', SOS(bras=None, bERKPP=None, st='U'), 'bgrb', par['GRB2_bind_SOS'])
 
     #Although no free SOS is present initially in Chen Sorger model, GRB2-SOS can disassociate (see above), so these are necessary.
-    # SOS binds to GAP-SHC:P-GRB2  
+    # SOS binds to ErbBdimer-SHC:P-GRB2  
     bind_complex(SHC(batp=None, st='P', bgrb=1, bgap=ANY) % GRB2(b=1, bgap=None, bgab1=None, bcpp=None), 'bsos', SOS(bras=None, st='U', bERKPP=None), 'bgrb', par['SOS_bind_GAP_SHCP_GRB2'])
 
     #SOS binds SHC:P-GRB2 without complex
     bind_complex(SOS(bras=None, st='U', bERKPP=None, bgrb=None), 'bgrb', SHC(batp=None, st='P', bgrb=1, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=1), 'bsos', par['SOS_bind_SHCP_GRB2'])
 
-    # SOS also binds GAP-GRB2
+    # SOS also binds ErbBdimer-GRB2
     bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=None, bcpp=None), 'bsos', SOS(bras=None, bgrb=None, bERKPP=None, st='U'), 'bgrb', par['SOS_bind_GAP_GRB2'])
 
-    # GAP-GRB2-SOS and GAP-SHC:P-GRB2-SOS can bind either Ras-GDP or Ras-GTP: k1, k1r
+    # ErbBdimer-GRB2-SOS and ErbBdimer-SHC:P-GRB2-SOS can bind either Ras-GDP or Ras-GTP: k1, k1r
     bind_complex(GRB2(bgap=ANY, bgab1=None, b=None, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
 
     bind_complex(SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcpp=None) % SOS(bras=None, bgrb=1, bERKPP=None, st='U'), 'bras', RAS(braf=None, bsos=None, st='GDP', bpi3k=None), 'bsos', par['RASGDP_bind_bound_GRB2_SOS'])
@@ -465,7 +439,7 @@ def mapk_events():
     degrade(PP3(b=None), par['PP3_deg'])
 
 def akt_monomers():
-    """ This is the akt part of the pathway from the Chen et al. 2009 paper.  Initial rules for all binding reactions were generated and then coded again using macros and higher order macros.  Initial parameters and conditions were taken from Chen et al. 2009 paper and supplementary, but were later modified in order to get the model working correctly.  This pathway follows AKT from its initial state to a phosphorylated and then double phosphorylated state before returning to unphosphorylated AKT.  The model works correctly, but parameters and rates may need to be modified in order to get best fit.  Parameters and rates included are from trial and error of what best fit the model.  The last unbinding reactions may not be needed because of the catalyze_state macros, but were left in just in case these are needed later.  
+    """ This is the akt part of the pathway from the Chen et al. 2009 paper.  Initial rules for all binding reactions were generated and then coded again using macros and higher order macros.  Initial parameters and conditions were taken from Chen et al. 2009 paper and supplementary, but were later modified in order to get the model working correctly.  This pathway follows AKT from its initial state to a phosphorylated and then double phosphorylated state before returning to unphosphorylated AKT.  The model works correctly, but parameters and rates may need to be modified in order to get best fit.  Parameters and rates included are from trial and error of what best fit the model.  
 """
     #This pathway coded by Tim O'Brien.
     Monomer('GAB1', ['bgrb2', 'bshp2', 'bpi3k', 'batp','bERKPP','bPase9t','S'],{'S':['U','P','PP']})
@@ -496,7 +470,7 @@ def akt_initial():
     Initial(AKT(bpip3=None, both=None, S='PP'), AKTPP_0)
     
 def akt_events():
-    #GRB2 binds GAP-complex (without requiring SHC bound to complex):
+    #GRB2 binds ErbBdimer-complex (without requiring SHC bound to complex):
     #Bind GRB2 without SOS already bound (two Chen-Sorger rate constants for different receptor dimers):
     #Rate 1: ErbB1/ErbB1 dimers (endosomal and plasma membrane), ErbB2/ErbB2 dimers (endosomal and plasma membrane), ErbB2/ErbB3 dimers (plasma membrane), and ErbB2/ErbB4 dimers (endosomal membrane):
     
@@ -522,7 +496,7 @@ def akt_events():
     
     bind_complex(erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None, bcpp=None), 'bgab1', GAB1(bgrb2=None, bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, S='U'), 'bgrb2', par['GRB2_bind_GAB1'])
     
-    #GAP-GRB2-GAB1 phosphorylation - Rates from Table p. 5 Chen et al 2009
+    #ErbBdimer-GRB2-GAB1 phosphorylation - Rates from Table p. 5 Chen et al 2009
     bind_complex(erbb(bd=1) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='U'), 'batp', ATP(b=None), 'b', par['GAB1_bind_ATP'])
 
     Rule('GAB1_phos',
@@ -548,7 +522,7 @@ def akt_events():
 
     bind_complex(erbb(bd=1, ty='2') % erbb(bd=1, ty='2') % GRB2(b=None, bsos=None, bgap=None, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P'), 'bpi3k', PI3K(bpip=None, bgab1=None, bras=None, berb=None), 'bgab1', par['GAB1_bind_PI3K_2']) 
     
-    #ErbB2-ErbB3 dimers contain 6 binding domains for PI3K (don't need to be bound to adaptor complex).
+    #ErbB2-ErbB3 dimers contain 6 binding domains for PI3K (don't need to be bound to adaptor complex).  This set of reactions assumes sequential binding to 6 sites, which is almost certainly not biologically true.  However, this drastically lowers the number of possible species.  Individual parameters are assigned to each sequential binding so that effective rate parameters can be fit.
     """This is the improved ErbB2/ErB3-PI3K sequence of events -- different from Chen Sorger 2009"""
 
     bind_complex(erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, ty='2', b=None, st='P'), 'pi3k1', PI3K(bgab1=None, bpip=None, bras=None), 'berb', par['ErbB23_bind_PI3K_1'], m1=erbb(bd=1, ty='3', b=None, st='P', pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
@@ -597,7 +571,6 @@ def akt_events():
     bind_complex(erbb(bd=ANY, ty='1') % erbb(bd=ANY) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') % PI3K(bpip=None, bgab1=ANY, bras=None), 'bpip', PIP(S='PIP2', both=None, bakt=None, bself2=None, bpi3k_self=None), 'bpi3k_self', par['PIP2_bind_PI3K_1'])
 
     #Rate 2: ErbB2/ErbBX dimers, X=2, 3, 4:
-    #FIXME: What is up with v701 in reaction list?
     for i in ['2', '3', '4']:
         bind_complex(erbb(bd=ANY, ty='2') % erbb(bd=ANY, ty=i) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None) % GAB1(bshp2=None, bpi3k=ANY, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') % PI3K(bpip=None, bgab1=ANY, bras=None), 'bpip', PIP(S='PIP2', both=None, bakt=None, bself2=None, bpi3k_self=None), 'bpi3k_self', par['PIP2_chain_PI3K'])
     
@@ -621,7 +594,7 @@ def akt_events():
              erbb(bd=ANY, ty='2') % erbb(bd=ANY, ty=i) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=ANY, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='P') % PI3K(bpip=None, bgab1=ANY, bras=None) + PIP(S='PIP3', both=None, bakt=None, bself2=None, bpi3k_self=None),
              par['PIP2_PI3K_catalysis'])
              
-     # Setting up the binding reactions necessary for AKT to be phosphorylated and move through the pathway
+    # Setting up the binding reactions necessary for AKT to be phosphorylated and move through the pathway
     bind_table([[                                                 AKT(S='U', both=None),       AKT(S='P', both=None)],
                 [PIP(S='PIP3', both=None, bpi3k_self=None),       (par['PIP3_bind_AKT']),     (par['PIP3_bind_AKT'])]],
                 'bakt', 'bpip3')
@@ -665,10 +638,10 @@ def crosstalk_initial():
     Initial(Pase9t(bgab1=None), Pase9t_0)
 
 def crosstalk_events():
-    #ERK:P:P phosphorylates GAP-GRB2-GAB1:P (making it unable to bind PI3K)
+    #ERK:P:P phosphorylates ErbBdimer-GRB2-GAB1:P (making it unable to bind PI3K)
     catalyze_state(ERK(st='PP'), 'b', GAB1(bgrb2=ANY, bshp2=None, bpi3k=None), 'bERKPP', 'S', 'P', 'PP', (par['ERKPP_phos_GAB1P']))
 
-    #GAP-GRB2-GAB1:P:P is dephosphorylated by Pase9t
+    #ErbBdimer-GRB2-GAB1:P:P is dephosphorylated by Pase9t
     catalyze_state(Pase9t(), 'bgab1', GAB1(bgrb2=ANY), 'bPase9t', 'S', 'PP', 'P', (par['Pase9t_dephos_GAB1PP']))
 
     #ERK:P:P phosphorylates GRB2-SOS, preventing RAS-GDP->RAS-GTP conversion
@@ -693,7 +666,7 @@ def crosstalk_events():
 
     bind_complex(erbb(bd=ANY, ty='1') % erbb(bd=ANY, ty='1') % SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=ANY), 'bsos', SOS(bras=None, bERKPP=None, st='P', bgrb=None), 'bgrb', par['SOSP_bind_GRB2'])
 
-    #AKT:P:P phosphorylates RAF:P at Ser295, preventing MEK phosphorylation.
+    #AKT:PP phosphorylates RAF:P at Ser295, preventing MEK phosphorylation.
     catalyze_state(AKT(S='PP', bpip3=None), 'both', RAF(st='P'), 'b', 'ser295', 'U', 'P', (par['AKTPP_phos_RAFP']))
 
     #RAS-GTP binds PI3K and activates PI3K catalytic function.
