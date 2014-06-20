@@ -12,19 +12,21 @@ from egfr import chen_modules
 
 # Declare monomers
 chen_modules.rec_monomers()
+chen_modules.rec_monomers_lig_EGF()
 chen_modules.mapk_monomers()
 chen_modules.akt_monomers()
 chen_modules.crosstalk_monomers()
 
 # Generate the upstream and downstream sections
 chen_modules.rec_events()
+chen_modules.rec_events_lig_EGF()
 chen_modules.mapk_events()
 chen_modules.akt_events()
 chen_modules.crosstalk_events()
 
 # Initial protein concentrations
-chen_modules.rec_initial_lig_hEGF()
 chen_modules.rec_initial()
+chen_modules.rec_initial_lig_hEGF()
 chen_modules.mapk_initial()
 chen_modules.akt_initial()
 chen_modules.crosstalk_initial()

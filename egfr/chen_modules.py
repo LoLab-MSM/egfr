@@ -38,43 +38,51 @@ from parameter_dict_A431 import parameter_dict as par
 
 def rec_monomers():
 
-    """ Declares the ErbB receptor interactions.
+    """ Declares the ErbB receptor interaction monomers (except ligands).
     'bf' is the default site to be used for all binding/catalysis reactions.
     """
-    Monomer('EGF', ['b', 'st'], {'st':['M', 'E']}) # Epidermal Growth Factor ligand
-    Monomer('HRG', ['b']) # Heregulin ligand
     Monomer('erbb', ['bl', 'bd', 'b', 'ty', 'st', 'loc', 'pi3k1', 'pi3k2', 'pi3k3', 'pi3k4', 'pi3k5', 'pi3k6', 'cpp'], {'ty':['1','2','3','4'], 'st':['U','P'], 'loc':['C','E'], 'cpp':['Y', 'N']}) # bl: lig, bd: dimer, b: binding, ty: rec type, st: (U)n(P)hosphorylated, loc: (C)yto 'brane or (E)ndosome 'brane, cpp: No real biophysical meaning; useful model marker for presence of CPP bound downstream.
     Monomer('DEP', ['b'])
     Monomer('ATP', ['b'])
     Monomer('ADP')
     Monomer('CPP', ['b', 'loc'], {'loc':['C', 'E']})
 
+def rec_monomers_lig_EGF():
+    """Declares the monomer for the ligand EGF."""
+    Monomer('EGF', ['b', 'st'], {'st':['M', 'E']}) # Epidermal Growth Factor ligand
+
+def rec_monomers_lig_HRG():
+    """Declares the monomer for the ligand heregulin."""
+    Monomer('HRG', ['b']) # Heregulin ligand
+
 def rec_initial_lig_hEGF():
+    """Declares the initial conditions for high EGF (5 nM)."""
     Parameter('EGF_0',     3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
-    Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     alias_model_components()
+    Initial(EGF(b=None, st='M'), EGF_0)
     
 def rec_initial_lig_lEGF():
+    """Declares the initial conditions for low EGF (.01 nM)."""
     Parameter('EGF_0',      6.02e9) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
-    Parameter('HRG_0',         0) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     alias_model_components()
+    Initial(EGF(b=None, st='M'), EGF_0)
 
 def rec_initial_lig_hHRG():
-    Parameter('EGF_0',      0) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
-    Parameter('HRG_0',       3.01e12) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    """Declares the initial conditions for high heregulin (5 nM)."""
+    Parameter('HRG_0',         3.01e12) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     alias_model_components()
+    Initial(HRG(b=None), HRG_0)
 
 def rec_initial_lig_lHRG():
-    Parameter('EGF_0',      0) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    """Declares the initial conditions for low heregulin (.01 nM)."""
     Parameter('HRG_0',         6.02e9) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     alias_model_components()
+    Initial(HRG(b=None), HRG_0)
     
 def rec_initial():
+    """Declares the initial conditions for all monomers in receptor interactions except ligands."""
     # # Initial concentrations (except DEP1) for all cell types taken from Chen et al 2009 -- see Jacobian files
     alias_model_components()
-
-    Initial(EGF(b=None, st='M'), EGF_0)
-    Initial(HRG(b=None), HRG_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='1', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb1_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='2', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb2_0)
     Initial(erbb(bl=None, bd=None, b=None, ty='3', st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None, cpp='N'), erbb3_0)
@@ -82,32 +90,47 @@ def rec_initial():
     Initial(ATP(b=None), ATP_0)
     Initial(DEP(b=None), DEP_0)
     Initial(CPP(b=None, loc='C'), CPP_0)
-            
+
+def rec_events_lig_EGF():
+    """ Receptor events involving the ligand EGF."""
+    bind_table([[                                                                                                                           EGF(st='M')],
+                [erbb(ty='1', bl=None, bd=None, b=None, st='U', loc='C'),                                                                   (par['EGF_bind_ErbB1'])],
+                [erbb(ty='3', b=None, bd=None, st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),    None],
+                [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                                                            None]],
+                'bl', 'b')
+    bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=None, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
+    
+    bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
+    
+    # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
+    Rule('EGFE_bind_ErbBE',
+         erbb(ty='1', bd=None, b=None, st='U', loc='E') + EGF(st='E', b=None) <>
+         erbb(ty='1', bd=None, b=None, st='U', loc='E') % EGF(st='M', b=None),
+         *par['EGFE_bind_ErbBE'])
+    
+    # Rate 4: degradation of EGF
+    degrade(EGF(b=None, st='E'), par['kdeg_4'])
+    
+    alias_model_components()
+    
+def rec_events_lig_HRG():
+    """ Receptor events involving the ligand heregulin."""
+    bind_table([[                                                                                                                           HRG],
+                [erbb(ty='1', bl=None, bd=None, b=None, st='U', loc='C'),                                                                   None],
+                [erbb(ty='3', b=None, bd=None, st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),    (par['HRG_bind_ErbB3'])],
+                [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                                                            (par['HRG_bind_ErbB4'])]],
+                'bl', 'b')
+      
 def rec_events():
-    """ Describe receptor-level events here. 
+    """ Describe receptor-level events (except ligand interactions) here. 
     """
     
     # Parameter definitions
     # =====================
     # Alias model components for names in present namespace
     alias_model_components()
-    # EGF / HRG binding to receptors
+    # EGF / HRG binding to receptors -- see specific ligand condition above
     # EGF / HRG receptor binding rates obtained from Chen et al Jacobian files
-    bind_table([[                                                                                                                           EGF(st='M'),                                   HRG],
-                [erbb(ty='1', bl=None, bd=None, b=None, st='U', loc='C'),                                                                   (par['EGF_bind_ErbB1']),                       None],
-                [erbb(ty='3', b=None, bd=None, st='U', loc='C', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),    None,                                          (par['HRG_bind_ErbB3'])],
-                [erbb(ty='4', b=None, bd=None, st='U', loc='C'),                                                                            None,                                          (par['HRG_bind_ErbB4'])]],
-                'bl', 'b')
-
-    bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=None, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
-    
-    bind_complex(erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C') % erbb(bl=ANY, ty='1', bd=1, b=None, st='U', loc='C'), 'bl', EGF(st='M', b=None), 'b', par['EGF_bind_ErbB1d'], m1=erbb(ty='1', bl=None, bd=1, b=None, st='U', loc='C'))
-        
-    # EGF binding/unbinding from endosomal receptors (consistent with Chen/Sorger model, only uncomplexed ErbB1 can bind/release EGF:
-    Rule('EGFE_bind_ErbBE',
-         erbb(ty='1', bd=None, b=None, st='U', loc='E') + EGF(st='E', b=None) <>
-         erbb(ty='1', bd=None, b=None, st='U', loc='E') % EGF(st='M', b=None),
-         *par['EGFE_bind_ErbBE'])
     
     # ErbB dimerization
     # Dimerization rates obtained from Chen et al Jacobian files
@@ -265,11 +288,11 @@ def rec_events():
     # This degrades all receptor combos within an endosome
     # The Chen/Sorger model implements different degradation rates for different species:
     # Rate 1: These rules degrade all 2EGF:ErbB1/ErbB1 complexes in the MAPK pathway (i.e. ErbB1/ErbB1:GRB2:SOS:RAS-GDP and ErbB1/ErbB1:SHC-P:GRB2:SOS:RAS-GDP and all intermediates in their formation.), as well as single ErbB1.  
-    degrade(EGF(b=3) % EGF(b=4) % erbb(bd=1, loc='E', ty='1', bl=3) % erbb(bd=1, loc='E', ty='1', bl=4) % GRB2(bgap=2, bcpp=None, bgab1=None, b=None), par['kdeg_1'])
+    degrade(erbb(bd=1, loc='E', ty='1', bl=ANY) % erbb(bd=1, loc='E', ty='1', bl=ANY) % GRB2(bgap=2, bcpp=None, bgab1=None, b=None), par['kdeg_1'])
 
-    degrade(EGF(b=3) % EGF(b=4) % erbb(bd=1, loc='E', ty='1', bl=3) % erbb(bd=1, loc='E', ty='1', bl=4) % SHC(bgap=2, batp=None), par['kdeg_1'])
+    degrade(erbb(bd=1, loc='E', ty='1', bl=ANY) % erbb(bd=1, loc='E', ty='1', bl=ANY) % SHC(bgap=2, batp=None), par['kdeg_1'])
 
-    degrade(EGF(b=3) % EGF(b=4) % erbb(bd=1, loc='E', ty='1', bl=3, b=None) % erbb(bd=1, loc='E', ty='1', bl=4, b=None), par['kdeg_1'])
+    degrade(erbb(bd=1, loc='E', ty='1', bl=ANY, b=None) % erbb(bd=1, loc='E', ty='1', bl=ANY, b=None), par['kdeg_1'])
 
     degrade(erbb(bd=None, loc='E', ty='1'), par['kdeg_1'])
 
@@ -277,8 +300,7 @@ def rec_events():
 
     # Rate 3: These rules degrade all ErbB2/ErbB3 and all ErbB2/ErbB4 complexes in MAPK pathway.
 
-    # Rate 4: degradation of EGF
-    degrade(EGF(b=None, st='E'), par['kdeg_4'])
+    # Rate 4 -- EGF degradation -- see ligand condition above
 
     # Rate 5: Degrades ErbB1/ErbBX, ErbB2/ErbB3, and ErbB2/ErbB4 dimers (when no complex attached).
     for i in ['2', '3', '4']:
