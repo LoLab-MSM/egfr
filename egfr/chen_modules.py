@@ -347,13 +347,25 @@ def mapk_events():
     # SHC binds to ErbB dimers
     # Chen-Sorger model assigns 2 sets of rate constants to different dimer combinations.  The kf is the same variable; two different kr variables are used but are assigned the same values in the Jacobian files.  These have been combined into one set in this model.
     
-    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    for i in ['1', '2', '3', '4']:
+        bind_complex(erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'], m1=erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+        
+    for i in ['2', '3', '4']:
+        bind_complex(erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'], m1=erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
 
     #SHC:P binds ErbB dimers
-    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=None), 'bgap', par['GAP_bind_SHCP'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    for i in ['1', '2', '3', '4']:
+        bind_complex(erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=None), 'bgap', par['GAP_bind_SHCP'], m1=erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+
+    for i in ['2', '3', '4']:
+        bind_complex(erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=None), 'bgap', par['GAP_bind_SHCP'], m1=erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
 
     #SHC:P-GRB2 binds ErbB dimers
-    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=2), 'bgap', par['GAP_bind_SHCP'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+    for i in ['1', '2', '3', '4']:
+        bind_complex(erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=2), 'bgap', par['GAP_bind_SHCP'], m1=erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+
+    for i in ['2', '3', '4']:
+        bind_complex(erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None, b=2), 'bgap', par['GAP_bind_SHCP'], m1=erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
 
     # Bound and unbound SHC phosphorylation - These are represented by two kf, kr pairs in the Chen-Sorger model:
     
@@ -378,7 +390,12 @@ def mapk_events():
     bind_complex(SHC(batp=None, st='P', bgrb=None, bgap=None), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1), 'b', par['SHCP_bind_GRB2SOS'])
 
     # ErbB dimers can bind the free SHC:P-GRB2-SOS complex:
-    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=3, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=3), 'bgap', par['GAP_bind_SHCP_GRB2_SOS'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+    for i in ['1', '2', '3', '4']:
+        bind_complex(erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=3, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=3), 'bgap', par['GAP_bind_SHCP_GRB2_SOS'], m1=erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+
+    for i in ['2', '3', '4']:
+        bind_complex(erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', SHC(batp=None, st='P', bgrb=2, bgap=None) % GRB2(bgap=None, bgab1=None, bsos=3, bcpp=None, b=2) % SOS(bras=None, bERKPP=None, st='U', bgrb=3), 'bgap', par['GAP_bind_SHCP_GRB2_SOS'], m1=erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), m2=SHC(batp=None, st='P', bgrb=2, bgap=None))
+
 
     # GRB2 and SOS bind/disassociate:
     bind(GRB2(bgap=None, bgab1=None, b=None, bcpp=None), 'bsos', SOS(bras=None, bERKPP=None, st='U'), 'bgrb', par['GRB2_bind_SOS'])
@@ -500,19 +517,25 @@ def akt_events():
     
     bind_complex(erbb(bd=1, st='P', ty='2', b=None) % erbb(bd=1, st='P', ty='2', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='2', b=None))
     
-    bind_complex(erbb(bd=1, st='P', ty='2', loc='C', b=None) % erbb(bd=1, st='P', ty='3', loc='C', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='1', loc='C', b=None))
+    bind_complex(erbb(bd=1, st='P', ty='2', loc='C', b=None) % erbb(bd=1, st='P', ty='3', loc='C', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='2', loc='C', b=None))
     
     bind_complex(erbb(bd=1, st='P', ty='2', loc='E', b=None) % erbb(bd=1, st='P', ty='4', loc='E', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP_2'], m1=erbb(bd=1, st='P', ty='2', loc='E', b=None))
 
     #Rate 2: ErbB1/ErbBX, X=2, 3, 4 (endosomal and plasma membrane), ErbB2/ErbB3 dimers (endosomal membrane), and ErbB2/ErbB4 dimers (plasma membrane):
-    bind_complex(erbb(bd=1, st='P', ty='1', b=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='1', b=None))
+    for i in ['2', '3', '4']:
+        bind_complex(erbb(bd=1, st='P', ty='1', b=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='1', b=None))
 
     bind_complex(erbb(bd=1, st='P', ty='2', loc='E', b=None) % erbb(bd=1, st='P', ty='3', loc='E', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='2', loc='E', b=None))
 
     bind_complex(erbb(bd=1, st='P', ty='2', loc='C', b=None) % erbb(bd=1, st='P', ty='4', loc='C', b=None), 'b', GRB2(b=None, bsos=None, bgab1=None, bcpp=None, bgap=None), 'bgap', par['GRB2_bind_GAP'], m1=erbb(bd=1, st='P', ty='2', loc='C', b=None))
 
     #Bind GRB2 to ErbB dimers with SOS already bound (one rate constant set for all dimer combinations):
-    bind_complex(erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=2, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=2), 'bgap', par['GRB2_SOS_bind_GAP'], m1=erbb(bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+    for i in ['1', '2', '3', '4']:
+        bind_complex(erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=2, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=2), 'bgap', par['GRB2_SOS_bind_GAP'], m1=erbb(ty='1', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+
+    for i in ['2', '3', '4']:
+        bind_complex(erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=2, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=2), 'bgap', par['GRB2_SOS_bind_GAP'], m1=erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
+
 
     #GAB1 binds ErbB:ErbB-GRB2. Specify plasma membrane complexes in order to prevent complex building on endosomal receptors, so that degradation rxns (above in receptor events) can be simplified -- GAB1 complexes are not degraded as per Chen/Sorger model 
     
