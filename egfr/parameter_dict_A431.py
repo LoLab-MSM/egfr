@@ -169,6 +169,18 @@ parameter_dict = OrderedDict([
      [Parameter('kint_no_cPP_2kf', 5e-5), #k7
       Parameter('kint_no_cPP_2kr', 1.38e-4) #kd7
       ]),
+    ('Akt_path_intern_1Xdimers',
+     [Parameter('Akt_path_intern_1Xdimers_kf', 5e-5),
+      Parameter('Akt_path_intern_1Xdimers_kr', 5e-4)
+      ]),
+    ('Akt_path_intern_2Xdimers',
+     [Parameter('Akt_path_intern_2Xdimers_kf', 5e-5),
+      Parameter('Akt_path_intern_2Xdimers_kr', 5e-4)
+      ]),
+    ('Akt_path_intern_23_PI3Kdimers',
+     [Parameter('Akt_path_intern_23_PI3Kdimers_kf', 5e-5),
+      Parameter('Akt_path_intern_23_PI3Kdimers_kr', 5e-4)
+      ]),
       #While Jacobian file contains parameter k4b for CPP binding to non-ErbB1 dimers, this is set to 0.
     ('CPP_bind_ErbB1dimers',
      [Parameter('CPP_bind_ErbB1dimerskf', 6.73e-6), #k4
@@ -196,6 +208,15 @@ parameter_dict = OrderedDict([
      ),
     ('kdeg_5',
      Parameter('kdeg_5', 4.16e-4) #k62b
+     ),
+    ('kdeg_6',
+     Parameter('kdeg_6', 4.16e-4) 
+     ),
+    ('kdeg_7',
+     Parameter('kdeg_7', 4.16e-4)
+     ),
+    ('kdeg_8',
+     Parameter('kdeg_8', 4.16e-4)
      ),
      # MAPK pathway rate parameters:
     ('ErbB_bind_GAP_1',

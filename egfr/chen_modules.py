@@ -251,6 +251,25 @@ def rec_events():
              erbb(bl=None, bd=1, loc='C', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='C', cpp='N', b=None, ty=i, st='P', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) <>
              erbb(bl=None, bd=1, loc='E', cpp='N', ty='2', st='P', b=None) % erbb(bl=None, bd=1, loc='E', cpp='N', b=None, ty=i, st='P', pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None),
             *par['kint_no_cPP_2'])
+    
+    #Modification to original Chen 2007 model -- Internalization of dimers in the PI3K-Akt pathway.
+    #Three rates: one for ErbB1/ErbBX dimers and one for ErbB2/ErbBX dimers with Gab1 and any other downstream proteins bound, and one for ErbB2/ErbB3 dimers with PI3K directly bound.  ErbB1/ErbB2 dimers are under the first rate.
+    for i in ['1', '2', '3', '4']:
+        Rule('Akt_path_intern_1Xdimers'+i,
+            erbb(bd=1, loc='C', cpp='N', ty='1', st='P', b=2) % erbb(bd=1, loc='C', cpp='N', ty=i, st='P', b=None) % GRB2(bgap=2, bgab1=3) % GAB1(bgrb2=3) <>
+            erbb(bd=1, loc='E', cpp='N', ty='1', st='P', b=2) % erbb(bd=1, loc='E', cpp='N', ty=i, st='P', b=None) % GRB2(bgap=2, bgab1=3) % GAB1(bgrb2=3),
+            *par['Akt_path_intern_1Xdimers'])
+    
+    for i in ['2', '3', '4']:
+        Rule('Akt_path_intern_2Xdimers'+i,
+            erbb(bd=1, loc='C', cpp='N', ty='2', st='P', b=2) % erbb(bd=1, loc='C', cpp='N', ty=i, st='P', b=None) % GRB2(bgap=2, bgab1=3) % GAB1(bgrb2=3) <>
+            erbb(bd=1, loc='E', cpp='N', ty='2', st='P', b=2) % erbb(bd=1, loc='E', cpp='N', ty=i, st='P', b=None) % GRB2(bgap=2, bgab1=3) % GAB1(bgrb2=3),
+            *par['Akt_path_intern_2Xdimers'])
+     
+    Rule('Akt_path_intern_23_PI3Kdimers',
+          erbb(bd=1, loc='C', cpp='N', ty='2', st='P', b=2) % erbb(bd=1, loc='C', cpp='N', ty=3, st='P', b=None) % PI3K(berb=ANY) <>
+          erbb(bd=1, loc='E', cpp='N', ty='2', st='P', b=2) % erbb(bd=1, loc='E', cpp='N', ty=3, st='P', b=None) % PI3K(berb=ANY),
+            *par['Akt_path_intern_23_PI3Kdimers'])
         
     # CPP bound to receptors can catalyze their internalization (when they are bound to any complex containing GRB2, except GAB1 complex):
     # Binding to CPP and internalization rates are conflated in order to better match Chen-Sorger model.
@@ -308,6 +327,11 @@ def rec_events():
 
     for i in ['3', '4']:
         degrade(erbb(bd=1, loc='E', ty='2', b=None) % erbb(bd=1, loc='E', ty=i, b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), par['kdeg_5'])
+
+    #Modification to Chen 2007 model: Added degradation of complexes in the AKT/PI3K pathway.
+    degrade(erbb(bd=1, loc='E', ty='1', b=2) % erbb(bd=1, loc='E', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % GRB2(bgap=2, bgab1=3) % GAB1(bgrb2=3), par['kdeg_6'])
+    degrade(erbb(bd=1, loc='E', ty='2', b=2) % erbb(bd=1, loc='E', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % GRB2(bgap=2, bgab1=3) % GAB1(bgrb2=3), par['kdeg_7'])
+    degrade(erbb(bd=1, loc='E', ty='2', b=None) % erbb(bd=1, loc='E', ty='3') % PI3K(berb=ANY), par['kdeg_8'])
 
 def mapk_monomers():
     Monomer('SHC', ['bgap', 'bgrb', 'batp', 'st'], {'st':['U','P']})
@@ -537,9 +561,9 @@ def akt_events():
         bind_complex(erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None) % erbb(ty=i, bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None), 'b', GRB2(b=None, bsos=2, bgab1=None, bcpp=None, bgap=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=2), 'bgap', par['GRB2_SOS_bind_GAP'], m1=erbb(ty='2', bd=1, st='P', b=None, pi3k1=None, pi3k2=None, pi3k3=None, pi3k4=None, pi3k5=None, pi3k6=None))
 
 
-    #GAB1 binds ErbB:ErbB-GRB2. Specify plasma membrane complexes in order to prevent complex building on endosomal receptors, so that degradation rxns (above in receptor events) can be simplified -- GAB1 complexes are not degraded as per Chen/Sorger model 
+    #GAB1 binds ErbB:ErbB-GRB2. 
     
-    bind_complex(erbb(bd=1, loc='C') % erbb(bd=1, loc='C') % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None, bcpp=None), 'bgab1', GAB1(bgrb2=None, bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, S='U'), 'bgrb2', par['GRB2_bind_GAB1'])
+    bind_complex(erbb(bd=1) % erbb(bd=1) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=None, bcpp=None), 'bgab1', GAB1(bgrb2=None, bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, S='U'), 'bgrb2', par['GRB2_bind_GAB1'])
     
     #ErbBdimer-GRB2-GAB1 phosphorylation - Rates from Table p. 5 Chen et al 2009
     bind_complex(erbb(bd=1) % GRB2(b=None, bsos=None, bgap=ANY, bgab1=ANY) % GAB1(bshp2=None, bpi3k=None, batp=None, bERKPP=None, bPase9t=None, bgrb2=ANY, S='U'), 'batp', ATP(b=None), 'b', par['GAB1_bind_ATP'])
