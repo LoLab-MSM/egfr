@@ -272,11 +272,11 @@ parameter_dict = OrderedDict([
       Parameter('SOS_bind_GAP_GRB2kr', .06) #kd17
       ]),
     ('RASGDP_bind_bound_GRB2_SOS',
-     [Parameter('RASGDP_bind_bound_GRB2_SOSkf', 2.5e-5), #k18
+     [Parameter('RASGDP_bind_bound_GRB2_SOSkf', 2.5e-8), #k18
       Parameter('RASGDP_bind_bound_GRB2_SOSkr', 1.3) #kd18
       ]),
     ('RASGTP_bind_bound_GRB2_SOS',
-     [Parameter('RASGTP_bind_bound_GRB2_SOSkf', 1.667e-7), #k19
+     [Parameter('RASGTP_bind_bound_GRB2_SOSkf', 1.667e-5), #k19
       Parameter('RASGTP_bind_bound_GRB2_SOSkr', 5e-1) #kd19
       ]),
     ('RASGTPact_bind_bound_GRB2_SOS',
@@ -284,11 +284,11 @@ parameter_dict = OrderedDict([
       Parameter('RASGTPact_bind_bound_GRB2_SOSkr', 4e-1) #kd20
       ]),
     ('RASGTP_unbind_GRB2_SOS',
-     [Parameter('RASGTP_unbind_GRB2_SOSkf', 2.3e-1), #kd21
-      Parameter('RASGTP_unbind_GRB2_SOSkr', 3.67e-7) #k21
+     [Parameter('RASGTP_unbind_GRB2_SOSkf', 2.3e-5), #kd21
+      Parameter('RASGTP_unbind_GRB2_SOSkr', 3.67e-2) #k21
       ]),
     ('Ras_intrinsic_function',
-     [Parameter('Ras_intrinsic_function_GTPase', 2.3e-1),
+     [Parameter('Ras_intrinsic_function_GTPase', 2.3e-5),
       Parameter('Ras_intrinsic_function_GDPexchange', 3.67e-10)
       ]),
     ('RASGTP_bind_RAF',
@@ -296,8 +296,7 @@ parameter_dict = OrderedDict([
       Parameter('RASGTP_bind_RAFkr', 5.3e-3) #kd28
       ]),
     ('RASGTP_RAF_cat',
-     [Parameter('RASGTP_RAF_catkf', 1.17e-6), #k29
-      Parameter('RASGTP_RAF_catkr', 3.1) #kd29
+     [Parameter('RASGTP_RAF_catkc', 10),
       ]),
     ('RAFP_PP1',
      [Parameter('RAFP_PP1kf', 6e-5), #k42
@@ -399,46 +398,46 @@ parameter_dict = OrderedDict([
      Parameter('PIP2_PI3K_catalysiskc', 2e-1) #kd68
      ),
     ('ErbB23_bind_PI3K_1',
-     [Parameter('ErbB23_bind_PI3K_1kf', 1.33e-5), #k106
+     [Parameter('ErbB23_bind_PI3K_1kf', 1.33e-8), #k106
       Parameter('ErbB23_bind_PI3K_1kr', 1e-1) #kd106
       ]),
     ('ErbB23_bind_PI3K_2',
-     [Parameter('ErbB23_bind_PI3K_2kf', 1.33e-5), #k106
+     [Parameter('ErbB23_bind_PI3K_2kf', 1.33e-8), #k106
       Parameter('ErbB23_bind_PI3K_2kr', 1e-1) #kd106
       ]),
     ('ErbB23_bind_PI3K_3',
-     [Parameter('ErbB23_bind_PI3K_3kf', 1.33e-5), #k106
+     [Parameter('ErbB23_bind_PI3K_3kf', 1.33e-8), #k106
       Parameter('ErbB23_bind_PI3K_3kr', 1e-1) #kd106
       ]),
     ('ErbB23_bind_PI3K_4',
-     [Parameter('ErbB23_bind_PI3K_4kf', 1.33e-5), #k106
+     [Parameter('ErbB23_bind_PI3K_4kf', 1.33e-8), #k106
       Parameter('ErbB23_bind_PI3K_4kr', 1e-1) #kd106
       ]),
     ('ErbB23_bind_PI3K_5',
-     [Parameter('ErbB23_bind_PI3K_5kf', 1.33e-5), #k106
+     [Parameter('ErbB23_bind_PI3K_5kf', 1.33e-8), #k106
       Parameter('ErbB23_bind_PI3K_5kr', 1e-1) #kd106
       ]),
     ('ErbB23_bind_PI3K_6',
-     [Parameter('ErbB23_bind_PI3K_6kf', 1.33e-5), #k106
+     [Parameter('ErbB23_bind_PI3K_6kf', 1.33e-8), #k106
       Parameter('ErbB23_bind_PI3K_6kr', 1e-1) #kd106
       ]),
     ('ErbB23_PI3K_cat_1',
-     Parameter('ErbB23_PI3K_cat_1kc', 2e-1),
+     Parameter('ErbB23_PI3K_cat_1kc', 2e-5),
       ),
     ('ErbB23_PI3K_cat_2',
-     Parameter('ErbB23_PI3K_cat_2kc', 2e-1),
+     Parameter('ErbB23_PI3K_cat_2kc', 2e-5),
       ),
     ('ErbB23_PI3K_cat_3',
-     Parameter('ErbB23_PI3K_cat_3kc', 2e-1),
+     Parameter('ErbB23_PI3K_cat_3kc', 2e-5),
       ),
     ('ErbB23_PI3K_cat_4',
-     Parameter('ErbB23_PI3K_cat_4kc', 2e-1),
+     Parameter('ErbB23_PI3K_cat_4kc', 2e-5),
       ),
     ('ErbB23_PI3K_cat_5',
-     Parameter('ErbB23_PI3K_cat_5kc', 2e-1),
+     Parameter('ErbB23_PI3K_cat_5kc', 2e-5),
       ),
     ('ErbB23_PI3K_cat_6',
-     Parameter('ErbB23_PI3K_cat_6kc', 2e-1),
+     Parameter('ErbB23_PI3K_cat_6kc', 2e-5),
       ),                        
     ('PIP3_bind_AKT',
      [Parameter('PIP3_bind_AKTkf', 3.33e-5), #k69
@@ -504,7 +503,7 @@ parameter_dict = OrderedDict([
       Parameter('RASGDP_bind_PI3Kkc', 177.828) #kd113
       ]),
     ('RASGTP_bind_PI3K',
-     [Parameter('RASGTP_bind_PI3Kkf', .0047067),
+     [Parameter('RASGTP_bind_PI3Kkf', 1e-8),
       Parameter('RASGTP_bind_PI3Kkr', 1e-1)
       ]),
     ('RAS_PI3K_cat_PIP',
