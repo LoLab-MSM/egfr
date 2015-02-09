@@ -122,7 +122,7 @@ parameter_dict = OrderedDict([
       Parameter('ErbB1_bind_ATPkr', 1), #kd122
       ]),
     ('ErbB22_bind_ATP',
-     [Parameter('ErbB2_bind_ATPkf', 1.8704-8),
+     [Parameter('ErbB2_bind_ATPkf', 1.8704e-8),
       Parameter('ErbB2_bind_ATPkr', 1) #kd122
       ]),
     ('ErbB23_bind_ATP',
