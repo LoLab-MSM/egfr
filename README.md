@@ -2,6 +2,7 @@
 PySB models of EGFR receptor driven signaling.  
 
 Four model versions are included:
+
 chen_sorger_2009_egfr: A PySB version of ErbB signaling through phosphorylated Erk and Akt, intended to recreate the model 
 originally published in Chen et al (2009).
 
