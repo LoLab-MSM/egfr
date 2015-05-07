@@ -72,7 +72,9 @@ parameter_dict = OrderedDict([
       Parameter('Bim_0', 1.0e3),
       Parameter('Puma_0', 1.0e3),
       Parameter('C8_0'    , 2.0e4), # procaspase-8
-      Parameter('FOXO_0', 1e2)
+      Parameter('FOXO_0', 1e2),
+      #FRA1 required for work with JA.
+      Parameter('FRA1_0', 1e2)
     ]),
     # Parameters ('k' prefixed variables are Chen-Sorger variable names from Jacobian files):
     # Receptor-level rate parameters:
@@ -821,5 +823,17 @@ parameter_dict = OrderedDict([
      [Parameter('MEK_phos_CRAFkf', 1e-7),
       Parameter('MEK_phos_CRAFkr', 1e-3),
       Parameter('MEK_phos_CRAFkc', 1)
-      ])
+      ]),
+    #Extra FRA1 parameters for work with JA.
+     ('ERKPP_phos_FRA1',
+      [Parameter('ERKPP_phos_FRA1kf', 1e-7),
+       Parameter('ERKPP_phos_FRA1kr', 1e-3),
+       Parameter('ERKPP_phos_FRA1kc', 1)
+       ]),
+     ('FRA1_base_degrade',
+      Parameter('FRA1_base_degrade', 1e-3)
+      ),
+     ('FRA1_phos_degrade',
+     Parameter('FRA1_phos_degrade', 1e-4)
+     )
     ])
