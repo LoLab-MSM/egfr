@@ -23,6 +23,9 @@ parameter_dict = OrderedDict([
       #Parameter('SOS_0', 6.63e4) removed to better represent Chen/Sorger model
       Parameter('RAS_0', 5.81e4), #c26
       Parameter('RAF_0', 7.11e4), #c41
+      Parameter('BRAF_0', 7.11e4), #Set to Raf amount
+      Parameter('CRAF_0', 7.11e4), #Set to Raf amount
+      Parameter('KSR_0', 7.11e4), #Set to Raf amount
       Parameter('MEK_0', 3.02e6), #c47
       Parameter('ERK_0', 6.95e5), #c55
       Parameter('PP1_0', 5e4), #c44
@@ -386,8 +389,8 @@ parameter_dict = OrderedDict([
       Parameter('RASGTP_bind_RAFkr', 5.3e-3) #kd28
       ]),
     ('RASGTP_RAF_cat',
-     [Parameter('RASGTP_RAF_catkc', 10),
-      ]),
+     Parameter('RASGTP_RAF_catkc', 10),
+      ),
     ('RAFP_PP1',
      [Parameter('RAFP_PP1kf', 6e-5), #k42
       Parameter('RAFP_PP1kr', .0141589), #kd42
@@ -809,5 +812,14 @@ parameter_dict = OrderedDict([
      [Parameter('Akt_phos_Badkf', 1e-7),
       Parameter('Akt_phos_Badkr', 1e-3),
       Parameter('Akt_phos_Badkc', 1)
+      ]),
+    #Extra Raf parameters for work with JA.
+    ('Raf_Raf_dimerization',
+     [Parameter('Raf_Raf_dimerizationkf', 3.3e-6), #Original value = 1e6 /M*s --> Converted assuming cell volume = 2 pL
+      Parameter('Raf_Raf_dimerizationkr', .05)]), #Set to BRAF/CRAF/KSR dimerization (kBBf/kBBr) rate from JA modeling work
+    ('MEK_phos_CRAF',
+     [Parameter('MEK_phos_CRAFkf', 1e-7),
+      Parameter('MEK_phos_CRAFkr', 1e-3),
+      Parameter('MEK_phos_CRAFkc', 1)
       ])
     ])

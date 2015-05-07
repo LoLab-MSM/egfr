@@ -11,31 +11,78 @@ from pysb.util import alias_model_components
 
 from parameter_dict_A431 import parameter_dict as par
 
-def mapk_monomers():
+def mapk_monomers(simplified_raf=True, raf_dimers=True, mek_dimers=True, braf=False, craf=False, ksr=False):
     Monomer('SOS', ['bgrb', 'bras', 'bERKPP', 'st'], {'st':['U', 'P']})
     Monomer('RAS', ['bsos', 'braf', 'bpi3k', 'st'], {'st':['GDP', 'GTP']})
-    Monomer('RAF', ['b', 'st', 'ser295'], {'st':['U', 'P'], 'ser295':['U', 'P']})
+    if simplified_raf == True:
+        if raf_dimers == True:
+            Monomer('RAF', ['b', 'dim', 'st', 'ser259'], {'st':['U', 'P'], 'ser259':['U', 'P']})
+        else:
+            Monomer('RAF', ['b', 'st', 'ser259'], {'st':['U', 'P'], 'ser259':['U', 'P']})
+    else:
+        if raf_dimers == True:
+            if braf == True:
+                Monomer('BRAF', ['b', 'dim', 'st'], {'st':['U', 'P']})
+            if craf == True:
+                Monomer('CRAF', ['b', 'dim', 'st', 'ser259', 'ser338'], {'st':['U', 'P'], 'ser259':['U', 'P'], 'ser338':['U', 'P']})
+            if ksr == True:
+                Monomer('KSR', ['b', 'dim'])
+        else:
+            if braf == True:
+                Monomer('BRAF', ['b', 'st'], {'st':['U', 'P']})
+            if craf == True:
+                Monomer('CRAF', ['b', 'st', 'ser259', 'ser338'], {'st':['U', 'P'], 'ser259':['U', 'P'], 'ser338':['U', 'P']})
+            if ksr == True:
+                Monomer('KSR', ['b'])
     Monomer('PP1', ['b'])
     Monomer('PP2', ['b'])
     Monomer('PP3', ['b'])
-    Monomer('MEK', ['b', 'st'], {'st':['U', 'P', 'PP']})
+    if mek_dimers == True:
+        Monomer('MEK', ['b', 'dim', 'st'], {'st':['U', 'P', 'PP']})
+    else:
+        Monomer('MEK', ['b', 'st'], {'st':['U', 'P', 'PP']})    
     Monomer('ERK', ['b', 'st', 'loc'], {'st':['U', 'P', 'PP'], 'loc':['C', 'N']})
 
-def mapk_initial():
+def mapk_initial(simplified_raf=True, raf_dimers=True, mek_dimers=True, braf=False, craf=False, ksr=False):
     # Initial values declared in parameter dictionary for given cell type.
     alias_model_components()
 
     Initial(RAS(bsos=None, braf=None, bpi3k=None, st='GDP'), RAS_0)
-    Initial(RAF(b=None, st='U', ser295='U'), RAF_0)
-    Initial(MEK(b=None, st='U'), MEK_0)
+    if simplified_raf == True:
+        if raf_dimers == True:
+            Initial(RAF(b=None, dim=None, st='U', ser259='U'), RAF_0)
+        else:
+            Initial(RAF(b=None, st='U', ser259='U'), RAF_0)
+    else:
+        if raf_dimers == True:
+            if braf == True:
+                Initial(BRAF(b=None, dim=None, st='U'), BRAF_0)
+            if craf == True:
+                Initial(CRAF(b=None, dim=None, st='U', ser259='U', ser338='U'), CRAF_0)
+            if ksr == True:
+                Initial(KSR(b=None, dim=None), KSR_0)
+        
+        else:
+            if braf == True:
+                Initial(BRAF(b=None, st='U'), BRAF_0)
+            if craf == True:
+                Initial(CRAF(b=None, st='U', ser259='U', ser338='U'), CRAF_0)
+            if ksr == True:
+                Initial(KSR(b=None), KSR_0)
+    
+    if mek_dimers == True:    
+        Initial(MEK(b=None, dim=None, st='U'), MEK_0)
+    
+    else:
+        Initial(MEK(b=None, st='U'), MEK_0)        
+        
     Initial(ERK(b=None, st='U', loc='C'), ERK_0)
     Initial(PP1(b=None), PP1_0)
     Initial(PP2(b=None), PP2_0)
     Initial(PP3(b=None), PP3_0)
     Initial(GRB2(b=None, bsos=1, bgap=None, bgab1=None, bcbl=None) % SOS(bgrb=1, bras=None, bERKPP=None, st='U'), GRB2_SOS_0)
-    Initial(ERK(b=None, st='PP', loc='C'), ERKPP_0)
 
-def mapk_events():
+def mapk_events(simplified_raf=True, raf_dimers=True, mek_dimers=True, braf=False, craf=False, ksr=False):
 
     # =====================
     # Alias model components for names in present namespace
@@ -99,44 +146,155 @@ def mapk_events():
     #Ras has its own intrinsic (slower) GTPase and GDP exchange rates when it is unbound.
     equilibrate(RAS(braf=None, bsos=None, st='GTP', bpi3k=None), RAS(braf=None, bsos=None, st='GDP', bpi3k=None), par['Ras_intrinsic_function'])
 
-    # Activation of RAF -> RAF:P by RAS-GTP
-    catalyze_state(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', RAF(ser295='U'), 'b', 'st', 'U', 'P', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])
+    if simplified_raf == True:
     
-    # Deactivation of RAF:P -> RAF by PP1
-    catalyze(PP1(), 'b', RAF(st='P', ser295='U'), 'b', RAF(st='U', ser295='U'),
-             (par['RAFP_PP1']))
+        # Deactivation of RAF:P -> RAF by PP1
+        catalyze(PP1(), 'b', RAF(st='P', ser259='U'), 'b', RAF(st='U', ser259='U'),
+                 (par['RAFP_PP1']))
+                 
+        if raf_dimers == True:
+            #Raf can dimerize.  
+            #As per Freeman Mol Cell 2013, 1) Raf dimerization depends on Ras interaction, and 2) the catalytic function of WT Raf depends on its dimerization.
+            # To match these results the following assumptions have been made: 
+            # Only dimeric Raf is catalytically active.
+            # Only Raf that has been bound  by Ras can dimerize.
 
-    # Activation of MEK -> MEK:P by activated RAF
-    catalyze(RAF(st='P', ser295='U'), 'b', MEK(st='U'), 'b', MEK(st='P'),
-             (par['RAFP_MEK']))
+            # RAS-GTP binds RAF
+            bind(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', RAF(dim=None), 'b', par['RASGTP_bind_RAF'])          
+        
+            bind(RAF(b=ANY), 'dim', RAF(b=None), 'dim', par['Raf_Raf_dimerization'])
+            
+            #RAF is activated by the other RAF kinase in a hetero/homo dimer (Hu 2013 Cell).  In the simplified model we have only homodimers and no positive feedback from MEK.
+            Rule('RAF_RAF_transphosphorylation',
+                 RAF(b=ANY, dim=ANY) % RAF(b=None, dim=ANY, st='U') >> RAF(b=ANY, dim=ANY) % RAF(b=None, dim=ANY, st='P'),
+                 par['RASGTP_RAF_cat'])    
+            
+            # Activation of MEK -> MEK:P by activated RAF
+            catalyze(RAF(st='P', ser259='U', dim=ANY), 'b', MEK(st='U'), 'b', MEK(st='P'), (par['RAFP_MEK']))
+            
+            # Activation of MEK:P -> MEK:P:P by activated RAF
+            catalyze(RAF(st='P', ser259='U', dim=ANY), 'b', MEK(st='P'), 'b', MEK(st='PP'), (par['RAFP_MEKP']))
+        
+        else:
+            # Activation of RAF -> RAF:P by RAS-GTP
+            catalyze_state(RAS(bpi3k=None, st='GTP'), 'braf', RAF(), 'b', 'st', 'U', 'P', par['RASGTP_bind_RAF']+[par['RASGTP_RAF_cat']])
+            
+            # Activation of MEK -> MEK:P by activated RAF
+            catalyze(RAF(st='P', ser259='U'), 'b', MEK(st='U'), 'b', MEK(st='P'), (par['RAFP_MEK']))
+            
+            # Activation of MEK:P -> MEK:P:P by activated RAF
+            catalyze(RAF(st='P', ser259='U'), 'b', MEK(st='P'), 'b', MEK(st='PP'), (par['RAFP_MEKP']))
+    
+    else:
+        if braf == True:
+            
+            #Deactivation of BRAF:P -> BRAF by PP1
+            catalyze(PP1(), 'b', BRAF(st='P'), 'b', BRAF(st='U'), (par['RAFP_PP1']))
+        
+            if raf_dimers == True:
+                # RAS-GTP binds BRAF (undimerized or dimerized -- separate to prevent formation of complexes with two RAS molecules)
+                bind(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', BRAF(dim=None), 'b', par['RASGTP_bind_RAF'])
 
+                bind_complex(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', BRAF(dim=1, b=None) % BRAF(dim=1, b=None), 'b', par['RASGTP_bind_RAF'], m2=BRAF(dim=1, b=None))                
+                
+                #BRAF exhibits significant constitutive homodimerization prior to mitogen stimulation (Freeman Mol Cell 2013)
+                bind(BRAF(), 'dim', BRAF(b=None), 'dim', par['Raf_Raf_dimerization'])
+                
+                #BRAF is activated by the other RAF kinase in a hetero/homo dimer (Hu 2013 Cell).  This activation depends on phosphorylation in the N-terminus, which is constitutive for BRAF.
+                Rule('BRAF_BRAF_transphosphorylation',
+                    BRAF(b=ANY, dim=ANY) % BRAF(b=None, dim=ANY, st='U') >> BRAF(b=ANY, dim=ANY) % BRAF(b=None, dim=ANY, st='P'),
+                    par['RASGTP_RAF_cat'])                
+                
+                # Activation of MEK -> MEK:P by activated BRAF
+                catalyze(BRAF(st='P', dim=ANY), 'b', MEK(st='U'), 'b', MEK(st='P'), (par['RAFP_MEK']))
+                
+                # Activation of MEK:P -> MEK:P:P by activated RAF
+                catalyze(BRAF(st='P', dim=ANY), 'b', MEK(st='P'), 'b', MEK(st='PP'), (par['RAFP_MEKP']))
+                
+                if craf == True:
+                    bind(BRAF(b=ANY), 'dim', CRAF(b=None), 'dim', par['Raf_Raf_dimerization'])
+                    
+                    Rule('BRAF_CRAF_transphosphorylation',
+                    BRAF(b=ANY, dim=ANY) % CRAF(b=None, dim=ANY, st='U') >> BRAF(b=ANY, dim=ANY) % CRAF(b=None, dim=ANY, st='P'),
+                    par['RASGTP_RAF_cat'])    
+                    
+                    bind(BRAF(b=None), 'dim', CRAF(b=ANY), 'dim', par['Raf_Raf_dimerization'])
+                    
+                    Rule('CRAF_BRAF_transphosphorylation',
+                    CRAF(b=ANY, dim=ANY, ser338='P') % BRAF(b=None, dim=ANY, st='U') >> CRAF(b=ANY, dim=ANY, ser338='P') % BRAF(b=None, dim=ANY, st='P'),
+                    par['RASGTP_RAF_cat']) 
+                    
+                if ksr == True:
+                    bind(BRAF(b=ANY), 'dim', KSR(), 'dim', par['Raf_Raf_dimerization'])
+            
+            else:
+                
+                #Instead of BRAF phosphorylation of MEK depending on dimerization and transactivation, its activation is approximated by phosphorylation by RAS.
+                catalyze_state(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', BRAF(), 'b', 'st', 'U', 'P', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])                
+                
+                # Activation of MEK -> MEK:P by activated BRAF
+                catalyze(BRAF(st='P'), 'b', MEK(st='U'), 'b', MEK(st='P'), (par['RAFP_MEK']))
+                
+                # Activation of MEK:P -> MEK:P:P by activated BRAF
+                catalyze(BRAF(st='P'), 'b', MEK(st='P'), 'b', MEK(st='PP'), (par['RAFP_MEKP']))
+        
+        if craf == True:
+            
+            #Deactivation of CRAF:P -> CRAF by PP1
+            catalyze(PP1(), 'b', CRAF(st='P', ser259='U'), 'b', CRAF(st='U', ser259='U'), (par['RAFP_PP1']))
+            
+            if raf_dimers == True:
+                
+                # RAS-GTP binds CRAF
+                bind(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', CRAF(dim=None), 'b', par['RASGTP_bind_RAF'])      
+            
+                bind(CRAF(b=ANY), 'dim', CRAF(b=None), 'dim', par['Raf_Raf_dimerization'])
+                
+                #CRAF is activated by the other RAF kinase in a hetero/homo dimer (Hu 2013 Cell).  This activation depends on phosphorylation in the N-terminus, which is mediated by MEK at Ser338 for CRAF.
+                Rule('CRAF_CRAF_transphosphorylation',
+                    CRAF(b=ANY, dim=ANY, ser338='P') % CRAF(b=None, dim=ANY, st='U') >> CRAF(b=ANY, dim=ANY, ser338='P') % CRAF(b=None, dim=ANY, st='P'),
+                    par['RASGTP_RAF_cat'])
+                
+                # Activation of MEK -> MEK:P by activated CRAF
+                catalyze(CRAF(st='P', dim=ANY, ser259='U'), 'b', MEK(st='U'), 'b', MEK(st='P'), (par['RAFP_MEK']))
+                
+                # Activation of MEK:P -> MEK:P:P by activated CRAF
+                catalyze(CRAF(st='P', dim=ANY, ser259='U'), 'b', MEK(st='P'), 'b', MEK(st='PP'), (par['RAFP_MEKP']))
+                
+                #Phosphorylation of CRAF at S338 by MEK
+                
+                catalyze_state(MEK(st='PP'), 'b', CRAF(ser259='U'), 'b', 'ser338', 'U', 'P', (par['MEK_phos_CRAF']))
+                
+                if ksr == True:
+                   bind(CRAF(st='P'), 'dim', KSR(), 'dim', par['Raf_Raf_dimerization']) 
+            
+            else:
+                #Instead of CRAF phosphorylation of MEK depending on dimerization and transactivation, its activation is approximated by phosphorylation by RAS.                 
+                catalyze_state(RAS(bsos=None, bpi3k=None, st='GTP'), 'braf', CRAF(ser259='U'), 'b', 'st', 'U', 'P', par['RASGTP_bind_RAF']+par['RASGTP_RAF_cat'])
+                           
+                # Activation of MEK -> MEK:P by activated CRAF
+                catalyze(CRAF(st='P', ser259='U'), 'b', MEK(st='U'), 'b', MEK(st='P'), (par['RAFP_MEK']))
+                
+                # Activation of MEK:P -> MEK:P:P by activated CRAF
+                catalyze(CRAF(st='P', ser259='U'), 'b', MEK(st='P'), 'b', MEK(st='PP'), (par['RAFP_MEKP']))
+        
     # Deactivation of MEK:P -> MEK by PP2
-    catalyze(PP2(), 'b', MEK(st='P'), 'b', MEK(st='U'),
-             (par['MEKP_PP2']))
-    
-    # Activation of MEK:P -> MEK:P:P by activated RAF
-    catalyze(RAF(st='P', ser295='U'), 'b', MEK(st='P'), 'b', MEK(st='PP'),
-             (par['RAFP_MEKP']))
+    catalyze(PP2(), 'b', MEK(st='P'), 'b', MEK(st='U'), (par['MEKP_PP2']))
 
     # Deactivation of MEK:P:P -> MEK:P by PP2
-    catalyze(PP2(), 'b', MEK(st='PP'), 'b', MEK(st='P'),
-             (par['MEKPP_PP2']))
+    catalyze(PP2(), 'b', MEK(st='PP'), 'b', MEK(st='P'), (par['MEKPP_PP2']))
     
     # Activation of ERK -> ERK:P by activated MEK:P:P
-    catalyze(MEK(st='PP'), 'b', ERK(st='U', loc='C'), 'b', ERK(st='P', loc='C'),
-             (par['MEKPP_ERK']))
+    catalyze(MEK(st='PP'), 'b', ERK(st='U', loc='C'), 'b', ERK(st='P', loc='C'), (par['MEKPP_ERK']))
 
     # Deactivation of ERK:P -> ERK by PP3
-    catalyze(PP3(), 'b', ERK(st='P', loc='C'), 'b', ERK(st='U', loc='C'),
-             (par['ERKP_PP3']))
+    catalyze(PP3(), 'b', ERK(st='P', loc='C'), 'b', ERK(st='U', loc='C'), (par['ERKP_PP3']))
 
     # Activation of ERK:P -> ERK:P:P by activated MEK:P:P
-    catalyze(MEK(st='PP'), 'b', ERK(st='P', loc='C'), 'b', ERK(st='PP', loc='C'),
-             (par['MEKPP_ERKP']))
+    catalyze(MEK(st='PP'), 'b', ERK(st='P', loc='C'), 'b', ERK(st='PP', loc='C'), (par['MEKPP_ERKP']))
 
     # Deactivation of ERK:P:P -> ERK:P by PP3
-    catalyze(PP3(), 'b', ERK(st='PP', loc='C'), 'b', ERK(st='P', loc='C'),
-             (par['ERKPP_PP3']))
+    catalyze(PP3(), 'b', ERK(st='PP', loc='C'), 'b', ERK(st='P', loc='C'), (par['ERKPP_PP3']))
 
     # Degradation of PP3
     degrade(PP3(b=None), par['PP3_deg'])

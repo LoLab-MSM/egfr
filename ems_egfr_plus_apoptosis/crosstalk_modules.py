@@ -29,7 +29,7 @@ def crosstalk_mapk_akt_events():
     catalyze_state(Pase9t(), 'bgab1', GAB1(bgrb2=ANY), 'bPase9t', 'S', 'PP', 'P', (par['Pase9t_dephos_GAB1PP']))
 
     #AKT:PP phosphorylates RAF:P at Ser295, preventing MEK phosphorylation.
-    catalyze_state(AKT(S='PP', bpip3=None), 'bpdk1', RAF(st='P'), 'b', 'ser295', 'U', 'P', (par['AKTPP_phos_RAFP']))
+    catalyze_state(AKT(S='PP', bpip3=None), 'bpdk1', RAF(st='P'), 'b', 'ser259', 'U', 'P', (par['AKTPP_phos_RAFP']))
 
     #RAS-GTP binds PI3K and activates PI3K catalytic function.
     bind(RAS(bsos=None, braf=None, st='GTP'), 'bpi3k', PI3K(bgab1=None, bpip=None, berb=None), 'bras', par['RASGTP_bind_PI3K'])
