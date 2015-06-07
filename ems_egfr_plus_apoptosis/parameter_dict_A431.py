@@ -817,7 +817,7 @@ parameter_dict = OrderedDict([
       ]),
     #Extra Raf parameters for work with JA.
     ('Raf_Raf_dimerization',
-     [Parameter('Raf_Raf_dimerizationkf', 3.3e-6), #Original value = 1e6 /M*s --> Converted assuming cell volume = 2 pL
+     [Parameter('Raf_Raf_dimerizationkf', 8.3e-7), #Original value = 1e6 /M*s --> Converted assuming cell volume = 2 pL
       Parameter('Raf_Raf_dimerizationkr', .05)]), #Set to BRAF/CRAF/KSR dimerization (kBBf/kBBr) rate from JA modeling work
     ('MEK_phos_CRAF',
      [Parameter('MEK_phos_CRAFkf', 1e-7),
@@ -835,5 +835,9 @@ parameter_dict = OrderedDict([
       ),
      ('FRA1_phos_degrade',
      Parameter('FRA1_phos_degrade', 1e-4)
-     )
+     ),
+    #Inhibitor binding constants
+    ('EGFR_bind_ERL',#KD for erlotinib binding to EGFR with deletion in exon 19 (DelE746A750) (PC9 cells have this) based on KINOMEscan in Davis et al Nat Biotech 2011 = .5 nM --> *6.022e23 molecules * 1.8e-12 L = 540 molecules
+     [Parameter('EGFR_bind_ERLkf', 9e-5), #Assumed kf to be diffusion limited (1e8 /M*s) --> Converted assuming extracellular volume = 1.8 pL
+      Parameter('EGFR_bind_ERLkr', .049)]) #Set to give above KD
     ])

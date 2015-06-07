@@ -10,6 +10,23 @@ from pysb.macros import *
 from pysb.util import alias_model_components
 
 from parameter_dict_A431 import parameter_dict as par
+
+#Calculated molecules for a given extracellular concentration
+#These assume a cellular volume = 2 pL
+#Cell radius then = .78 pm
+#Volume of cube with same radius = (2r)^3 = 3.8 pL
+#Which gives an approximate extracellular volume of 3.8 - 2 = 1.8 pL
+
+#Based on above assumptions, molecules/cell for various extracellular ligand/inhibitor concentrations = CAV where:
+# conc = C
+# Avogadro's number = A
+# Volume of extracellular from above = V
+
+# .010 nM = 11 molecules
+# 1.00 nM = 1080 molecules
+# 5.00 nM = 5420 molecules
+# 1 microM = 1.08 * 10^6 molecules
+# 3 microM = 3.25 * 10^6 molecules
         
 # Receptor level interactions.  
 # This includes ligand binding, binding of drugs that target receptors, receptor dimerization events, and receptor internalization and recycling.
@@ -38,6 +55,10 @@ def rec_monomers_lig_EGF():
 def rec_monomers_lig_HRG():
     """Declares the monomer for the ligand heregulin."""
     Monomer('HRG', ['b', 'st'], {'st': ['M', 'E']}) # Heregulin ligand
+
+def rec_monomers_inh_ERL():
+    """Declares the monomer for the inhibitor erlotinib."""
+    Monomer('ERL', ['b'])
     
 def rec_monomers_scaffold_proteins():
     """Declares the monomers for scaffolding proteins that may be shared between pathways."""
@@ -47,27 +68,33 @@ def rec_monomers_scaffold_proteins():
 
 def rec_initial_lig_hEGF():
     """Declares the initial conditions for high EGF (5 nM)."""
-    Parameter('EGF_0',     3.01e12) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('EGF_0',     5420) # c1 5 nM EGF = 5420 molec/cell; .01 nM EGF = 11 molec/cell
     alias_model_components()
     Initial(EGF(b=None, st='M'), EGF_0)
     
 def rec_initial_lig_lEGF():
     """Declares the initial conditions for low EGF (.01 nM)."""
-    Parameter('EGF_0',      6.02e9) # c1 5 nM EGF = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('EGF_0',      11) # c1 5 nM EGF = 5420 molec/cell; .01 nM EGF = 11 molec/cell
     alias_model_components()
     Initial(EGF(b=None, st='M'), EGF_0)
 
 def rec_initial_lig_hHRG():
     """Declares the initial conditions for high heregulin (5 nM)."""
-    Parameter('HRG_0',         3.01e12) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('HRG_0',         5420) # c514 5 nM HRG = 5420 molec/cell; .01 nM EGF = 11 molec/cell
     alias_model_components()
     Initial(HRG(b=None, st='M'), HRG_0)
 
 def rec_initial_lig_lHRG():
     """Declares the initial conditions for low heregulin (.01 nM)."""
-    Parameter('HRG_0',         6.02e9) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
+    Parameter('HRG_0',         11) # c514 5 nM HRG = 3.01e12 molec/cell; .01 nM EGF = 6.02e9 molec/cell
     alias_model_components()
     Initial(HRG(b=None, st='M'), HRG_0)
+
+def rec_initial_inh_ERL():
+    """Declares the initial conditions for erlotinib inhibition (3 microM)."""
+    Parameter('ERL_0', 3.25e6)
+    alias_model_components()
+    Initial(ERL(b=None), ERL_0)
     
 def rec_initial():
     """Declares the initial conditions for all monomers in receptor interactions except ligands."""
@@ -140,6 +167,14 @@ def rec_events_lig_HRG():
     
     # degradation of endosomal HRG     
     degrade(HRG(b=None, st='E'), par['kdeg_HRG'])
+
+def rec_events_inh_ERL():
+    """Receptor events involving the EGFR kinase inhibitor erlotinib.  Binds in the ATP binding pocket."""
+    alias_model_components()
+    
+    #Binding of erlotinib to EGFR
+    #Assumption here: erlotinib only binds to dimers and its ligand binding status doesn't matter (need to check this)
+    bind(erbb(ty='1', bd=ANY, st='U', loc='C'), 'b', ERL(), 'b', par['EGFR_bind_ERL'])    
 
 def rec_events_scaffold_protein_binding_shc():
     """Binding of scaffold proteins (which are often used in multiple 'pathways') to phosphorylated dimers.  This module covers events with the scaffold protein Shc that aren't pathway specific."""

@@ -21,16 +21,18 @@ from earm import albeck_modules
 # Receptor-level events with EGF ligand
 receptor_modules.rec_monomers()
 receptor_modules.rec_monomers_lig_EGF()
+receptor_modules.rec_monomers_inh_ERL()
 receptor_modules.rec_monomers_scaffold_proteins()
 receptor_modules.rec_events_lig_EGF()
+receptor_modules.rec_events_inh_ERL()
 receptor_modules.rec_events_scaffold_protein_binding_grb2()
 receptor_modules.rec_events_scaffold_protein_binding_shc()
-receptor_modules.rec_events_scaffold_protein_binding_gab1()
+#receptor_modules.rec_events_scaffold_protein_binding_gab1()
 receptor_modules.receptor_dimerization()
 receptor_modules.receptor_phosphorylation()
 receptor_modules.receptor_dephosphorylation()
 receptor_modules.receptor_erbb2_lateral_signaling()
-receptor_modules.receptor_cbl_interactions_erbb1()
+#receptor_modules.receptor_cbl_interactions_erbb1()
 #receptor_modules.receptor_internalization_constitutive()
 #receptor_modules.receptor_internalization_erbb1_clathrin_med()
 #receptor_modules.receptor_internalization_erbb1_clathrin_indepen()
@@ -39,12 +41,13 @@ receptor_modules.receptor_cbl_interactions_erbb1()
 #receptor_modules.receptor_recycling_erbb234()
 receptor_modules.rec_initial()
 receptor_modules.rec_initial_lig_hEGF()
+receptor_modules.rec_initial_inh_ERL()
 receptor_modules.rec_initial_scaffold_proteins()
 
 # MAPK pathway
-mapk_modules.mapk_monomers()
-mapk_modules.mapk_initial()
-mapk_modules.mapk_events()
+mapk_modules.mapk_monomers(simplified_raf=True, raf_dimers=False)
+mapk_modules.mapk_initial(simplified_raf=True, raf_dimers=False)
+mapk_modules.mapk_events(simplified_raf=True, raf_dimers=False)
 
 # Erk nuclear localization
 nuclear_events_modules.erk_nuclear_monomers()
@@ -55,8 +58,8 @@ nuclear_events_modules.erk_nuclear_events()
 akt_modules.akt_monomers()
 akt_modules.akt_initial()
 akt_modules.akt_events()
-
-# mTOR signaling
+#
+## mTOR signaling
 mtor_modules.mtor_monomers()
 mtor_modules.mtor_initial()
 mtor_modules.mtor_complex_formation()
@@ -70,8 +73,8 @@ mtor_modules.tsc2_inhibition_by_akt()
 mtor_modules.tsc2_inhibition_by_erk()
 mtor_modules.tsc2_activation_by_erk()
 mtor_modules.tsc2_gap_function()
-
-# Apoptotic signaling
+#
+## Apoptotic signaling
 albeck_modules.ligand_to_c8_monomers()
 apoptosis_modules.apoptosis_monomers()
 apoptosis_modules.apoptosis_initial()
@@ -88,26 +91,27 @@ apoptosis_modules.apoptosis_bim_and_puma_bind_anti_apoptotics()
 apoptosis_modules.apoptosis_bim_activate_bax()
 albeck_modules.pore_to_parp()
 
-# Crosstalk between MAPK and AKT pathways
+## Crosstalk between MAPK and AKT pathways
 crosstalk_modules.crosstalk_mapk_akt_monomers()
 crosstalk_modules.crosstalk_mapk_akt_initial()
 crosstalk_modules.crosstalk_mapk_akt_events()
-
-# Crosstalk between ErbB signaling and apoptotic signaling
+#
+## Crosstalk between ErbB signaling and apoptotic signaling
 crosstalk_modules.crosstalk_erbb_apoptosis_monomers()
 crosstalk_modules.crosstalk_erbb_apoptosis_initial()
 crosstalk_modules.crosstalk_erbb_apoptosis_events()
-
-# Observables
-Observable('obsAKTPP', AKT(bpip3=None, bpdk1=None, S='PP'))
-Observable('obsErbB1_P_CE', erbb(ty='1', st='P'))
-Observable('obsERKPP', ERK(st='PP'))
-Observable('active_mTORC1', mTOR(S2448='P'))
-Observable('S6K_PP', S6K(T252='P', T412='P'))
+#
+## Observables
+#Observable('obsAKTPP', AKT(bpip3=None, bpdk1=None, S='PP'))
+#Observable('obsErbB1_P_CE', erbb(ty='1', st='P'))
+#Observable('obsERKPP', ERK(st='PP'))
+#Observable('active_mTORC1', mTOR(S2448='P'))
+#Observable('S6K_PP', S6K(T252='P', T412='P'))
 Observable('mBid',  Bid(state='M'))
 Observable('aSmac', Smac(state='A'))
 Observable('cPARP', PARP(state='C'))
-Observable('nuclear_FOXO', FOXO(loc='N'))
-Observable('mito_Puma', Puma(state='M'))
-Observable('mito_Bad', Bad(state='M'))
-Observable('mito_Bim', Bim(state='M'))
+Observable('obsPARP', PARP(state='U'))
+#Observable('nuclear_FOXO', FOXO(loc='N'))
+#Observable('mito_Puma', Puma(state='M'))
+#Observable('mito_Bad', Bad(state='M'))
+#Observable('mito_Bim', Bim(state='M'))
