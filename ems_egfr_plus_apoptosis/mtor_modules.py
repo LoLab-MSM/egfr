@@ -9,7 +9,7 @@ from pysb import *
 from pysb.macros import *
 from pysb.util import alias_model_components
 
-from parameter_dict_A431 import parameter_dict as par
+from .parameter_dict_A431 import parameter_dict as par
 
 def mtor_monomers():
     Monomer('mTOR', ['bcomplex', 'bcat', 'S2448', 'bFKBP38'], {'S2448':['U','P']})

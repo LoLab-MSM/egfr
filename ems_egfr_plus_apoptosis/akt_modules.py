@@ -9,7 +9,7 @@ from pysb import *
 from pysb.macros import *
 from pysb.util import alias_model_components
 
-from parameter_dict_A431 import parameter_dict as par
+from .parameter_dict_A431 import parameter_dict as par
 
 def akt_monomers():
     """ This is the akt part of the pathway from the Chen et al. 2009 paper.  Initial rules for all binding reactions were generated and then coded again using macros and higher order macros.  Initial parameters and conditions were taken from Chen et al. 2009 paper and supplementary, but were later modified in order to get the model working correctly.  This pathway follows AKT from its initial state to a phosphorylated and then double phosphorylated state before returning to unphosphorylated AKT.  The model works correctly, but parameters and rates may need to be modified in order to get best fit.  Parameters and rates included are from trial and error of what best fit the model.  

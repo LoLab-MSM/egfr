@@ -8,7 +8,7 @@ import pickle
 
 #from egfr import shared
 Model()
-import chen_modules
+from . import chen_modules
 
 # Declare monomers
 chen_modules.rec_monomers()

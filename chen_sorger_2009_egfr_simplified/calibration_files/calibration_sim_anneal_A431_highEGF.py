@@ -75,7 +75,7 @@ def objective_func(x, rate_mask, lb, ub):
 
     # Apply hard bounds
     if np.any((x < lb) | (x > ub)):
-        print "bounds-check failed"
+        print("bounds-check failed")
         return np.inf
 
     # Simulate model with rates taken from x (which is log transformed)
@@ -140,7 +140,7 @@ def print_anneal_status():
         caller_locals = caller_frame.f_locals
         # Only report on the first iteration of the 'dwell' loop
         if caller_locals['n'] == 1:
-            print 'best fit:', caller_locals['best_state'].cost, 'current fit:', caller_locals['current_state'].cost
+            print('best fit:', caller_locals['best_state'].cost, 'current fit:', caller_locals['current_state'].cost)
 
 
 def estimate(start_values=None):
@@ -195,7 +195,7 @@ numpy array of floats, containing fitted parameter values.
 
     # Display annealing results
     for v in ('xmin', 'Jmin', 'Tfinal', 'feval', 'iters', 'accept', 'retval'):
-        print "%s: %s" % (v, locals()[v])
+        print("%s: %s" % (v, locals()[v]))
 
     return params_estimated
 
@@ -229,7 +229,7 @@ def display(params_estimated):
 
 if __name__ == '__main__':
 
-    print 'Estimating rates for ErbB model'
+    print('Estimating rates for ErbB model')
 
     np.random.seed(1)
     params_estimated = estimate()
@@ -238,6 +238,6 @@ if __name__ == '__main__':
         param_dict[model.parameters[i].name] = params_estimated[i]
         
     # Pickle parameter values for future use
-    print 'Pickling parameter values...'
+    print('Pickling parameter values...')
     with open('calibration_sim_anneal_A431_highEGF_fittedparams_norm_splined_25000_1.txt', 'wb') as handle:
         pickle.dump(param_dict, handle)

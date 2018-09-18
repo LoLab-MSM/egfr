@@ -8,13 +8,13 @@ Created on Thu Nov 13 17:06:50 2014
 from pysb import Model, Observable
 
 Model()
-import receptor_modules
-import mapk_modules
-import akt_modules
-import mtor_modules
-import nuclear_events_modules
-import apoptosis_modules
-import crosstalk_modules
+from . import receptor_modules
+from . import mapk_modules
+from . import akt_modules
+from . import mtor_modules
+from . import nuclear_events_modules
+from . import apoptosis_modules
+from . import crosstalk_modules
 from earm import lopez_modules
 from earm import albeck_modules
 

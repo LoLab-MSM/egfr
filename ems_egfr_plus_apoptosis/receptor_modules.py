@@ -9,7 +9,7 @@ from pysb import *
 from pysb.macros import *
 from pysb.util import alias_model_components
 
-from parameter_dict_A431 import parameter_dict as par
+from .parameter_dict_A431 import parameter_dict as par
 
 #Calculated molecules for a given extracellular concentration
 #These assume a cellular volume = 2 pL
@@ -136,7 +136,7 @@ def rec_events_lig_EGF():
     # EGF binding/unbinding from endosomal receptors
     
     Rule('EGFE_bind_ErbBE',
-         erbb(ty='1', bl=None, loc='E') + EGF(st='E', b=None) <>
+         erbb(ty='1', bl=None, loc='E') + EGF(st='E', b=None) |
          erbb(ty='1', bl=1, loc='E') % EGF(st='M', b=1),
          *par['EGFE_bind_ErbBE'])
     
@@ -161,7 +161,7 @@ def rec_events_lig_HRG():
 
     for i in ['3', '4']:
         Rule('HRGE_bind_ErbBE'+i,
-             erbb(ty=i, bl=None, loc='E') + HRG(st='E', b=None) <>
+             erbb(ty=i, bl=None, loc='E') + HRG(st='E', b=None) |
              erbb(ty=i, bl=1, loc='E') % HRG(st='M', b=1),
              *par['HRGE_bind_ErbBE'])
     

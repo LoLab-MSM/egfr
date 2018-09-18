@@ -35,9 +35,9 @@ def prior(mcmc, position):
 def step(mcmc):
     """Print out some statistics every 20 steps"""
     if mcmc.iter % 20 == 0:
-        print 'iter=%-5d  sigma=%-.3f  T=%-.3f  acc=%-.3f, lkl=%g  prior=%g  post=%g' % \
+        print('iter=%-5d  sigma=%-.3f  T=%-.3f  acc=%-.3f, lkl=%g  prior=%g  post=%g' % \
             (mcmc.iter, mcmc.sig_value, mcmc.T, float(mcmc.acceptance)/(mcmc.iter+1),
-             mcmc.accept_likelihood, mcmc.accept_prior, mcmc.accept_posterior)
+             mcmc.accept_likelihood, mcmc.accept_prior, mcmc.accept_posterior))
 
 # data is already scaled to 0-1
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -93,13 +93,13 @@ mcmc = bayessb.MCMC(opts)
 mcmc.run()
 
 #print some information about the maximum-likelihood estimate parameter set
-print
-print '%-10s %-12s %-12s %s' % ('parameter', 'actual', 'fitted', 'log10(fit/actual)')
+print()
+print('%-10s %-12s %-12s %s' % ('parameter', 'actual', 'fitted', 'log10(fit/actual)'))
 fitted_values = mcmc.cur_params()[mcmc.estimate_idx]
 for param, new_value in zip(opts.estimate_params, fitted_values):
     change = numpy.log10(new_value / param.value)
     values = (param.name, param.value, new_value, change)
-    print '%-10s %-12.2g %-12.2g %-+6.2f' % values
+    print('%-10s %-12.2g %-12.2g %-+6.2f' % values)
 
 # plot data and simulated trajectories before and after the fit
 colors = ('r', 'g', 'b')
@@ -124,4 +124,4 @@ for il, dl, fl, c in zip(initial_lines, data_lines, final_lines, colors):
     dl.set_marker('x')
 plt.show()
 numpy.save('calibration_allpositions_A431_highEGF.npy', mcmc.get_mixed_accepts(burn=opts.nsteps/10))
-numpy.save('calibration_fittedparams_A431_highEGF.npy', zip(opts.estimate_params, mcmc.cur_params()[mcmc.estimate_idx]))
+numpy.save('calibration_fittedparams_A431_highEGF.npy', list(zip(opts.estimate_params, mcmc.cur_params()[mcmc.estimate_idx])))

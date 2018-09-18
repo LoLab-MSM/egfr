@@ -9,7 +9,7 @@ from pysb import *
 from pysb.macros import *
 from pysb.util import alias_model_components
 
-from parameter_dict_A431 import parameter_dict as par
+from .parameter_dict_A431 import parameter_dict as par
 
 def mapk_monomers(simplified_raf=True, raf_dimers=True, mek_dimers=True, braf=False, craf=False, ksr=False):
     Monomer('SOS', ['bgrb', 'bras', 'bERKPP', 'st'], {'st':['U', 'P']})
@@ -134,12 +134,12 @@ def mapk_events(simplified_raf=True, raf_dimers=True, mek_dimers=True, braf=Fals
     #Ras-GTP --> Ras-GDP transition (GTP hydrolysis) is also covered by these rules.  A GAP (GTPase activating protein) would theoretically affect this rate.
 
     Rule('RASGTP_to_GDP_SOS_GRB2_SHCP_complex',
-         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcbl=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', bpi3k=None) <>
+         SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcbl=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', bpi3k=None) |
          SHC(batp=None, st='P', bgrb=ANY, bgap=ANY) % GRB2(bgap=None, bgab1=None, b=ANY, bsos=1, bcbl=None) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', bpi3k=None),
          *par['RASGTP_unbind_GRB2_SOS'])
 
     Rule('RASGTP_to_GDP_SOS_GRB2_GAP_complex',
-         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', bpi3k=None) <>
+         GRB2(bgap=ANY, bgab1=None, b=None, bsos=1) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GTP', bpi3k=None) |
          GRB2(bgap=ANY, bgab1=None, b=None, bsos=1) % SOS(bras=2, bgrb=1, bERKPP=None, st='U') % RAS(braf=None, bsos=2, st='GDP', bpi3k=None),
          *par['RASGTP_unbind_GRB2_SOS'])
     

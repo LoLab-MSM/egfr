@@ -9,7 +9,7 @@ from pysb import *
 from pysb.macros import *
 from pysb.util import alias_model_components
 
-from parameter_dict_A431 import parameter_dict as par
+from .parameter_dict_A431 import parameter_dict as par
 
 def crosstalk_mapk_akt_monomers():
     Monomer('Pase9t', ['bgab1'])
@@ -49,7 +49,7 @@ def crosstalk_erbb_apoptosis_events(akt_puma=True, erk_bim=True, s6k_bad=True, a
     alias_model_components()
     if akt_puma:
         Rule('FOXO_cyto_to_nucleus',
-             FOXO(active='Y', loc='C', b=None) <>
+             FOXO(active='Y', loc='C', b=None) |
              FOXO(active='Y', loc='N', b=None),
              *par['FOXO_cyto_to_nucleus'])
         

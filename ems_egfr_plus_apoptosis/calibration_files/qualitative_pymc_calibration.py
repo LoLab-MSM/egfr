@@ -81,7 +81,7 @@ def likelihood(param_vector):
     if np.isnan(no_erl_error):
         no_erl_error = -np.inf    
     
-    print 'Erl error = ',erl_error,'No erl error = ',no_erl_error
+    print('Erl error = ',erl_error,'No erl error = ',no_erl_error)
     
     return np.array(erl_error), np.array(no_erl_error) #to use gpu add .astype('float32') to end of first two arrays
 

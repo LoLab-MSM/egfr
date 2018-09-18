@@ -1,4 +1,4 @@
-from erbb_exec import model
+from .erbb_exec import model
 import numpy as np
 from pysb.integrate import odesolve
 

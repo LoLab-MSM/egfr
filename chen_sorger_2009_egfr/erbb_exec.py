@@ -28,7 +28,7 @@ chen_modules.crosstalk_initial()
 
 # Declare observables
 Observable('obsAKTPP', AKT(bpip3=None, both=None, S='PP'))
-Observable('obsErbB1_ErbB_P_CE', erbb(bd=1, ty='1', st='P') % erbb(bd=1))
+Observable('obsErbB1_ErbB_P_CE', erbb(bd=1, ty='_1', st='P') % erbb(bd=1))
 Observable('obsERKPP', ERK(st='PP'))
 
 # Observable('ErbB1_ErbB1', erbb(bd=1, ty='1', st='U', loc='C') % erbb(bd=1, ty='1', st='U', loc='C'))

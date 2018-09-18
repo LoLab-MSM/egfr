@@ -8,7 +8,7 @@ import pickle
 
 #from egfr import shared
 Model()
-import chen_modules_Rexer_EGF_noactErbB2
+from . import chen_modules_Rexer_EGF_noactErbB2
 
 # Declare monomers
 chen_modules_Rexer_EGF_noactErbB2.rec_monomers()

@@ -83,15 +83,15 @@ parameter_dict = OrderedDict([
      [Parameter('ErbB2_bind_ErbB4kf', 1.48131e-8), #k120
       Parameter('ErbB2_bind_ErbB4kr', 1e-1) #kd120
       ]),
-    ('ErbB1_bind_ATP',
+    ('ErbB_1_bind_ATP',
      [Parameter('ErbB1_bind_ATPkf', 1.8704e-8), #k122
       Parameter('ErbB1_bind_ATPkr', 1), #kd122
       ]),
-    ('ErbB2_bind_ATP',
+    ('ErbB_2_bind_ATP',
      [Parameter('ErbB2_bind_ATPkf', 1.8704e-8), #k122
       Parameter('ErbB2_bind_ATPkr', 1) #kd122
       ]),
-    ('ErbB4_bind_ATP',
+    ('ErbB_4_bind_ATP',
      [Parameter('ErbB4_bind_ATPkf', 1.8704e-8), #k122
       Parameter('ErbB4_bind_ATPkr', 1) #kd122
       ]),
