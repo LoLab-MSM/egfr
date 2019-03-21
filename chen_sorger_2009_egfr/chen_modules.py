@@ -381,7 +381,7 @@ def mapk_events():
     
     # SHC binds to GAP-complex
     # Chen-Sorger model assigns 2 sets of rate constants to different dimer combinations.  The kf is the same variable; two different kr variables are used but are assigned the same values in the Jacobian files.  These have been combined into one set in this model.
-    
+
     bind(GAP(bd=ANY, bgrb2=None), 'b', SHC(batp=None, st='U', bgrb=None), 'bgap', par['GAP_bind_SHC'])
 
     #SHC:P binds GAP
@@ -399,23 +399,23 @@ def mapk_events():
          GAP(bd=ANY, b=1, bgrb2=None) % SHC(bgap=1, bgrb=None, batp=None, st='P'),
          *par['SHC_phos'])
 
-    # Forward rate is set to 0 (only dephosphorylation is occurring).  
+    # Forward rate is set to 0 (only dephosphorylation is occurring).
     Rule('SHC_unbound_phos',
          SHC(bgap=None, bgrb=None, batp=None, st='U') |
          SHC(bgap=None, bgrb=None, batp=None, st='P'),
          *par['SHC_unbound_phos'])
-    
-    # The two rules below can be used if a binding kf,kr and a kc are desired:
+
+    # #The two rules below can be used if a binding kf,kr and a kc are desired:
     # Rule("Shc_bind_ATP",
-    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='U') + ATP(b=None) <>
+    #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='U') + ATP(b=None) |
     #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2),
     #      Parameter("ShcATPf",KF), Parameter("ShcATPr",KR))
-    
+    #
     # Rule("Shc_phos",
     #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=2, st='U') % ATP(b=2) >>
     #      GAP(bd=ANY, b=1) % SHC(bgap=1, bgrb=None, batp=None, st='P') + ADP(),
     #      Parameter("ShcPhosc", KCP))
-    
+    #
     # GRB2 binds to GAP-SHC:P with or without SOS:
     Rule('GRB2_bind_GAP_SHCP_1',
          SHC(batp=None, st='P', bgrb=None, bgap=ANY) + GRB2(bgap=None, bgab1=None, bsos=1, bcpp=None, b=None) % SOS(bras=None, bERKPP=None, st='U', bgrb=1) |
@@ -423,7 +423,7 @@ def mapk_events():
          *par['GRB2_SOS_bind_SHCP_GAP'])
 
     bind(SHC(batp=None, st='P', bgap=ANY), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=None, bcpp=None), 'b', par['GRB2_bind_GAP'])
-    
+
     # Can use this simpler version if GRB2-SOS complex isn't present alone:
     #    bind(SHC(batp=None, st='P'), 'bgrb', GRB2(bgap=None, bgab1=None, bsos=ANY, bcpp=None), 'b', [KF, KR])
 
@@ -443,7 +443,7 @@ def mapk_events():
     bind(GRB2(bgap=None, bgab1=None, b=None, bcpp=None), 'bsos', SOS(bras=None, bERKPP=None, st='U'), 'bgrb', par['GRB2_bind_SOS'])
 
     #Although no free SOS is present initially in Chen Sorger model, GRB2-SOS can disassociate (see above), so these are necessary.
-    # SOS binds to GAP-SHC:P-GRB2  
+    # SOS binds to GAP-SHC:P-GRB2
     bind(GRB2(b=ANY, bgap=None, bgab1=None, bcpp=None), 'bsos', SOS(bras=None, st='U', bERKPP=None), 'bgrb', par['SOS_bind_GAP_SHCP_GRB2'])
 
     #SOS binds SHC:P-GRB2 without complex
@@ -492,7 +492,7 @@ def mapk_events():
     #      Parameter("GAP_SHCP_GRB2_SOS_catRASc", KCP))
 
     #FIXME: Need to add re-binding of RAS-GTP to complexes, deal with RAS active/unactive? and separate pools of internalized/un-internalized RAS (and RAF, MEK, and ERK).
-         
+
     #can use this simpler implementation of above if GRB2-SOS isn't present on its own as in Chen Sorger model:
     #catalyze_state(SOS(bgrb=ANY, st='U', bERKPP=None), 'bras', RAS(braf=None), 'bsos', 'st', 'GDP', 'GTP', (KF, KR, KCD))
 
@@ -527,7 +527,7 @@ def mapk_events():
          RAS(bsos=None, bpi3k=None, st='GTP', act='Y', braf=None) + RAF(st='P', ser295='U', b=None) |
          RAS(bsos=None, bpi3k=None, st='GTP', act='N', braf=1) % RAF(st='U', ser295='U', b=1),
          *par['RASGTP_RAF_cat'])
-    
+
     # Deactivation of RAF:P -> RAF by PP1
     catalyze(PP1(), 'b', RAF(st='P', ser295='U'), 'b', RAF(st='U', ser295='U'),
              (par['RAFP_PP1']))
@@ -539,7 +539,7 @@ def mapk_events():
     # Deactivation of MEK:P -> MEK by PP2
     catalyze(PP2(), 'b', MEK(st='P'), 'b', MEK(st='U'),
              (par['MEKP_PP2']))
-    
+
     # Activation of MEK:P -> MEK:P:P by activated RAF
     catalyze(RAF(st='P', ser295='U'), 'b', MEK(st='P'), 'b', MEK(st='PP'),
              (par['RAFP_MEKP']))
@@ -547,7 +547,7 @@ def mapk_events():
     # Deactivation of MEK:P:P -> MEK:P by PP2
     catalyze(PP2(), 'b', MEK(st='PP'), 'b', MEK(st='P'),
              (par['MEKPP_PP2']))
-    
+
     # Activation of ERK -> ERK:P by activated MEK:P:P
     catalyze(MEK(st='PP'), 'b', ERK(st='U'), 'b', ERK(st='P'),
              (par['MEKPP_ERK']))
